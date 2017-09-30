@@ -4,8 +4,12 @@
 	<title>test</title>
 </head>
 <body>
-	{{user.count}}
+	{{age[0].thisYear}}{{age[0].last}}
 	<button onclick="start()"> Test</button>
+	<input nc-value="age[0].last" />
+	<span nc-for="row in age">
+		123{{age[0].last}},{{age[0].thisYear}}
+	</span>
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
@@ -13,11 +17,21 @@
 	var $nc = {
 		'user':{
 			count:1	
-		}
+		},
+		age:[
+			{
+				last:1,
+				thisYear:2
+			},
+			{
+				last:3,
+				thisYear:4
+			}
+		]
 	};
 
 	function start(){
-		$nc.user.count++;
+		$nc.age[0].last++;
 	}
 
 

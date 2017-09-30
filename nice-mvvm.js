@@ -13,8 +13,19 @@ window.onload = function(){
 	$SCOPE.$UNREFRESH_NODE_ID = -1;//排除在外，不需要同步的节点id
 	$SCOPE.$V2M_NODE_MAP = new Object();//存放VM渲染的节点对象
 
+	$SCOPE.$ADD_V2M_NODE_MAP = function(proPath,nodePack){
+		//转换数组的表达形式
+		proPath = proPath.replace(/\[/g,'.');
+		proPath = proPath.replace(/\]/g,'');
+
+		if(!$SCOPE.$V2M_NODE_MAP[proPath]){
+			$SCOPE.$V2M_NODE_MAP[proPath] = [];
+		}
+		$SCOPE.$V2M_NODE_MAP[proPath].push(nodePack);
+	}
+
 	$SCOPE.$NODE_PROCESSOR = [{
-		'commandName':'nc-value',
+		'commandName':'nc-value',//双向绑定
 		'initFunc':function(node,proPath){
 			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 			node.onchange=function(){
@@ -25,20 +36,56 @@ window.onload = function(){
 				//将自己设为不需要dom更新
 				$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
 			}
-			node.onblure=function(){
+			node.onblur=function(){
 				//将自己设为需要dom更新
 				$SCOPE.$UNREFRESH_NODE_ID = -1;
 			}
 
 			//加入到V2M_大Map里
-			if(!$SCOPE.$V2M_NODE_MAP[proPath]){
-				$SCOPE.$V2M_NODE_MAP[proPath] = [];
-			}
-			$SCOPE.$V2M_NODE_MAP[proPath].push({
+			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
 				'id':node_nc_id,
-				'node':node
+				'node':node,
+				'render':function(proPath,val){
+					this.node.value=val;
+				}
 			});
+		}
+	},{
+		'commandName':'nc-for',//for循环
+		'initFunc':function(node,command){
+			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
+			//比如row in records，records是数组，这里在V2M_MAP里的键，是recrods，而不是records[0]这样。
+			var proPath = command.substring(command.indexOf(' in ')+4);
+			proPath = proPath.replace(/ +/g,'');
+			//加入到V2M_大Map里
+			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
+				'id':node_nc_id,
+				'node':node,
+				'render':function(proPath,val){
+					//每次渲染前，清空节点列表
+					for(var i=0;i<this.newNodeAry.length;i++){
+						this.node.parentNode.removeChild(this.newNodeAry[i]);
+					}
+					this.newNodeAry = [];
 
+					if(this.nextSibling){
+						//有下一个兄弟节点，就在这个兄弟节点前使劲插入
+						for(var i=0;i<val.length;i++){
+							var newNode = this.node.cloneNode(true);
+							newNode.style.display = '';
+							this.node.parentNode.insertBefore(newNode,this.nextSibling);
+							this.newNodeAry.push(newNode);
+							$SCOPE.$INIT_MVVM(newNode.childNodes);
+						}
+					}else{
+
+					}
+				},
+				'nextSibling':node.nextSibling,//下一个兄弟节点，用来循环插标签
+				'newNodeAry':[]
+			});
+			//初始化的时候，就隐藏掉这个需要遍历的节点
+			node.style.display = 'none';
 		}
 	}];
 
@@ -68,6 +115,9 @@ window.onload = function(){
 		for(;!stop;){
 			var first = content.substring(0,start);
 			var second = content.substring(start+2,end);
+			//转换数组的表达形式
+			second = second.replace(/\[/g,'.');
+			second = second.replace(/\]/g,'');
 			commandAry.push(second);
 			var content = content.substring(end+2);
 			start = content.indexOf("{{");
@@ -92,19 +142,28 @@ window.onload = function(){
 		}
 
 		for(var i=0;i<commandAry.length;i++){
-			if(!$SCOPE.$V2M_NODE_MAP[commandAry[i]]){
-				$SCOPE.$V2M_NODE_MAP[commandAry[i]] = [];
-			}
-			$SCOPE.$V2M_NODE_MAP[commandAry[i]].push({
+			$SCOPE.$ADD_V2M_NODE_MAP(commandAry[i],{
 				'id':$SCOPE.$NODE_ID_POINT++,
-				'nodeTxtAry':nodeTxtAry,
-				'node':node
+				'node':node,
+				'render':function(proPath,val){
+					this.node.nodeValue = "";
+					for(var j=0;j<this.nodeTxtAry.length;j++){
+						if(this.nodeTxtAry[j].name == proPath){
+							this.nodeTxtAry[j].value = val;
+						}
+
+						this.node.nodeValue = this.node.nodeValue+this.nodeTxtAry[j].value;
+					}
+				},
+				'nodeTxtAry':nodeTxtAry//节点中文本的组成
 			});
 		}
 	}
 
 	//设置参数
 	$SCOPE.$SET_VAL = function(proPath,val){
+		proPath = proPath.replace(/\[/g,'.');
+		proPath = proPath.replace(/\]/g,'');
 		var pros = proPath.split(".");
 		var obj = $SCOPE.$DATA;
 		for(var i=0;i<pros.length;i++){
@@ -162,10 +221,21 @@ window.onload = function(){
 			}else{
 				if($SCOPE_DATA_[key] !== proSolidMap[key]){
 					$SCOPE_DATA_[key] = proSolidMap[key];
-					keyArray.push(key.substring(1));
+
+					var proPath = key.substring(1);
+					keyArray.push(proPath);
+					//根据keyArray，向上追溯，所有这条线的，都需要渲染
+					var end = proPath.lastIndexOf('.');
+					while(end > 0){
+						proPath = proPath.substring(0,end);
+						keyArray.push(proPath);
+						end = proPath.lastIndexOf('.');
+					}
+
 				}
 			}
 		}
+
 		return keyArray;
 	}
 
@@ -175,21 +245,22 @@ window.onload = function(){
 		//深度优先遍历
 		var proSolidMap = {};
 		$SCOPE.$GET_PRO_SOLID_MAP('',$SCOPE.$DATA,proSolidMap);
-		var needSyncPro =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
+		var needSyncProPath =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
 
 		
 
-		for(var index=0;index<needSyncPro.length;index++){
-			var proPath = needSyncPro[index];
+		for(var index=0;index<needSyncProPath.length;index++){
+			var proPath = needSyncProPath[index];
 			var val = $SCOPE.$GET_VAL(proPath);
 			val = val||val===0||val==='0'?val:'';
 
 			var reg = new RegExp(proPath,"g");
-			for(var i=0;i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
+			for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 				var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
 				if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
 				
-				if(nodePack.nodeTxtAry){
+				nodePack.render(proPath,val);
+				/*if(nodePack.nodeTxtAry){
 					//纯文本节点
 					nodePack.node.nodeValue = "";
 					for(var j=0;j<nodePack.nodeTxtAry.length;j++){
@@ -203,7 +274,7 @@ window.onload = function(){
 					//value处理
 					nodePack.node.value=val;
 
-				}
+				}*/
 			}
 		}
 	}
@@ -228,7 +299,7 @@ window.onload = function(){
 	    }
 
 	    var childrens=node.childNodes;
-	    for(var i=0;i<childrens.length;i++) {
+	    for(var i=0;childrens !== undefined && i<childrens.length;i++) {
 	    	$SCOPE.$INIT_MVVM(childrens[i]);
 	    } 
 	}
@@ -237,5 +308,5 @@ window.onload = function(){
 
 	$SCOPE.$INTERVAL = setInterval(function(){
 		$SCOPE.$FLUSH();
-	},100);
+	},10);
 }
