@@ -4,9 +4,13 @@
 var $nc = new Object();
 
 window.onload = function(){
+	//***********************如果冲突，此段$nc可以修改****************
 	var $SCOPE = {
 		'$DATA': $nc
 	};
+
+	//****************************************************************
+
 	var $SCOPE_DATA_ = new Object();//副本，用于脏值检测和同步
 	
 	$SCOPE.$NODE_ID_POINT = 0;//节点id指针
@@ -55,8 +59,12 @@ window.onload = function(){
 		'initFunc':function(node,command){
 			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 			//比如row in records，records是数组，这里在V2M_MAP里的键，是recrods，而不是records[0]这样。
+			var flag = command.substring(0,command.indexOf(' in '));
+			flag = flag.replace(/ +/g,'');
 			var proPath = command.substring(command.indexOf(' in ')+4);
 			proPath = proPath.replace(/ +/g,'');
+
+
 			//加入到V2M_大Map里
 			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
 				'id':node_nc_id,
@@ -73,9 +81,31 @@ window.onload = function(){
 						for(var i=0;i<val.length;i++){
 							var newNode = this.node.cloneNode(true);
 							newNode.style.display = '';
+							//修改newNode中的取值对象
+							if(newNode.nodeType == 1){
+								var newHtml = newNode.innerHTML;
+								if(newHtml !== undefined){
+									var reg = new RegExp(flag+'.','g');
+									newHtml = newHtml.replace(reg,proPath+'['+i+'].');
+									newNode.innerHTML = newHtml;
+								}
+							} else if(newNode.nodeType == 3){
+								var newText = newNode.innerText;
+								if(newText !== undefined){
+									var reg = new RegExp(flag+'.','g');
+									newText = newText.replace(reg,proPath+'['+i+'].');
+									newNode.innerText = newText;
+								}
+							}
+
+
 							this.node.parentNode.insertBefore(newNode,this.nextSibling);
 							this.newNodeAry.push(newNode);
-							$SCOPE.$INIT_MVVM(newNode.childNodes);
+							//初始化新加的节点
+							var childrens=newNode.childNodes;
+						    for(var i=0;childrens !== undefined && i<childrens.length;i++) {
+						    	$SCOPE.$INIT_MVVM(childrens[i]);
+						    }
 						}
 					}else{
 
@@ -103,8 +133,8 @@ window.onload = function(){
 	$SCOPE.$BIND_TXT = function(node){
 		var content = node.nodeValue;
 
-		var start = content.indexOf("{{");
-		var end = content.indexOf("}}");
+		var start = content.indexOf('{{');
+		var end = content.indexOf('}}');
 		if(start <0 || end <= 0){
 			return false;
 		}
@@ -120,8 +150,8 @@ window.onload = function(){
 			second = second.replace(/\]/g,'');
 			commandAry.push(second);
 			var content = content.substring(end+2);
-			start = content.indexOf("{{");
-			end = content.indexOf("}}");
+			start = content.indexOf('{{');
+			end = content.indexOf('}}');
 
 			nodeTxtAry.push({
 				'name':first,
@@ -146,7 +176,7 @@ window.onload = function(){
 				'id':$SCOPE.$NODE_ID_POINT++,
 				'node':node,
 				'render':function(proPath,val){
-					this.node.nodeValue = "";
+					this.node.nodeValue = '';
 					for(var j=0;j<this.nodeTxtAry.length;j++){
 						if(this.nodeTxtAry[j].name == proPath){
 							this.nodeTxtAry[j].value = val;
@@ -164,7 +194,7 @@ window.onload = function(){
 	$SCOPE.$SET_VAL = function(proPath,val){
 		proPath = proPath.replace(/\[/g,'.');
 		proPath = proPath.replace(/\]/g,'');
-		var pros = proPath.split(".");
+		var pros = proPath.split('.');
 		var obj = $SCOPE.$DATA;
 		for(var i=0;i<pros.length;i++){
 			if(i<pros.length-1){
@@ -200,11 +230,11 @@ window.onload = function(){
 	$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,obj,valMap){
 		if(obj instanceof Object){
 			for(var key in obj){
-				$SCOPE.$GET_PRO_SOLID_MAP(pKey+"."+key,obj[key],valMap);
+				$SCOPE.$GET_PRO_SOLID_MAP(pKey+'.'+key,obj[key],valMap);
 			}
 		} else if(obj instanceof Array){
 			for(var i=0;i<obj.length;i++){
-				$SCOPE.$GET_PRO_SOLID_MAP(pKey+"["+i+"]",obj[i],valMap);
+				$SCOPE.$GET_PRO_SOLID_MAP(pKey+'['+i+']',obj[i],valMap);
 			}
 		} else {
 			valMap[pKey]=obj;
@@ -212,31 +242,28 @@ window.onload = function(){
 	}
 
 	$SCOPE.$SYNC_SCOPE_DATA_ = function(proSolidMap){
-		var keyArray = [];
+		var keys = {};
 		for(var key in proSolidMap){
-			if(!$SCOPE_DATA_[key]){
-				//不存在，直接创建
-				$SCOPE_DATA_[key] = proSolidMap[key];
-				keyArray.push(key.substring(1));
-			}else{
-				if($SCOPE_DATA_[key] !== proSolidMap[key]){
-					$SCOPE_DATA_[key] = proSolidMap[key];
-
-					var proPath = key.substring(1);
-					keyArray.push(proPath);
-					//根据keyArray，向上追溯，所有这条线的，都需要渲染
-					var end = proPath.lastIndexOf('.');
-					while(end > 0){
-						proPath = proPath.substring(0,end);
-						keyArray.push(proPath);
-						end = proPath.lastIndexOf('.');
-					}
-
+			var proPath = key.substring(1);
+			do{
+				if($SCOPE_DATA_[key] !== undefined && $SCOPE_DATA_[key] === proSolidMap[key]){
+					//如果存在并且已经最新，不需要同步
+					break;
 				}
-			}
+
+				$SCOPE_DATA_[key] = proSolidMap[key];
+				keys[proPath]=0;
+				//根据keys，向上追溯，所有这条线的，都需要渲染
+				var end = proPath.lastIndexOf('.');
+				while(end > 0){
+					proPath = proPath.substring(0,end);
+					keys[proPath]=0;
+					end = proPath.lastIndexOf('.');
+				}
+			}while(false);
 		}
 
-		return keyArray;
+		return keys;
 	}
 
 	$SCOPE.$FLUSH = function(){
@@ -249,12 +276,10 @@ window.onload = function(){
 
 		
 
-		for(var index=0;index<needSyncProPath.length;index++){
-			var proPath = needSyncProPath[index];
+		for(var proPath in needSyncProPath){
 			var val = $SCOPE.$GET_VAL(proPath);
 			val = val||val===0||val==='0'?val:'';
 
-			var reg = new RegExp(proPath,"g");
 			for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 				var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
 				if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
@@ -262,7 +287,7 @@ window.onload = function(){
 				nodePack.render(proPath,val);
 				/*if(nodePack.nodeTxtAry){
 					//纯文本节点
-					nodePack.node.nodeValue = "";
+					nodePack.node.nodeValue = '';
 					for(var j=0;j<nodePack.nodeTxtAry.length;j++){
 						if(nodePack.nodeTxtAry[j].name == proPath){
 							nodePack.nodeTxtAry[j].value = val;
@@ -301,7 +326,7 @@ window.onload = function(){
 	    var childrens=node.childNodes;
 	    for(var i=0;childrens !== undefined && i<childrens.length;i++) {
 	    	$SCOPE.$INIT_MVVM(childrens[i]);
-	    } 
+	    }
 	}
 
 	$SCOPE.$INIT_MVVM(document);

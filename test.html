@@ -4,12 +4,11 @@
 	<title>test</title>
 </head>
 <body>
-	{{  age[0].thisYear}}{{age[0].last}}
 	<button onclick="start()"> Test</button>
 	<input nc-value="age[0].last" />
-	<span nc-for="row in age">
-		123{{age[0].last}},{{ age[0].thisYear }}
-	</span>
+	<p nc-for="  row   in  age  ">
+		{{row.last}},{{row.thisYear}}
+	</p>
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
