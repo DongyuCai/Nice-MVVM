@@ -4,18 +4,61 @@
 	<title>test</title>
 </head>
 <body>
-	{{count}}
+	{{user.count}}
 	<button onclick="start()"> Test</button>
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
 
 	var $nc = {
-		
+		'user':{
+			count:1	
+		}
 	};
 
 	function start(){
-		$nc.count++;
+		$nc.user.count++;
+	}
+
+
+	var a={
+		name:'abc',
+		age:12,
+		parent:{
+			father:'tom',
+			mother:'li',
+			brother:[
+				{
+					sister:'shiri'
+				},
+				{
+					sister:'shiri'
+				}
+			]
+		}
+	};
+
+	var b={};
+
+
+	function getDef(aObj,bObj){
+		var valMap = {};
+		getValMap("root",a,valMap);
+		console.log(valMap);
+	}
+
+	function getValMap(pKey,obj,valMap){
+		if(obj instanceof Object){
+			for(var key in obj){
+				getValMap(pKey+"."+key,obj[key],valMap);
+			}
+		} else if(obj instanceof Array){
+			for(var i=0;i<obj.length;i++){
+				getValMap(pKey+"["+i+"]",obj[i],valMap);
+			}
+		} else {
+			valMap[pKey]=obj;
+		}
 	}
 </script>
 

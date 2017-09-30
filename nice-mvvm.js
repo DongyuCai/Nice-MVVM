@@ -7,7 +7,7 @@ window.onload = function(){
 	var $SCOPE = {
 		'$DATA': $nc
 	};
-	var $SCOPEDATA_ = new Object();//副本，用于脏值检测和同步
+	var $SCOPE_DATA_ = new Object();//副本，用于脏值检测和同步
 	
 	$SCOPE.$NODE_ID_POINT = 0;//节点id指针
 	$SCOPE.$UNREFRESH_NODE_ID = -1;//排除在外，不需要同步的节点id
@@ -138,15 +138,49 @@ window.onload = function(){
 		return null;
 	}
 
+	$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,obj,valMap){
+		if(obj instanceof Object){
+			for(var key in obj){
+				$SCOPE.$GET_PRO_SOLID_MAP(pKey+"."+key,obj[key],valMap);
+			}
+		} else if(obj instanceof Array){
+			for(var i=0;i<obj.length;i++){
+				$SCOPE.$GET_PRO_SOLID_MAP(pKey+"["+i+"]",obj[i],valMap);
+			}
+		} else {
+			valMap[pKey]=obj;
+		}
+	}
+
+	$SCOPE.$SYNC_SCOPE_DATA_ = function(proSolidMap){
+		var keyArray = [];
+		for(var key in proSolidMap){
+			if(!$SCOPE_DATA_[key]){
+				//不存在，直接创建
+				$SCOPE_DATA_[key] = proSolidMap[key];
+				keyArray.push(key.substring(1));
+			}else{
+				if($SCOPE_DATA_[key] !== proSolidMap[key]){
+					$SCOPE_DATA_[key] = proSolidMap[key];
+					keyArray.push(key.substring(1));
+				}
+			}
+		}
+		return keyArray;
+	}
+
 	$SCOPE.$FLUSH = function(){
 
 		//计算的出，需要进行同步的proPath
-		for(var key in $SCOPE.$DATA){
+		//深度优先遍历
+		var proSolidMap = {};
+		$SCOPE.$GET_PRO_SOLID_MAP('',$SCOPE.$DATA,proSolidMap);
+		var needSyncPro =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
 
-		}
+		
 
-
-		for(var proPath in $SCOPE.$V2M_NODE_MAP){
+		for(var index=0;index<needSyncPro.length;index++){
+			var proPath = needSyncPro[index];
 			var val = $SCOPE.$GET_VAL(proPath);
 			val = val||val===0||val==='0'?val:'';
 
