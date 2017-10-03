@@ -2,14 +2,28 @@
 //暴露给外部的全局对象
 //注意nice-mvvm.js要放在第一个引入
 var $nc = new Object();
+var $WATCH_QUEE = {};
+var $watch = function(proPathAry,fun){
+	for(var i=0;i<proPathAry.length;i++){
+		if(!$WATCH_QUEE[proPathAry[i]]){
+			$WATCH_QUEE[proPathAry[i]] = [];
+		}
+		$WATCH_QUEE[proPathAry[i]].push({
+			'proPathAry':proPathAry,
+			'fun':fun
+		});
+	}
+};
+var $unwatch = function(watchId){
+
+};
 
 window.onload = function(){
-	//***********************如果冲突，此段$nc可以修改****************
+
+	//*********************** $nc如果冲突，以上代码可以修改****************
 	var $SCOPE = {
 		'$DATA': $nc
 	};
-
-	//****************************************************************
 
 	var $SCOPE_DATA_ = new Object();//副本，用于脏值检测和同步
 	
@@ -77,40 +91,38 @@ window.onload = function(){
 					
 					if(val.length > this.newNodeAry.length){
 						var addNum = val.length-this.newNodeAry.length;
-						 //新增节点
-						if(this.nextSibling){
-							//有下一个兄弟节点，就在这个兄弟节点前使劲插入
-							for(var i=0;i<addNum;i++){
-								var newNode = this.node.cloneNode(true);
-								newNode.style.display = '';
-								//修改newNode中的取值对象
-								if(newNode.nodeType == 1){
-									var newHtml = newNode.innerHTML;
-									if(newHtml !== undefined){
-										var reg = new RegExp(flag+'.','g');
-										newHtml = newHtml.replace(reg,proPath+'['+i+'].');
-										newNode.innerHTML = newHtml;
-									}
-								} else if(newNode.nodeType == 3){
-									var newText = newNode.innerText;
-									if(newText !== undefined){
-										var reg = new RegExp(flag+'.','g');
-										newText = newText.replace(reg,proPath+'['+i+'].');
-										newNode.innerText = newText;
-									}
+						//有下一个兄弟节点，就在这个兄弟节点前使劲插入
+						for(var i=0;i<addNum;i++){
+							var newNode = this.node.cloneNode(true);
+							newNode.style.display = '';
+							//修改newNode中的取值对象
+							if(newNode.nodeType == 1){
+								var newHtml = newNode.innerHTML;
+								if(newHtml !== undefined){
+									var reg = new RegExp(flag+'.','g');
+									newHtml = newHtml.replace(reg,proPath+'['+i+'].');
+									newNode.innerHTML = newHtml;
 								}
-
-
-								this.node.parentNode.insertBefore(newNode,this.nextSibling);
-								this.newNodeAry.push(newNode);
-								//初始化新加的节点
-								var childrens=newNode.childNodes;
-							    for(var j=0;childrens !== undefined && j<childrens.length;j++) {
-							    	$SCOPE.$INIT_MVVM(childrens[j]);
-							    }
+							} else if(newNode.nodeType == 3){
+								var newText = newNode.innerText;
+								if(newText !== undefined){
+									var reg = new RegExp(flag+'.','g');
+									newText = newText.replace(reg,proPath+'['+i+'].');
+									newNode.innerText = newText;
+								}
 							}
-						}else{
 
+							if(this.nextSibling){
+								this.node.parentNode.insertBefore(newNode,this.nextSibling);
+							}else{
+								this.node.parentNode.appendChild(newNode);
+							}
+							this.newNodeAry.push(newNode);
+							//初始化新加的节点
+							var childrens=newNode.childNodes;
+						    for(var j=0;childrens !== undefined && j<childrens.length;j++) {
+						    	$SCOPE.$INIT_MVVM(childrens[j]);
+						    }
 						}
 					} else if(val.length < this.newNodeAry.length){
 						var removeNum = this.newNodeAry.length-val.length;
@@ -119,58 +131,30 @@ window.onload = function(){
 							this.node.parentNode.removeChild(removeNode);
 						}
 					}
-
-					// if(this.newNodeAry.length == val.length){
-					// 	return false;
-					// }
-
-					// //每次渲染前，清空节点列表
-					// for(var i=0;i<this.newNodeAry.length;i++){
-					// 	this.node.parentNode.removeChild(this.newNodeAry[i]);
-					// }
-					// this.newNodeAry = [];
-
-					// if(this.nextSibling){
-					// 	//有下一个兄弟节点，就在这个兄弟节点前使劲插入
-					// 	for(var i=0;i<val.length;i++){
-					// 		var newNode = this.node.cloneNode(true);
-					// 		newNode.style.display = '';
-					// 		//修改newNode中的取值对象
-					// 		if(newNode.nodeType == 1){
-					// 			var newHtml = newNode.innerHTML;
-					// 			if(newHtml !== undefined){
-					// 				var reg = new RegExp(flag+'.','g');
-					// 				newHtml = newHtml.replace(reg,proPath+'['+i+'].');
-					// 				newNode.innerHTML = newHtml;
-					// 			}
-					// 		} else if(newNode.nodeType == 3){
-					// 			var newText = newNode.innerText;
-					// 			if(newText !== undefined){
-					// 				var reg = new RegExp(flag+'.','g');
-					// 				newText = newText.replace(reg,proPath+'['+i+'].');
-					// 				newNode.innerText = newText;
-					// 			}
-					// 		}
-
-
-					// 		this.node.parentNode.insertBefore(newNode,this.nextSibling);
-					// 		this.newNodeAry.push(newNode);
-					// 		//初始化新加的节点
-					// 		var childrens=newNode.childNodes;
-					// 	    for(var j=0;childrens !== undefined && j<childrens.length;j++) {
-					// 	    	$SCOPE.$INIT_MVVM(childrens[j]);
-					// 	    }
-					// 	    console.log("render");
-					// 	}
-					// }else{
-
-					// }
 				},
 				'nextSibling':node.nextSibling,//下一个兄弟节点，用来循环插标签
 				'newNodeAry':[]
 			});
 			//初始化的时候，就隐藏掉这个需要遍历的节点
 			node.style.display = 'none';
+		}
+	},{
+		'commandName':'nc-if',//双向绑定
+		'initFunc':function(node,proPath){
+			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
+
+			//加入到V2M_大Map里
+			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
+				'id':node_nc_id,
+				'node':node,
+				'render':function(proPath,val){
+					if(val){
+						this.node.style.display = '';
+					}else{
+						this.node.style.display = 'none';
+					}
+				}
+			});
 		}
 	}];
 
@@ -326,7 +310,7 @@ window.onload = function(){
 				}
 
 				//如果值已经删除了，同样需要更新dom，但是版本还是要一致的
-				if(!proSolidMap['.'+proPath]){
+				if(proSolidMap['.'+proPath] === undefined){
 					//清楚副本
 					delete $SCOPE_DATA_[proPath];
 					keys[proPath] = version;
@@ -371,31 +355,37 @@ window.onload = function(){
 
 		for(var proPath in needSyncProPath){
 			var val = $SCOPE.$GET_VAL(proPath);
-			val = val||val===0||val==='0'?val:'';
+			if(val === undefined){
+				val = '';
+			}
 
 			for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 				var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
 				if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
 
-				//if(nodePack['version'] === needSyncProPath[proPath]) continue;
-				console.log(proPath);
+				//flush dom
+				//console.log("render:"+proPath);
 				nodePack['version'] = needSyncProPath[proPath];
 				nodePack.render(proPath,val);
-				/*if(nodePack.nodeTxtAry){
-					//纯文本节点
-					nodePack.node.nodeValue = '';
-					for(var j=0;j<nodePack.nodeTxtAry.length;j++){
-						if(nodePack.nodeTxtAry[j].name == proPath){
-							nodePack.nodeTxtAry[j].value = val;
+				
+				//flush $watch data
+				if($WATCH_QUEE[proPath] && $WATCH_QUEE[proPath].length > 0){
+					for(var j=0;j<$WATCH_QUEE[proPath].length;j++){
+						var $watchObj = $WATCH_QUEE[proPath][j];
+						
+						var execStatement = '$watchObj.fun(';
+						for(var k=0;k<$watchObj.proPathAry.length;k++){
+							execStatement = execStatement+'$SCOPE.$DATA.'+$watchObj.proPathAry[k]+'';
+							if(k<$watchObj.proPathAry.length-1){
+								execStatement = execStatement+',';
+							}
 						}
-
-						nodePack.node.nodeValue = nodePack.node.nodeValue+nodePack.nodeTxtAry[j].value;
+						execStatement = execStatement+')';
+						//console.log(execStatement);
+						eval(execStatement);
 					}
-				}else{
-					//value处理
-					nodePack.node.value=val;
+				}
 
-				}*/
 			}
 		}
 	}

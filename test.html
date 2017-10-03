@@ -4,32 +4,33 @@
 	<title>test</title>
 </head>
 <body>
+	{{showNcIf}}
 	<button onclick="start()"> add</button>
-	<input nc-value="age[0].thisYear" />
+	<input nc-value="age[0]" />
 	{{age[0].thisYear}}
 	<p nc-for="  row   in  age  ">
 		{{row.last}},{{row.thisYear}}
 	</p>
 	<button onclick="remove()">remove</button>
+
+	<div nc-if="showNcIf">{{showNcIf}}</div>
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
 
-	var $nc = {
-		'user':{
-			count:1	
-		},
-		age:[
-			{
-				last:1,
-				thisYear:2
-			},
-			{
-				last:3,
-				thisYear:4
-			}
-		]
+	$nc.showNcIf = false;
+	$nc.user = {
+		count:1
 	};
+	$nc.age = [];
+
+	$watch(['age'],function(age){
+		if(age.length > 3){
+			$nc.showNcIf = true;
+		}else{
+			$nc.showNcIf = false;
+		}
+	});
 
 	function start(){
 		$nc.age.push({
@@ -43,45 +44,7 @@
 	}
 
 
-	var a={
-		name:'abc',
-		age:12,
-		parent:{
-			father:'tom',
-			mother:'li',
-			brother:[
-				{
-					sister:'shiri'
-				},
-				{
-					sister:'shiri'
-				}
-			]
-		}
-	};
-
-	var b={};
-
-
-	function getDef(aObj,bObj){
-		var valMap = {};
-		getValMap("root",a,valMap);
-		console.log(valMap);
-	}
-
-	function getValMap(pKey,obj,valMap){
-		if(obj instanceof Object){
-			for(var key in obj){
-				getValMap(pKey+"."+key,obj[key],valMap);
-			}
-		} else if(obj instanceof Array){
-			for(var i=0;i<obj.length;i++){
-				getValMap(pKey+"["+i+"]",obj[i],valMap);
-			}
-		} else {
-			valMap[pKey]=obj;
-		}
-	}
+	
 </script>
 
 
