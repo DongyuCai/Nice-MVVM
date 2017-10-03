@@ -26,6 +26,9 @@ window.onload = function(){
 			$SCOPE.$V2M_NODE_MAP[proPath] = [];
 		}
 		$SCOPE.$V2M_NODE_MAP[proPath].push(nodePack);
+
+		//每次有新的节点push进来的时候，需要讲对应key的数据副本清空重新渲染
+		// delete $SCOPE_DATA_['.'+proPath];
 	}
 
 	$SCOPE.$NODE_PROCESSOR = [{
@@ -70,46 +73,98 @@ window.onload = function(){
 				'id':node_nc_id,
 				'node':node,
 				'render':function(proPath,val){
-					//每次渲染前，清空节点列表
-					for(var i=0;i<this.newNodeAry.length;i++){
-						this.node.parentNode.removeChild(this.newNodeAry[i]);
-					}
-					this.newNodeAry = [];
+					//如果新的val的长度，和当前的dom节点列表已经不一致，那么需要重新加载节点，否则不需要加载新的节点
+					
+					if(val.length > this.newNodeAry.length){
+						var addNum = val.length-this.newNodeAry.length;
+						 //新增节点
+						if(this.nextSibling){
+							//有下一个兄弟节点，就在这个兄弟节点前使劲插入
+							for(var i=0;i<addNum;i++){
+								var newNode = this.node.cloneNode(true);
+								newNode.style.display = '';
+								//修改newNode中的取值对象
+								if(newNode.nodeType == 1){
+									var newHtml = newNode.innerHTML;
+									if(newHtml !== undefined){
+										var reg = new RegExp(flag+'.','g');
+										newHtml = newHtml.replace(reg,proPath+'['+i+'].');
+										newNode.innerHTML = newHtml;
+									}
+								} else if(newNode.nodeType == 3){
+									var newText = newNode.innerText;
+									if(newText !== undefined){
+										var reg = new RegExp(flag+'.','g');
+										newText = newText.replace(reg,proPath+'['+i+'].');
+										newNode.innerText = newText;
+									}
+								}
 
-					if(this.nextSibling){
-						//有下一个兄弟节点，就在这个兄弟节点前使劲插入
-						for(var i=0;i<val.length;i++){
-							var newNode = this.node.cloneNode(true);
-							newNode.style.display = '';
-							//修改newNode中的取值对象
-							if(newNode.nodeType == 1){
-								var newHtml = newNode.innerHTML;
-								if(newHtml !== undefined){
-									var reg = new RegExp(flag+'.','g');
-									newHtml = newHtml.replace(reg,proPath+'['+i+'].');
-									newNode.innerHTML = newHtml;
-								}
-							} else if(newNode.nodeType == 3){
-								var newText = newNode.innerText;
-								if(newText !== undefined){
-									var reg = new RegExp(flag+'.','g');
-									newText = newText.replace(reg,proPath+'['+i+'].');
-									newNode.innerText = newText;
-								}
+
+								this.node.parentNode.insertBefore(newNode,this.nextSibling);
+								this.newNodeAry.push(newNode);
+								//初始化新加的节点
+								var childrens=newNode.childNodes;
+							    for(var j=0;childrens !== undefined && j<childrens.length;j++) {
+							    	$SCOPE.$INIT_MVVM(childrens[j]);
+							    }
 							}
+						}else{
 
-
-							this.node.parentNode.insertBefore(newNode,this.nextSibling);
-							this.newNodeAry.push(newNode);
-							//初始化新加的节点
-							var childrens=newNode.childNodes;
-						    for(var i=0;childrens !== undefined && i<childrens.length;i++) {
-						    	$SCOPE.$INIT_MVVM(childrens[i]);
-						    }
 						}
-					}else{
-
+					} else if(val.length < this.newNodeAry.length){
+						var removeNum = this.newNodeAry.length-val.length;
+						for(var i=0;i<removeNum;i++){
+							var removeNode = this.newNodeAry.pop();
+							this.node.parentNode.removeChild(removeNode);
+						}
 					}
+
+					// if(this.newNodeAry.length == val.length){
+					// 	return false;
+					// }
+
+					// //每次渲染前，清空节点列表
+					// for(var i=0;i<this.newNodeAry.length;i++){
+					// 	this.node.parentNode.removeChild(this.newNodeAry[i]);
+					// }
+					// this.newNodeAry = [];
+
+					// if(this.nextSibling){
+					// 	//有下一个兄弟节点，就在这个兄弟节点前使劲插入
+					// 	for(var i=0;i<val.length;i++){
+					// 		var newNode = this.node.cloneNode(true);
+					// 		newNode.style.display = '';
+					// 		//修改newNode中的取值对象
+					// 		if(newNode.nodeType == 1){
+					// 			var newHtml = newNode.innerHTML;
+					// 			if(newHtml !== undefined){
+					// 				var reg = new RegExp(flag+'.','g');
+					// 				newHtml = newHtml.replace(reg,proPath+'['+i+'].');
+					// 				newNode.innerHTML = newHtml;
+					// 			}
+					// 		} else if(newNode.nodeType == 3){
+					// 			var newText = newNode.innerText;
+					// 			if(newText !== undefined){
+					// 				var reg = new RegExp(flag+'.','g');
+					// 				newText = newText.replace(reg,proPath+'['+i+'].');
+					// 				newNode.innerText = newText;
+					// 			}
+					// 		}
+
+
+					// 		this.node.parentNode.insertBefore(newNode,this.nextSibling);
+					// 		this.newNodeAry.push(newNode);
+					// 		//初始化新加的节点
+					// 		var childrens=newNode.childNodes;
+					// 	    for(var j=0;childrens !== undefined && j<childrens.length;j++) {
+					// 	    	$SCOPE.$INIT_MVVM(childrens[j]);
+					// 	    }
+					// 	    console.log("render");
+					// 	}
+					// }else{
+
+					// }
 				},
 				'nextSibling':node.nextSibling,//下一个兄弟节点，用来循环插标签
 				'newNodeAry':[]
@@ -232,10 +287,6 @@ window.onload = function(){
 			for(var key in obj){
 				$SCOPE.$GET_PRO_SOLID_MAP(pKey+'.'+key,obj[key],valMap);
 			}
-		} else if(obj instanceof Array){
-			for(var i=0;i<obj.length;i++){
-				$SCOPE.$GET_PRO_SOLID_MAP(pKey+'['+i+']',obj[i],valMap);
-			}
 		} else {
 			valMap[pKey]=obj;
 		}
@@ -243,27 +294,69 @@ window.onload = function(){
 
 	$SCOPE.$SYNC_SCOPE_DATA_ = function(proSolidMap){
 		var keys = {};
+		
+		// 数据版本不一致，需要同步的字段
 		for(var key in proSolidMap){
 			var proPath = key.substring(1);
 			do{
-				if($SCOPE_DATA_[key] !== undefined && $SCOPE_DATA_[key] === proSolidMap[key]){
+				if($SCOPE_DATA_[proPath] !== undefined && $SCOPE_DATA_[proPath].value === proSolidMap[key]){
 					//如果存在并且已经最新，不需要同步
 					break;
 				}
 
-				$SCOPE_DATA_[key] = proSolidMap[key];
-				keys[proPath]=0;
-				//根据keys，向上追溯，所有这条线的，都需要渲染
-				var end = proPath.lastIndexOf('.');
-				while(end > 0){
-					proPath = proPath.substring(0,end);
-					keys[proPath]=0;
-					end = proPath.lastIndexOf('.');
+				var version = 1;
+				if($SCOPE_DATA_[proPath] !== undefined){
+					version = $SCOPE_DATA_[proPath]['version']+1;
 				}
+				$SCOPE_DATA_[proPath] = {
+					'version': version,
+					'value': proSolidMap[key]
+				};
+
+				keys[proPath]=$SCOPE_DATA_[proPath]['version'];
 			}while(false);
 		}
 
-		return keys;
+		//数据到dom节点版本不一致，需要同步的
+		for(var proPath in $SCOPE_DATA_){
+			var version = $SCOPE_DATA_[proPath]['version'];
+			do{
+				if(keys[proPath] !== undefined) {
+					break;
+				}
+
+				//如果值已经删除了，同样需要更新dom，但是版本还是要一致的
+				if(!proSolidMap['.'+proPath]){
+					//清楚副本
+					delete $SCOPE_DATA_[proPath];
+					keys[proPath] = version;
+					break;
+				}
+
+				for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
+					if($SCOPE.$V2M_NODE_MAP[proPath][i]['version'] !== version){
+						keys[proPath] = version;
+						break;
+					}
+				}
+
+			}while(false);
+		}
+
+		//根据keys，向上追溯，所有这条线的，都需要渲染
+		var needSyncProPath = new Object();
+		for(var proPath in keys){
+			needSyncProPath[proPath] = keys[proPath];
+
+			var end = proPath.lastIndexOf('.');
+			while(end > 0){
+				proPath = proPath.substring(0,end);
+				needSyncProPath[proPath]=keys[proPath];
+				end = proPath.lastIndexOf('.');
+			}
+		}
+
+		return needSyncProPath;
 	}
 
 	$SCOPE.$FLUSH = function(){
@@ -283,7 +376,10 @@ window.onload = function(){
 			for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 				var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
 				if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
-				
+
+				//if(nodePack['version'] === needSyncProPath[proPath]) continue;
+				console.log(proPath);
+				nodePack['version'] = needSyncProPath[proPath];
 				nodePack.render(proPath,val);
 				/*if(nodePack.nodeTxtAry){
 					//纯文本节点
@@ -333,5 +429,5 @@ window.onload = function(){
 
 	$SCOPE.$INTERVAL = setInterval(function(){
 		$SCOPE.$FLUSH();
-	},10);
+	},0);
 }
