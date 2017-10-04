@@ -90,9 +90,8 @@ window.onload = function(){
 					//如果新的val的长度，和当前的dom节点列表已经不一致，那么需要重新加载节点，否则不需要加载新的节点
 					
 					if(val.length > this.newNodeAry.length){
-						var addNum = val.length-this.newNodeAry.length;
 						//有下一个兄弟节点，就在这个兄弟节点前使劲插入
-						for(var i=0;i<addNum;i++){
+						for(var i=this.newNodeAry.length;i<val.length;i++){
 							var newNode = this.node.cloneNode(true);
 							newNode.style.display = '';
 							//修改newNode中的取值对象
@@ -101,6 +100,8 @@ window.onload = function(){
 								if(newHtml !== undefined){
 									var reg = new RegExp(flag+'.','g');
 									newHtml = newHtml.replace(reg,proPath+'['+i+'].');
+
+									newHtml = newHtml.replace(/\{\{ *\$index *\}\}/g,i);
 									newNode.innerHTML = newHtml;
 								}
 							} else if(newNode.nodeType == 3){
@@ -108,6 +109,7 @@ window.onload = function(){
 								if(newText !== undefined){
 									var reg = new RegExp(flag+'.','g');
 									newText = newText.replace(reg,proPath+'['+i+'].');
+									newText = newText.replace(/\{\{ *\$index *\}\}/g,i);
 									newNode.innerText = newText;
 								}
 							}

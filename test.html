@@ -4,46 +4,48 @@
 	<title>test</title>
 </head>
 <body>
-	{{showNcIf}}
-	<button onclick="start()"> add</button>
-	<input nc-value="age[0]" />
-	{{age[0].thisYear}}
-	<p nc-for="  row   in  age  ">
-		{{row.last}},{{row.thisYear}}
-	</p>
-	<button onclick="remove()">remove</button>
-
-	<div nc-if="showNcIf">{{showNcIf}}</div>
+	<input type="text" name="" nc-if="showUserLength" nc-value="userlength" />
+	<button onclick="add()">addUser</button>
+	<table>
+		<tr>
+			<th>index</th>
+			<th>Name</th>
+			<th>Age</th>
+			<th>operation</th>
+		</tr>
+		<tr nc-for="row in users">
+			<td>{{$index}}</td>
+			<td>{{row.name}}</td>
+			<td>{{row.age}}</td>
+			<td><button onclick="del({{$index}})">remove</button></td>
+		</tr>
+	</table>
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
 
-	$nc.showNcIf = false;
-	$nc.user = {
-		count:1
-	};
-	$nc.age = [];
+	$nc.users = [];
+	$nc.userlength = 0;
+	$nc.showUserLength = false;
 
-	$watch(['age'],function(age){
-		if(age.length > 3){
-			$nc.showNcIf = true;
-		}else{
-			$nc.showNcIf = false;
+	$watch(['users'],function(users){
+		$nc.userlength = users.length;
+		if(users.length > 0){
+			$nc.showUserLength = true;
 		}
 	});
 
-	function start(){
-		$nc.age.push({
-			last:1,
-			thisYear:2
+	function add(){
+		$nc.users.push({
+			name:'zhangsan-'+$nc.users.length,
+			age:12
 		});
 	}
 
-	function remove(){
-		$nc.age.pop();
+	function del(index){
+		console.log(index);
+		$nc.users.splice(index,1);
 	}
-
-
 	
 </script>
 
