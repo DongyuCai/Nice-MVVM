@@ -49,17 +49,36 @@ window.onload = function(){
 		'commandName':'nc-value',//双向绑定
 		'initFunc':function(node,proPath){
 			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
+
+			var onchangeFun = node.onchange;
 			node.onchange=function(){
 				//保存值到内存
 				$SCOPE.$SET_VAL(proPath,node.value);
+
+				//调用用户原生方法
+				if(onchangeFun){
+					onchangeFun();
+				}
 			};
+			
+			var onfocusFun = node.onfocus;
 			node.onfocus=function(){
 				//将自己设为不需要dom更新
 				$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
+				//调用用户原生方法
+				if(onfocusFun){
+					onfocusFun();
+				}
 			}
+
+			var onblurFun = node.onblur;
 			node.onblur=function(){
 				//将自己设为需要dom更新
 				$SCOPE.$UNREFRESH_NODE_ID = -1;
+				//调用用户原生方法
+				if(onblurFun){
+					onblurFun();
+				}
 			}
 
 			//加入到V2M_大Map里
@@ -93,52 +112,48 @@ window.onload = function(){
 						//有下一个兄弟节点，就在这个兄弟节点前使劲插入
 						for(var i=this.newNodeAry.length;i<val.length;i++){
 							var newNode = this.node.cloneNode(true);
+							newNode.removeAttribute('nc-for');
+							for(var j=0;j<newNode.attributes.length;j++){
+								var attributeValue = newNode.attributes[j].value;
+								if(attributeValue.indexOf('row.') >= 0){
+									newNode.attributes[j].value = proPath+'['+i+'].name';
+								}
+							}
+
 							newNode.style.display = '';
 							//修改newNode中的取值对象
-							if(newNode.nodeType == 1){
-								var newHtml = newNode.innerHTML;
-								if(newHtml !== undefined){
-									var reg = new RegExp(flag+'.','g');
-									newHtml = newHtml.replace(reg,proPath+'['+i+'].');
+							var newHtml = newNode.innerHTML;
+							if(newHtml !== undefined){
+								var reg = new RegExp(flag+'.','g');
+								newHtml = newHtml.replace(reg,proPath+'['+i+'].');
 
-									newHtml = newHtml.replace(/\{\{ *\$index *\}\}/g,i);
-									newNode.innerHTML = newHtml;
-								}
-							} else if(newNode.nodeType == 3){
-								var newText = newNode.innerText;
-								if(newText !== undefined){
-									var reg = new RegExp(flag+'.','g');
-									newText = newText.replace(reg,proPath+'['+i+'].');
-									newText = newText.replace(/\{\{ *\$index *\}\}/g,i);
-									newNode.innerText = newText;
-								}
+								newHtml = newHtml.replace(/\$index/g,i);
+								newNode.innerHTML = newHtml;
 							}
 
 							if(this.nextSibling){
-								this.node.parentNode.insertBefore(newNode,this.nextSibling);
+								this.parentNode.insertBefore(newNode,this.nextSibling);
 							}else{
-								this.node.parentNode.appendChild(newNode);
+								this.parentNode.appendChild(newNode);
 							}
 							this.newNodeAry.push(newNode);
 							//初始化新加的节点
-							var childrens=newNode.childNodes;
-						    for(var j=0;childrens !== undefined && j<childrens.length;j++) {
-						    	$SCOPE.$INIT_MVVM(childrens[j]);
-						    }
+							$SCOPE.$INIT_MVVM(newNode);
 						}
 					} else if(val.length < this.newNodeAry.length){
 						var removeNum = this.newNodeAry.length-val.length;
 						for(var i=0;i<removeNum;i++){
 							var removeNode = this.newNodeAry.pop();
-							this.node.parentNode.removeChild(removeNode);
+							this.parentNode.removeChild(removeNode);
 						}
 					}
 				},
+				'parentNode':node.parentNode,
 				'nextSibling':node.nextSibling,//下一个兄弟节点，用来循环插标签
 				'newNodeAry':[]
 			});
 			//初始化的时候，就隐藏掉这个需要遍历的节点
-			node.style.display = 'none';
+			node.parentNode.removeChild(node);
 		}
 	},{
 		'commandName':'nc-if',//双向绑定
@@ -369,25 +384,25 @@ window.onload = function(){
 				//console.log("render:"+proPath);
 				nodePack['version'] = needSyncProPath[proPath];
 				nodePack.render(proPath,val);
-				
-				//flush $watch data
-				if($WATCH_QUEE[proPath] && $WATCH_QUEE[proPath].length > 0){
-					for(var j=0;j<$WATCH_QUEE[proPath].length;j++){
-						var $watchObj = $WATCH_QUEE[proPath][j];
-						
-						var execStatement = '$watchObj.fun(';
-						for(var k=0;k<$watchObj.proPathAry.length;k++){
-							execStatement = execStatement+'$SCOPE.$DATA.'+$watchObj.proPathAry[k]+'';
-							if(k<$watchObj.proPathAry.length-1){
-								execStatement = execStatement+',';
-							}
-						}
-						execStatement = execStatement+')';
-						//console.log(execStatement);
-						eval(execStatement);
-					}
-				}
 
+			}
+
+			//flush $watch data
+			if($WATCH_QUEE[proPath] && $WATCH_QUEE[proPath].length > 0){
+				for(var j=0;j<$WATCH_QUEE[proPath].length;j++){
+					var $watchObj = $WATCH_QUEE[proPath][j];
+					
+					var execStatement = '$watchObj.fun(';
+					for(var k=0;k<$watchObj.proPathAry.length;k++){
+						execStatement = execStatement+'$SCOPE.$DATA.'+$watchObj.proPathAry[k]+'';
+						if(k<$watchObj.proPathAry.length-1){
+							execStatement = execStatement+',';
+						}
+					}
+					execStatement = execStatement+')';
+					//console.log(execStatement);
+					eval(execStatement);
+				}
 			}
 		}
 	}

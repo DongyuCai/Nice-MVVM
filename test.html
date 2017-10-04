@@ -4,7 +4,12 @@
 	<title>test</title>
 </head>
 <body>
-	<input type="text" name="" nc-if="showUserLength" nc-value="userlength" />
+	<input type="text" name="" nc-if="showUserLength" onblur="alert(10)" nc-value="userName" onchange="changeTxt()" />
+	<input type="radio" name="radio" onclick="setRadio(1)" />
+	<input type="radio" name="radio" onclick="setRadio(2)" />
+	<select nc-value='userName'>
+		<option nc-for="row in users" nc-value="row.name" >{{row.name}}</option>
+	</select>
 	<button onclick="add()">addUser</button>
 	<table>
 		<tr>
@@ -14,19 +19,32 @@
 			<th>operation</th>
 		</tr>
 		<tr nc-for="row in users">
-			<td>{{$index}}</td>
+			<td>$index</td>
 			<td>{{row.name}}</td>
 			<td>{{row.age}}</td>
-			<td><button onclick="del({{$index}})">remove</button></td>
+			<td><button onclick="del($index)">remove</button></td>
 		</tr>
 	</table>
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
 
+	function changeTxt(){
+		console.log('a-'+$nc.userlength);
+	}
+
+	function setRadio(val){
+		$nc.radio = val;
+	}
+
+	$watch(['radio'],function(radio){
+		console.log(radio);
+	});
+
 	$nc.users = [];
 	$nc.userlength = 0;
 	$nc.showUserLength = false;
+	$nc.userName = 'zhangsan-0';
 
 	$watch(['users'],function(users){
 		$nc.userlength = users.length;
