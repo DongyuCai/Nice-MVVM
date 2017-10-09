@@ -97,55 +97,39 @@ window.onload = function(){
 			//比如row in records，records是数组，这里在V2M_MAP里的键，是recrods，而不是records[0]这样。
 			var flag = command.substring(0,command.indexOf(' in '));
 			flag = flag.replace(/ +/g,'');
-			var flagReg = new RegExp(flag+'.','g');
 			var proPath = command.substring(command.indexOf(' in ')+4);
 			proPath = proPath.replace(/ +/g,'');
 
-			var NEW_NODE_MAP = {
+
+			//加入到V2M_大Map里
+			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
 				'id':node_nc_id,
 				'node':node,
 				'render':function(proPath,val){
 					//如果新的val的长度，和当前的dom节点列表已经不一致，那么需要重新加载节点，否则不需要加载新的节点
 					
 					if(val.length > this.newNodeAry.length){
-
 						//有下一个兄弟节点，就在这个兄弟节点前使劲插入
 						for(var i=this.newNodeAry.length;i<val.length;i++){
-
-							//替换nc-for指令
-							var newHtml = this.nodeHtml.replace(/nc-for='[^']+'/g,'');
-							newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
-
-							//替换row.
-							newHtml = newHtml.replace(flagReg,proPath+'['+i+'].');
-							//替换$index
-							newHtml = newHtml.replace(/\{\{ *\$index *\}\}/g,i);
-
-							var lowerNewHtml = newHtml.toLowerCase();
-							//newHtml在拼接和处理前，需要补全
-							//tr需要补充到table
-							//option需要补充到select
-							var level = 1;
-							if(lowerNewHtml.indexOf('<tr') == 0){
-								newHtml = '<table><tbody>'+newHtml+'</tbody></table>';
-								level = 2;
-							}else if(lowerNewHtml.indexOf('<option') == 0){
-								newHtml = '<select>'+newHtml+'</select>';
-								level=1;
-							}else if(lowerNewHtml.indexOf('<ul') == 0){
-								newHtml = '<ul>'+newHtml+'</ul>';
-								level=1;
-							}else{
-								level=0;
+							var newNode = this.node.cloneNode(true);
+							newNode.removeAttribute('nc-for');
+							for(var j=0;j<newNode.attributes.length;j++){
+								var attributeValue = newNode.attributes[j].value;
+								var reg = new RegExp(flag+'.','g');
+								attributeValue = attributeValue.replace(reg,proPath+'['+i+'].');
+								newNode.attributes[j].value = attributeValue;
 							}
-							//补全之后的newHtml，知道层级，添加到临时div后可以获取
-							var tmpDiv =  document.createElement('div');
-							tmpDiv.innerHTML = newHtml;
-							var newNode = tmpDiv.childNodes[0];
-							for(var j=0;j<level;j++){
-								newNode = newNode.childNodes[0];
+
+							newNode.style.display = '';
+							//修改newNode中的取值对象
+							var newHtml = newNode.innerHTML;
+							if(newHtml !== undefined){
+								var reg = new RegExp(flag+'.','g');
+								newHtml = newHtml.replace(reg,proPath+'['+i+'].');
+
+								newHtml = newHtml.replace(/\$index/g,i);
+								newNode.innerHTML = newHtml;
 							}
-							
 
 							if(this.nextSibling){
 								this.parentNode.insertBefore(newNode,this.nextSibling);
@@ -167,20 +151,9 @@ window.onload = function(){
 				'parentNode':node.parentNode,
 				'nextSibling':node.nextSibling,//下一个兄弟节点，用来循环插标签
 				'newNodeAry':[]
-			};
-
-
+			});
 			//初始化的时候，就隐藏掉这个需要遍历的节点
 			node.parentNode.removeChild(node);
-
-			//原始节点html副本
-			var tmpDiv = document.createElement('div');
-			tmpDiv.appendChild(node);
-			var cloneHtml = tmpDiv.innerHTML;
-			NEW_NODE_MAP['nodeHtml'] = cloneHtml;
-
-			//加入到V2M_大Map里
-			$SCOPE.$ADD_V2M_NODE_MAP(proPath,NEW_NODE_MAP);
 		}
 	},{
 		'commandName':'nc-if',//双向绑定
@@ -196,31 +169,6 @@ window.onload = function(){
 						this.node.style.display = '';
 					}else{
 						this.node.style.display = 'none';
-					}
-				}
-			});
-		}
-	},{
-		'commandName':'nc-class',//双向绑定
-		'initFunc':function(node,proPath){
-			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
-
-			var words = proPath.split('?');
-			proPath = words[0];
-			var vals = words[1].split(':');
-
-
-			//加入到V2M_大Map里
-			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
-				'id':node_nc_id,
-				'node':node,
-				'render':function(proPath,val){
-					if(val){
-						this.node.setAttribute('class',vals[0]);
-						this.node.setAttribute('className',vals[0]);//ie8以下
-					}else{
-						this.node.setAttribute('class',vals[1]);
-						this.node.setAttribute('className',vals[1]);//ie8以下
 					}
 				}
 			});
