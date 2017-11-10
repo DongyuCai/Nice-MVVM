@@ -17,8 +17,9 @@
 	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
 	<input type="radio" name="radio" onclick="setRadio(1)" />
 	<input type="radio" name="radio" onclick="setRadio(2)" />
-	<select nc-value='userName'>
-		<option nc-for="row in users" nc-value="row.age" >{{row.name}}</option>
+	<select >
+		<option></option>
+		<option nc-for="row in users" >{{row.name}}</option>
 	</select>
 	<button onclick="add()">addUser</button>
 	<table>
@@ -71,6 +72,9 @@
 			name:'zhangsan-'+$nc.users.length,
 			age:12
 		});
+		$nc.users.push({
+			name:''
+		})
 	}
 
 	function del(index){

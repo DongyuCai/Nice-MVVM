@@ -1,4 +1,8 @@
 'use strict';
+//注意事项：
+//1.变量必须先声明，否则不在托管范围
+//2.变量只能使用a-zA-Z0-9_这些
+
 //暴露给外部的全局对象
 //注意nice-mvvm.js要放在第一个引入
 var $nc = new Object();
@@ -31,20 +35,32 @@ window.onload = function(){
 	$SCOPE.$UNREFRESH_NODE_ID = -1;//排除在外，不需要同步的节点id
 	$SCOPE.$V2M_NODE_MAP = new Object();//存放VM渲染的节点对象
 
-	$SCOPE.$ADD_V2M_NODE_MAP = function(proPath,nodePack){
+	$SCOPE.$ADD_V2M_NODE_MAP = function(expression,nodePack){
 		//转换数组的表达形式
-		proPath = proPath.replace(/\[/g,'.');
-		proPath = proPath.replace(/\]/g,'');
+		expression = expression.replace(/\[/g,'.');
+		expression = expression.replace(/\]/g,'');
 
-		if(!$SCOPE.$V2M_NODE_MAP[proPath]){
-			$SCOPE.$V2M_NODE_MAP[proPath] = [];
+		for(var pro in $SCOPE_DATA_){
+			if(expression.indexOf(pro) >= 0){
+				if(expression.indexOf('.'+pro) < 0 && expression.indexOf(pro+'.') < 0){
+					if(!$SCOPE.$V2M_NODE_MAP[pro]){
+						$SCOPE.$V2M_NODE_MAP[pro] = [];
+					}
+					$SCOPE.$V2M_NODE_MAP[pro].push(nodePack);
+				}
+			}
 		}
-		$SCOPE.$V2M_NODE_MAP[proPath].push(nodePack);
+
+		
 
 		//每次有新的节点push进来的时候，需要讲对应key的数据副本清空重新渲染
 		// delete $SCOPE_DATA_['.'+proPath];
 	}
 
+
+	//proPath表示单一的参数，不是表达式
+	//express表示表达式，只有nc-if、{{}}有
+	//command表示指令，nc-for和nc-class都是
 	$SCOPE.$NODE_PROCESSOR = [{
 		'commandName':'nc-value',//双向绑定
 		'initFunc':function(node,proPath){
@@ -85,6 +101,7 @@ window.onload = function(){
 			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
 				'id':node_nc_id,
 				'node':node,
+				'expression':proPath,
 				'render':function(proPath,val){
 					this.node.value=val;
 				}
@@ -104,6 +121,7 @@ window.onload = function(){
 			var NEW_NODE_MAP = {
 				'id':node_nc_id,
 				'node':node,
+				'expression':proPath,
 				'render':function(proPath,val){
 					//如果新的val的长度，和当前的dom节点列表已经不一致，那么需要重新加载节点，否则不需要加载新的节点
 					
@@ -184,37 +202,47 @@ window.onload = function(){
 		}
 	},{
 		'commandName':'nc-if',//双向绑定
-		'initFunc':function(node,proPath){
+		'initFunc':function(node,expression){
 			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 
 			//加入到V2M_大Map里
-			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
+			$SCOPE.$ADD_V2M_NODE_MAP(expression,{
 				'id':node_nc_id,
 				'node':node,
-				'render':function(proPath,val){
+				'expression':expression,
+				'render':function(expression,val){
 					if(val){
-						this.node.style.display = '';
+						if(!this.node.parentNode){
+							if(this.nextSibling){
+								this.parentNode.insertBefore(this.node,this.nextSibling);
+							}else{
+								this.parentNode.appendChild(this.node);
+							}
+						}
 					}else{
-						this.node.style.display = 'none';
+						this.parentNode.removeChild(this.node);
 					}
-				}
+				},
+				'parentNode':node.parentNode,
+				'nextSibling':node.nextSibling//下一个兄弟节点，用来循环插标签
 			});
 		}
 	},{
 		'commandName':'nc-class',//双向绑定
-		'initFunc':function(node,proPath){
+		'initFunc':function(node,command){
 			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 
-			var words = proPath.split('?');
-			proPath = words[0];
+			var words = command.split('?');
+			command = words[0];
 			var vals = words[1].split(':');
 
 
 			//加入到V2M_大Map里
-			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
+			$SCOPE.$ADD_V2M_NODE_MAP(command,{
 				'id':node_nc_id,
 				'node':node,
-				'render':function(proPath,val){
+				'expression':command,
+				'render':function(command,val){
 					if(val){
 						this.node.setAttribute('class',vals[0]);
 						this.node.setAttribute('className',vals[0]);//ie8以下
@@ -283,10 +311,11 @@ window.onload = function(){
 			$SCOPE.$ADD_V2M_NODE_MAP(commandAry[i],{
 				'id':$SCOPE.$NODE_ID_POINT++,
 				'node':node,
-				'render':function(proPath,val){
+				'expression':commandAry[i],
+				'render':function(expression,val){
 					this.node.nodeValue = '';
 					for(var j=0;j<this.nodeTxtAry.length;j++){
-						if(this.nodeTxtAry[j].name == proPath){
+						if(this.nodeTxtAry[j].name == expression){
 							this.nodeTxtAry[j].value = val;
 						}
 
@@ -317,7 +346,36 @@ window.onload = function(){
 	}
 
 	$SCOPE.$GET_VAL = function(proPath){
-		var pros = proPath.split('.');
+		//proPath其实是指令里的具体参数值
+		//有可能是 name
+		//有可能是 !name
+		//还有可能是 name.something 或者 age-1这样
+		for(var pro in $SCOPE_DATA_){
+			if(proPath.indexOf(pro) >= 0){
+				var words = proPath.split(pro);
+				//比如 ' user.name' 按照'user.name'分解会有一个空格和一个'user.name'
+				if(words.length>1){
+					var newProPath = '';
+					for(var i=0;i<words.length-1;i++){
+						if(words[i].length > 0){
+							if(words[i].subStr(words[i].length-1,1)=="."){
+								newProPath = newProPath+words[i]+pro;
+							}else{
+								newProPath = newProPath+words[i]+'$SCOPE.$DATA.'+pro;
+							}
+						}else{
+							newProPath = newProPath+words[i]+'$SCOPE.$DATA.'+pro;
+						}
+					}
+					proPath = newProPath+words[words.length-1];
+				}
+			}else{
+				//cotinue;
+			}
+		}		
+		
+
+		/*var pros = proPath.split('.');
 		var obj = $SCOPE.$DATA;
 		for(var i=0;i<pros.length;i++){
 			if(i == pros.length-1){
@@ -330,9 +388,16 @@ window.onload = function(){
 					return null;
 				}
 			}
-		}
-
-		return null;
+		}*/
+		try
+		  {
+			var result = eval(proPath);
+			return result;
+		  }
+		catch(err)
+		  {
+		  	return undefined;
+		  }
 	}
 
 	$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,obj,valMap){
@@ -418,24 +483,24 @@ window.onload = function(){
 		//深度优先遍历
 		var proSolidMap = {};
 		$SCOPE.$GET_PRO_SOLID_MAP('',$SCOPE.$DATA,proSolidMap);
+
 		var needSyncProPath =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
 
 		
 
 		for(var proPath in needSyncProPath){
-			var val = $SCOPE.$GET_VAL(proPath);
-			if(val === undefined){
-				val = '';
-			}
-
 			for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 				var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
 				if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
 
 				//flush dom
-				//console.log("render:"+proPath);
 				nodePack['version'] = needSyncProPath[proPath];
-				nodePack.render(proPath,val);
+
+				var val = $SCOPE.$GET_VAL(nodePack.expression);
+				if(val === undefined){
+					val = '';
+				}
+				nodePack.render(nodePack.expression,val);
 
 			}
 
@@ -452,7 +517,6 @@ window.onload = function(){
 						}
 					}
 					execStatement = execStatement+')';
-					//console.log(execStatement);
 					eval(execStatement);
 				}
 			}
@@ -484,6 +548,7 @@ window.onload = function(){
 	    }
 	}
 
+	$SCOPE.$FLUSH();
 	$SCOPE.$INIT_MVVM(document);
 
 	$SCOPE.$INTERVAL = setInterval(function(){
