@@ -1,4 +1,13 @@
 'use strict';
+//支持指令：
+//1.nc-value  只能写变量，不可以写表达式，双向绑定，凡是有value属性的元素，都可以使用。
+//2.nc-for	  只能写命令，row in ary 这样的形式，任何元素都可以使用，但是在循环体内，只有{{$index}}是到处可用，row变量的取值，只能。
+//3.nc-if	  支持表达式
+//4.ng-class  支持指令，express?class1:class2这样的形式，express可以是表达式
+//{{}}		  可以是表达式，可以接|过滤器
+//$watch(proPathAry,function)，proPathAry参数是需要监控的变量名数组，function是回调函数
+//$unwatch	  
+//
 //注意事项：
 //1.变量必须先声明，否则不在托管范围
 //2.变量只能使用a-zA-Z0-9_这些
@@ -19,7 +28,7 @@ var $watch = function(proPathAry,fun){
 	}
 };
 var $unwatch = function(watchId){
-
+	//TODO:待实现
 };
 
 window.onload = function(){
@@ -40,13 +49,28 @@ window.onload = function(){
 		expression = expression.replace(/\[/g,'.');
 		expression = expression.replace(/\]/g,'');
 
+		var tryAry = true;
 		for(var pro in $SCOPE_DATA_){
 			if(expression.indexOf(pro) >= 0){
 				if(expression.indexOf('.'+pro) < 0 && expression.indexOf(pro+'.') < 0){
 					if(!$SCOPE.$V2M_NODE_MAP[pro]){
 						$SCOPE.$V2M_NODE_MAP[pro] = [];
 					}
+					tryAry = false;
 					$SCOPE.$V2M_NODE_MAP[pro].push(nodePack);
+				}
+			}
+		}
+
+		if(tryAry){
+			var proReg = new RegExp(expression+'\\.[0-9]+\\..*');
+			for(var pro in $SCOPE_DATA_){
+				if(proReg.test(pro)){
+					if(!$SCOPE.$V2M_NODE_MAP[expression]){
+						$SCOPE.$V2M_NODE_MAP[expression] = [];
+					}
+					$SCOPE.$V2M_NODE_MAP[expression].push(nodePack);
+					break;
 				}
 			}
 		}
@@ -284,7 +308,16 @@ window.onload = function(){
 			//转换数组的表达形式
 			second = second.replace(/\[/g,'.');
 			second = second.replace(/\]/g,'');
-			commandAry.push(second);
+			var filter = '';
+			if(second.indexOf('|')>0){
+				filter = second.substring(second.indexOf('|')+1);
+				second = second.substring(0,second.indexOf('|'));
+
+			}
+			commandAry.push({
+				command:second,
+				filter:filter
+			});
 			var content = content.substring(end+2);
 			start = content.indexOf('{{');
 			end = content.indexOf('}}');
@@ -308,11 +341,16 @@ window.onload = function(){
 		}
 
 		for(var i=0;i<commandAry.length;i++){
-			$SCOPE.$ADD_V2M_NODE_MAP(commandAry[i],{
+			$SCOPE.$ADD_V2M_NODE_MAP(commandAry[i].command,{
 				'id':$SCOPE.$NODE_ID_POINT++,
 				'node':node,
-				'expression':commandAry[i],
+				'expression':commandAry[i].command,
 				'render':function(expression,val){
+					if(this.expressionFilter){
+						var param = isNaN(val)?'\''+val+'\'':val;
+						val = eval(this.expressionFilter+'('+param+')');
+					}
+
 					this.node.nodeValue = '';
 					for(var j=0;j<this.nodeTxtAry.length;j++){
 						if(this.nodeTxtAry[j].name == expression){
@@ -322,6 +360,7 @@ window.onload = function(){
 						this.node.nodeValue = this.node.nodeValue+this.nodeTxtAry[j].value;
 					}
 				},
+				'expressionFilter':commandAry[i].filter,
 				'nodeTxtAry':nodeTxtAry//节点中文本的组成
 			});
 		}
@@ -358,7 +397,7 @@ window.onload = function(){
 					var newProPath = '';
 					for(var i=0;i<words.length-1;i++){
 						if(words[i].length > 0){
-							if(words[i].subStr(words[i].length-1,1)=="."){
+							if(words[i].substring(words[i].length-1)=="."){
 								newProPath = newProPath+words[i]+pro;
 							}else{
 								newProPath = newProPath+words[i]+'$SCOPE.$DATA.'+pro;
@@ -375,6 +414,8 @@ window.onload = function(){
 		}		
 		
 
+		
+
 		/*var pros = proPath.split('.');
 		var obj = $SCOPE.$DATA;
 		for(var i=0;i<pros.length;i++){
@@ -389,24 +430,46 @@ window.onload = function(){
 				}
 			}
 		}*/
-		try
-		  {
+		try{
+			//如果里面含有数组的成分，比如$SCOPE.$DATA.ary.0.name，应该改成...ary[0].name
+			var words = proPath.split('.');
+			proPath = '';
+			for(var i=0;i<words.length;i++){
+				if(proPath.length > 0){
+					if(isNaN(words[i])){
+						proPath = proPath+'.';
+					}else{
+						//如果是纯数字，改成数组方式取
+						proPath = proPath+'[';
+					}
+				}
+
+				proPath = proPath+words[i];
+
+				if(!isNaN(words[i])){
+					//如果是纯数字，改成数组方式取
+					proPath = proPath+']';
+				}
+			}
+
 			var result = eval(proPath);
 			return result;
-		  }
-		catch(err)
-		  {
+		}catch(err){
 		  	return undefined;
-		  }
+		}
 	}
 
-	$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,obj,valMap){
-		if(obj instanceof Object){
-			for(var key in obj){
-				$SCOPE.$GET_PRO_SOLID_MAP(pKey+'.'+key,obj[key],valMap);
+	$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,DATA,emptyProSolidMap){
+		if(pKey){
+			emptyProSolidMap[pKey]=DATA;
+			pKey = pKey+'.';
+		}else{
+			pKey = '';
+		}
+		if(DATA instanceof Object){
+			for(var key in DATA){
+				$SCOPE.$GET_PRO_SOLID_MAP(pKey+key,DATA[key],emptyProSolidMap);
 			}
-		} else {
-			valMap[pKey]=obj;
 		}
 	}
 
@@ -414,10 +477,9 @@ window.onload = function(){
 		var keys = {};
 		
 		// 数据版本不一致，需要同步的字段
-		for(var key in proSolidMap){
-			var proPath = key.substring(1);
+		for(var proPath in proSolidMap){
 			do{
-				if($SCOPE_DATA_[proPath] !== undefined && $SCOPE_DATA_[proPath].value === proSolidMap[key]){
+				if($SCOPE_DATA_[proPath] !== undefined && $SCOPE_DATA_[proPath].value === proSolidMap[proPath]){
 					//如果存在并且已经最新，不需要同步
 					break;
 				}
@@ -428,7 +490,7 @@ window.onload = function(){
 				}
 				$SCOPE_DATA_[proPath] = {
 					'version': version,
-					'value': proSolidMap[key]
+					'value': proSolidMap[proPath]
 				};
 
 				keys[proPath]=$SCOPE_DATA_[proPath]['version'];
@@ -440,11 +502,12 @@ window.onload = function(){
 			var version = $SCOPE_DATA_[proPath]['version'];
 			do{
 				if(keys[proPath] !== undefined) {
+					//已经存在的要同步字段，就不需要重复添加到等待同步了
 					break;
 				}
 
 				//如果值已经删除了，同样需要更新dom，但是版本还是要一致的
-				if(proSolidMap['.'+proPath] === undefined){
+				if(proSolidMap[proPath] === undefined){
 					//清楚副本
 					delete $SCOPE_DATA_[proPath];
 					keys[proPath] = version;
@@ -482,11 +545,10 @@ window.onload = function(){
 		//计算的出，需要进行同步的proPath
 		//深度优先遍历
 		var proSolidMap = {};
-		$SCOPE.$GET_PRO_SOLID_MAP('',$SCOPE.$DATA,proSolidMap);
+		$SCOPE.$GET_PRO_SOLID_MAP(null,$SCOPE.$DATA,proSolidMap);
 
 		var needSyncProPath =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
 
-		
 
 		for(var proPath in needSyncProPath){
 			for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
