@@ -44,27 +44,10 @@ window.onload = function(){
 	$SCOPE.$UNREFRESH_NODE_ID = -1;//排除在外，不需要同步的节点id
 	$SCOPE.$V2M_NODE_MAP = new Object();//存放VM渲染的节点对象
 
-	$SCOPE.$ADD_V2M_NODE_MAP = function(expression,nodePack){	
+	$SCOPE.$ADD_V2M_NODE_MAP = function(expression,nodePack){
 		//转换数组的表达形式
 		expression = expression.replace(/\[/g,'.');
 		expression = expression.replace(/\]/g,'');
-		//还有别的原生方法，如果没写全，要补充
-		expression = expression.replace(/\.indexOf\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.substring\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.substr\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.subStr\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.charAt\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.lastIndexOf\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.match\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.search\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.slice\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.split\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.split\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.length\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.toLowerCase\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.toUpperCase\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.replace\(/g,' ');//不能让原生方法影响参数解析
-		expression = expression.replace(/\.length/g,' ');//不能让原生方法影响参数解析
 
 		var tryAry = true;
 		for(var pro in $SCOPE_DATA_){
@@ -74,21 +57,19 @@ window.onload = function(){
 						$SCOPE.$V2M_NODE_MAP[pro] = [];
 					}
 					tryAry = false;
-					$SCOPE.$V2M_NODE_MAP[pro].push($SCOPE.$COPY_NODE_PACK(nodePack));
+					$SCOPE.$V2M_NODE_MAP[pro].push(nodePack);
 				}
 			}
 		}
 
 		if(tryAry){
-			//尝试是否是数组形式的
 			var proReg = new RegExp(expression+'\\.[0-9]+\\..*');
 			for(var pro in $SCOPE_DATA_){
 				if(proReg.test(pro)){
 					if(!$SCOPE.$V2M_NODE_MAP[expression]){
 						$SCOPE.$V2M_NODE_MAP[expression] = [];
 					}
-					$SCOPE.$V2M_NODE_MAP[expression].push($SCOPE.$COPY_NODE_PACK(nodePack));
-					tryAry = false;
+					$SCOPE.$V2M_NODE_MAP[expression].push(nodePack);
 					break;
 				}
 			}
@@ -98,17 +79,6 @@ window.onload = function(){
 
 		//每次有新的节点push进来的时候，需要讲对应key的数据副本清空重新渲染
 		// delete $SCOPE_DATA_['.'+proPath];
-	}
-
-	$SCOPE.$COPY_NODE_PACK = function(nodePack){
-		//把所有的内容都复制出来，除了node
-		//因为node要统一渲染，所以要共用，但是其余部分，比如version，是不公用的
-		var newNodePack = new Object();
-		for(var key in nodePack){
-			newNodePack[key] = nodePack[key];
-		}
-		//node因为不是基础类型，所以，自动会被拷贝引用的
-		return newNodePack;
 	}
 
 
@@ -168,7 +138,7 @@ window.onload = function(){
 			//比如row in records，records是数组，这里在V2M_MAP里的键，是recrods，而不是records[0]这样。
 			var flag = command.substring(0,command.indexOf(' in '));
 			flag = flag.replace(/ +/g,'');
-			var flagReg = new RegExp(flag,'g');
+			var flagReg = new RegExp(flag+'.','g');
 			var proPath = command.substring(command.indexOf(' in ')+4);
 			proPath = proPath.replace(/ +/g,'');
 
@@ -189,7 +159,7 @@ window.onload = function(){
 							newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
 
 							//替换row.
-							newHtml = newHtml.replace(flagReg,proPath+'['+i+']');
+							newHtml = newHtml.replace(flagReg,proPath+'['+i+'].');
 							//替换$index
 							newHtml = newHtml.replace(/\{\{ *\$index *\}\}/g,i);
 
@@ -257,11 +227,6 @@ window.onload = function(){
 	},{
 		'commandName':'nc-if',//双向绑定
 		'initFunc':function(node,expression){
-			if(node.getAttribute('nc-for')){
-				//nc-for指令与nc-if指令不重复渲染
-				return false;
-			}
-
 			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 
 			//加入到V2M_大Map里
@@ -279,9 +244,7 @@ window.onload = function(){
 							}
 						}
 					}else{
-						if(this.node.parentNode){
-							this.node.parentNode.removeChild(this.node);
-						}
+						this.parentNode.removeChild(this.node);
 					}
 				},
 				'parentNode':node.parentNode,
@@ -291,11 +254,6 @@ window.onload = function(){
 	},{
 		'commandName':'nc-class',//双向绑定
 		'initFunc':function(node,command){
-			if(node.getAttribute('nc-for')){
-				//nc-for指令与nc-class指令不重复渲染
-				return false;
-			}
-
 			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 
 			var words = command.split('?');
