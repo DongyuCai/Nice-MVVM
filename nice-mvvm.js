@@ -6,7 +6,6 @@
 //4.ng-class  支持指令，express?class1:class2这样的形式，express可以是表达式
 //{{}}		  可以是表达式，可以接|过滤器
 //$watch(proPathAry,function)，proPathAry参数是需要监控的变量名数组，function是回调函数
-//$unwatch	  
 //
 //注意事项：
 //1.变量必须先声明，否则不在托管范围
@@ -14,8 +13,12 @@
 
 //暴露给外部的全局对象
 //注意nice-mvvm.js要放在第一个引入
+var $NICE_MVVM = new Object();
+//内存参数mvvm中的model对象
 var $nc = new Object();
+//参数监听队列
 var $WATCH_QUEE = {};
+//监听
 var $watch = function(proPathAry,fun){
 	for(var i=0;i<proPathAry.length;i++){
 		if(!$WATCH_QUEE[proPathAry[i]]){
@@ -27,8 +30,10 @@ var $watch = function(proPathAry,fun){
 		});
 	}
 };
-var $unwatch = function(watchId){
-	//TODO:待实现
+//节点渲染执行完毕后的回调
+var $AFTER_RENDER = null;
+var $onload = function(fun){
+	$AFTER_RENDER = fun;
 };
 
 window.onload = function(){
@@ -501,6 +506,7 @@ window.onload = function(){
 		}
 	}
 
+	//得到单层次展开的参数->值的映射
 	$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,DATA,emptyProSolidMap){
 		if(pKey){
 			emptyProSolidMap[pKey]=DATA;
@@ -515,12 +521,17 @@ window.onload = function(){
 		}
 	}
 
+	//同步值到副本总，并得到与副本中不一致的值，以此基准来更新dom
 	$SCOPE.$SYNC_SCOPE_DATA_ = function(proSolidMap){
 		var keys = {};
 		
 		// 数据版本不一致，需要同步的字段
 		for(var proPath in proSolidMap){
 			do{
+				if($SCOPE_DATA_[proPath] === undefined && proSolidMap[proPath] === undefined){
+					//如果两端都是undefined，那么没有继续比较的意义，因为js中如果值是undefined，那么会存储不成功
+					break;
+				}
 				if($SCOPE_DATA_[proPath] !== undefined && $SCOPE_DATA_[proPath].value === proSolidMap[proPath]){
 					//如果存在并且已经最新，不需要同步
 					break;
@@ -582,6 +593,8 @@ window.onload = function(){
 		return needSyncProPath;
 	}
 
+	//是否需要在全部dom渲染完后，执行下回调
+	$SCOPE.$NEED_AFTER_RENDER = true;
 	$SCOPE.$FLUSH = function(){
 
 		//计算的出，需要进行同步的proPath
@@ -591,8 +604,9 @@ window.onload = function(){
 
 		var needSyncProPath =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
 
-
+		var needSyncProPathSize = 0;
 		for(var proPath in needSyncProPath){
+			needSyncProPathSize++;
 			for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 				var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
 				if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
@@ -625,6 +639,20 @@ window.onload = function(){
 				}
 			}
 		}
+		
+		if(needSyncProPathSize > 0){
+			//需要渲染，后面的for循环会渲染
+			$SCOPE.$NEED_AFTER_RENDER = true;
+		}else{
+			if($SCOPE.$NEED_AFTER_RENDER){
+				//不需要渲染了，那么就执行一次回调，然后等待下次需要渲染的时候再次触发
+				$SCOPE.$NEED_AFTER_RENDER = false;
+				if($AFTER_RENDER){
+					$AFTER_RENDER();
+				}
+			}
+		}
+		
 	}
 
 	$SCOPE.$INIT_MVVM = function(node){
@@ -651,6 +679,8 @@ window.onload = function(){
 	    	$SCOPE.$INIT_MVVM(childrens[i]);
 	    }
 	}
+	
+	$NICE_MVVM = $SCOPE;
 
 	$SCOPE.$FLUSH();
 	$SCOPE.$INIT_MVVM(document);
@@ -658,4 +688,5 @@ window.onload = function(){
 	$SCOPE.$INTERVAL = setInterval(function(){
 		$SCOPE.$FLUSH();
 	},1);
-}
+	
+};
