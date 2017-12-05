@@ -35,6 +35,11 @@ var $AFTER_RENDER = null;
 var $onload = function(fun){
 	$AFTER_RENDER = fun;
 };
+//在nice-mvvm刷新周期内，会被主动调用一次。
+var $AFTER_FLUSH = null;
+var $onflush = function(fun){
+	$AFTER_FLUSH = fun;
+}
 
 window.onload = function(){
 
@@ -561,7 +566,7 @@ window.onload = function(){
 
 				//如果值已经删除了，同样需要更新dom，但是版本还是要一致的
 				if(proSolidMap[proPath] === undefined){
-					//清楚副本
+					//清除副本
 					delete $SCOPE_DATA_[proPath];
 					keys[proPath] = version;
 					break;
@@ -641,16 +646,22 @@ window.onload = function(){
 		}
 		
 		if(needSyncProPathSize > 0){
-			//需要渲染，后面的for循环会渲染
+			//需要渲染，前面的for已经做了渲染，等到下次列表为空，渲染结束，那么进入到else里。
 			$SCOPE.$NEED_AFTER_RENDER = true;
 		}else{
+			//#渲染结束回调，周期是每次批量渲染完页面后，有且只执行一次。
 			if($SCOPE.$NEED_AFTER_RENDER){
-				//不需要渲染了，那么就执行一次回调，然后等待下次需要渲染的时候再次触发
+				//不需要渲染了，那么就执行一次回调，然后等待下次需要渲染的时候再次触发。
 				$SCOPE.$NEED_AFTER_RENDER = false;
 				if($AFTER_RENDER){
 					$AFTER_RENDER();
 				}
 			}
+			//#flush周期回调，次数是，每次当flush空闲刷新的时候，都会被回调。
+			if($AFTER_FLUSH){
+				$AFTER_FLUSH();
+			}
+			
 		}
 		
 	}
