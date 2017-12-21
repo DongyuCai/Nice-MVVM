@@ -1,10 +1,10 @@
 'use strict';
 //支持指令：
 //1.nc-value  只能写变量，不可以写表达式，双向绑定，凡是有value属性的元素，都可以使用。
-//2.nc-for	  只能写命令，row in ary 这样的形式，任何元素都可以使用，有一点注意，只能使用基本属性，不能传递entity，比如onclick="delete({{row}})"，这是不行的，但是可以onclick="delete({{$index}})"。
+//2.nc-for	  只能写命令，row in ary 这样的形式，任何元素都可以使用，但是在循环体内，只有{{$index}}是到处可用，row变量的取值，只能。
 //3.nc-if	  支持表达式
 //4.ng-class  支持指令，express?class1:class2这样的形式，express可以是表达式
-//{{}}		  可以是表达式，可以接|过滤器，{{}}可以用在任何文本或者节点的属性里。
+//{{}}		  可以是表达式，可以接|过滤器
 //$watch(proPathAry,function)，proPathAry参数是需要监控的变量名数组，function是回调函数
 //
 //注意事项：
@@ -39,7 +39,7 @@ var $onload = function(fun){
 var $AFTER_FLUSH = null;
 var $onflush = function(fun){
 	$AFTER_FLUSH = fun;
-};
+}
 
 window.onload = function(){
 
@@ -54,7 +54,7 @@ window.onload = function(){
 	$SCOPE.$UNREFRESH_NODE_ID = -1;//排除在外，不需要同步的节点id
 	$SCOPE.$V2M_NODE_MAP = new Object();//存放VM渲染的节点对象
 
-	$SCOPE.$ADD_V2M_NODE_MAP = function(expression,nodePack){
+	$SCOPE.$ADD_V2M_NODE_MAP = function(expression,nodePack){	
 		//转换数组的表达形式
 		expression = expression.replace(/\[/g,'.');
 		expression = expression.replace(/\]/g,'');
@@ -76,20 +76,20 @@ window.onload = function(){
 		expression = expression.replace(/\.replace\(/g,' ');//不能让原生方法影响参数解析
 		expression = expression.replace(/\.length/g,' ');//不能让原生方法影响参数解析
 
-		var find = false;
+		var tryAry = true;
 		for(var pro in $SCOPE_DATA_){
 			if(expression.indexOf(pro) >= 0){
 				if(expression.indexOf('.'+pro) < 0 && expression.indexOf(pro+'.') < 0){
 					if(!$SCOPE.$V2M_NODE_MAP[pro]){
 						$SCOPE.$V2M_NODE_MAP[pro] = [];
 					}
-					find = true;
+					tryAry = false;
 					$SCOPE.$V2M_NODE_MAP[pro].push($SCOPE.$COPY_NODE_PACK(nodePack));
 				}
 			}
 		}
 
-		if(!find){
+		if(tryAry){
 			//尝试是否是数组形式的
 			var proReg = new RegExp(expression+'\\.[0-9]+\\..*');
 			for(var pro in $SCOPE_DATA_){
@@ -98,24 +98,17 @@ window.onload = function(){
 						$SCOPE.$V2M_NODE_MAP[expression] = [];
 					}
 					$SCOPE.$V2M_NODE_MAP[expression].push($SCOPE.$COPY_NODE_PACK(nodePack));
-					find = true;
+					tryAry = false;
 					break;
 				}
 			}
 		}
 
-		if(!find){
-			//尝试常量表达式解析，如果能解析，那就直接作为常量值
-			try{
-				var val = eval(expression);
-				nodePack.render(expression,val);
-			}catch(err){}
-		}
 		
 
 		//每次有新的节点push进来的时候，需要讲对应key的数据副本清空重新渲染
 		// delete $SCOPE_DATA_['.'+proPath];
-	};
+	}
 
 	$SCOPE.$COPY_NODE_PACK = function(nodePack){
 		//把所有的内容都复制出来，除了node
@@ -126,253 +119,232 @@ window.onload = function(){
 		}
 		//node因为不是基础类型，所以，自动会被拷贝引用的
 		return newNodePack;
-	};
+	}
 
 
 	//proPath表示单一的参数，不是表达式
 	//express表示表达式，只有nc-if、{{}}有
 	//command表示指令，nc-for和nc-class都是
-	$SCOPE.$NICE_COMMAND = {
-		'nc-value':{
-			'commandName':'nc-value',//双向绑定
-			'initFunc':function(node,proPath){
-				var node_nc_id = $SCOPE.$NODE_ID_POINT++;
+	$SCOPE.$NODE_PROCESSOR = [{
+		'commandName':'nc-value',//双向绑定
+		'initFunc':function(node,proPath){
+			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 
-				var onchangeFun = node.onchange;
-				node.onchange=function(){
-					//保存值到内存
-					$SCOPE.$SET_VAL(proPath,node.value);
+			var onchangeFun = node.onchange;
+			node.onchange=function(){
+				//保存值到内存
+				$SCOPE.$SET_VAL(proPath,node.value);
 
-					//调用用户原生方法
-					if(onchangeFun){
-						onchangeFun();
-					}
-				};
-				
-				var onfocusFun = node.onfocus;
-				node.onfocus=function(){
-					//将自己设为不需要dom更新
-					$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
-					//调用用户原生方法
-					if(onfocusFun){
-						onfocusFun();
-					}
-				};
-
-				var onblurFun = node.onblur;
-				node.onblur=function(){
-					//将自己设为需要dom更新
-					$SCOPE.$UNREFRESH_NODE_ID = -1;
-					//调用用户原生方法
-					if(onblurFun){
-						onblurFun();
-					}
-				};
-
-				//加入到V2M_大Map里
-				$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
-					'id':node_nc_id,
-					'node':node,
-					'expression':proPath,
-					'render':function(proPath,val){
-						this.node.value=val;
-					}
-				});
-			}
-		},
-		'nc-for':{
-			'commandName':'nc-for',//for循环
-			'initFunc':function(node,command){
-				var node_nc_id = $SCOPE.$NODE_ID_POINT++;
-				//比如row in records，records是数组，这里在V2M_MAP里的键，是recrods，而不是records[0]这样。
-				var flag = command.substring(0,command.indexOf(' in '));
-				flag = flag.replace(/ +/g,'');
-				var flagReg = new RegExp(flag,'g');
-				var proPath = command.substring(command.indexOf(' in ')+4);
-				proPath = proPath.replace(/ +/g,'');
-
-				var NEW_NODE_MAP = {
-					'id':node_nc_id,
-					'node':node,
-					'expression':proPath,
-					'render':function(proPath,val){
-						//如果新的val的长度，和当前的dom节点列表已经不一致，那么需要重新加载节点，否则不需要加载新的节点
-						
-						if(val.length > this.newNodeAry.length){
-
-							//有下一个兄弟节点，就在这个兄弟节点前使劲插入
-							for(var i=this.newNodeAry.length;i<val.length;i++){
-
-								//替换nc-for指令
-								var newHtml = this.nodeHtml.replace(/nc-for='[^']+'/g,'');
-								newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
-
-								//替换row.
-								newHtml = newHtml.replace(flagReg,proPath+'['+i+']');
-								//替换$index
-								newHtml = newHtml.replace(/\$index/g,i);
-
-								var lowerNewHtml = newHtml.toLowerCase();
-								//newHtml在拼接和处理前，需要补全
-								//tr需要补充到table
-								//option需要补充到select
-								var level = 1;
-								if(lowerNewHtml.indexOf('<tr') == 0){
-									newHtml = '<table><tbody>'+newHtml+'</tbody></table>';
-									level = 2;
-								}else if(lowerNewHtml.indexOf('<option') == 0){
-									newHtml = '<select>'+newHtml+'</select>';
-									level=1;
-								}else if(lowerNewHtml.indexOf('<ul') == 0){
-									newHtml = '<ul>'+newHtml+'</ul>';
-									level=1;
-								}else{
-									level=0;
-								}
-								//补全之后的newHtml，知道层级，添加到临时div后可以获取
-								var tmpDiv =  document.createElement('div');
-								tmpDiv.innerHTML = newHtml;
-								var newNode = tmpDiv.childNodes[0];
-								for(var j=0;j<level;j++){
-									newNode = newNode.childNodes[0];
-								}
-								
-
-								if(this.nextSibling){
-									this.parentNode.insertBefore(newNode,this.nextSibling);
-								}else{
-									this.parentNode.appendChild(newNode);
-								}
-								this.newNodeAry.push(newNode);
-								//初始化新加的节点
-								$SCOPE.$INIT_MVVM(newNode);
-							}
-						} else if(val.length < this.newNodeAry.length){
-							var removeNum = this.newNodeAry.length-val.length;
-							for(var i=0;i<removeNum;i++){
-								var removeNode = this.newNodeAry.pop();
-								this.parentNode.removeChild(removeNode);
-							}
-						}
-					},
-					'parentNode':node.parentNode,
-					'nextSibling':node.nextSibling,//下一个兄弟节点，用来循环插标签
-					'newNodeAry':[]
-				};
-
-
-				//初始化的时候，就隐藏掉这个需要遍历的节点
-				node.parentNode.removeChild(node);
-
-				//原始节点html副本
-				var tmpDiv = document.createElement('div');
-				tmpDiv.appendChild(node);
-				var cloneHtml = tmpDiv.innerHTML;
-				NEW_NODE_MAP['nodeHtml'] = cloneHtml;
-
-				//加入到V2M_大Map里
-				$SCOPE.$ADD_V2M_NODE_MAP(proPath,NEW_NODE_MAP);
-			}
-		},
-		'nc-if':{
-			'commandName':'nc-if',//双向绑定
-			'initFunc':function(node,expression){
-				if(node.getAttribute('nc-for')){
-					//nc-for指令与nc-if指令不重复渲染
-					return false;
+				//调用用户原生方法
+				if(onchangeFun){
+					onchangeFun();
 				}
-
-				var node_nc_id = $SCOPE.$NODE_ID_POINT++;
-
-				//加入到V2M_大Map里
-				$SCOPE.$ADD_V2M_NODE_MAP(expression,{
-					'id':node_nc_id,
-					'node':node,
-					'expression':expression,
-					'render':function(expression,val){
-						if(val){
-							if(!this.node.parentNode){
-								if(this.nextSibling){
-									this.parentNode.insertBefore(this.node,this.nextSibling);
-								}else{
-									this.parentNode.appendChild(this.node);
-								}
-							}
-						}else{
-							if(this.node.parentNode){
-								this.node.parentNode.removeChild(this.node);
-							}
-						}
-					},
-					'parentNode':node.parentNode,
-					'nextSibling':node.nextSibling//下一个兄弟节点，用来循环插标签
-				});
-			}
-		},
-		'nc-class':{
-			'commandName':'nc-class',//双向绑定
-			'initFunc':function(node,command){
-				if(node.getAttribute('nc-for')){
-					//nc-for指令与nc-class指令不重复渲染
-					return false;
+			};
+			
+			var onfocusFun = node.onfocus;
+			node.onfocus=function(){
+				//将自己设为不需要dom更新
+				$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
+				//调用用户原生方法
+				if(onfocusFun){
+					onfocusFun();
 				}
-
-				var node_nc_id = $SCOPE.$NODE_ID_POINT++;
-
-				var words = command.split('?');
-				command = words[0];
-				var vals = words[1].split(':');
-
-
-				//加入到V2M_大Map里
-				$SCOPE.$ADD_V2M_NODE_MAP(command,{
-					'id':node_nc_id,
-					'node':node,
-					'expression':command,
-					'render':function(command,val){
-						if(val){
-							this.node.setAttribute('class',vals[0]);
-							this.node.setAttribute('className',vals[0]);//ie8以下
-						}else{
-							this.node.setAttribute('class',vals[1]);
-							this.node.setAttribute('className',vals[1]);//ie8以下
-						}
-					}
-				});
 			}
+
+			var onblurFun = node.onblur;
+			node.onblur=function(){
+				//将自己设为需要dom更新
+				$SCOPE.$UNREFRESH_NODE_ID = -1;
+				//调用用户原生方法
+				if(onblurFun){
+					onblurFun();
+				}
+			}
+
+			//加入到V2M_大Map里
+			$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
+				'id':node_nc_id,
+				'node':node,
+				'expression':proPath,
+				'render':function(proPath,val){
+					this.node.value=val;
+				}
+			});
 		}
-	};
+	},{
+		'commandName':'nc-for',//for循环
+		'initFunc':function(node,command){
+			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
+			//比如row in records，records是数组，这里在V2M_MAP里的键，是recrods，而不是records[0]这样。
+			var flag = command.substring(0,command.indexOf(' in '));
+			flag = flag.replace(/ +/g,'');
+			var flagReg = new RegExp(flag,'g');
+			var proPath = command.substring(command.indexOf(' in ')+4);
+			proPath = proPath.replace(/ +/g,'');
+
+			var NEW_NODE_MAP = {
+				'id':node_nc_id,
+				'node':node,
+				'expression':proPath,
+				'render':function(proPath,val){
+					//如果新的val的长度，和当前的dom节点列表已经不一致，那么需要重新加载节点，否则不需要加载新的节点
+					
+					if(val.length > this.newNodeAry.length){
+
+						//有下一个兄弟节点，就在这个兄弟节点前使劲插入
+						for(var i=this.newNodeAry.length;i<val.length;i++){
+
+							//替换nc-for指令
+							var newHtml = this.nodeHtml.replace(/nc-for='[^']+'/g,'');
+							newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
+
+							//替换row.
+							newHtml = newHtml.replace(flagReg,proPath+'['+i+']');
+							//替换$index
+							newHtml = newHtml.replace(/\{\{ *\$index *\}\}/g,i);
+
+							var lowerNewHtml = newHtml.toLowerCase();
+							//newHtml在拼接和处理前，需要补全
+							//tr需要补充到table
+							//option需要补充到select
+							var level = 1;
+							if(lowerNewHtml.indexOf('<tr') == 0){
+								newHtml = '<table><tbody>'+newHtml+'</tbody></table>';
+								level = 2;
+							}else if(lowerNewHtml.indexOf('<option') == 0){
+								newHtml = '<select>'+newHtml+'</select>';
+								level=1;
+							}else if(lowerNewHtml.indexOf('<ul') == 0){
+								newHtml = '<ul>'+newHtml+'</ul>';
+								level=1;
+							}else{
+								level=0;
+							}
+							//补全之后的newHtml，知道层级，添加到临时div后可以获取
+							var tmpDiv =  document.createElement('div');
+							tmpDiv.innerHTML = newHtml;
+							var newNode = tmpDiv.childNodes[0];
+							for(var j=0;j<level;j++){
+								newNode = newNode.childNodes[0];
+							}
+							
+
+							if(this.nextSibling){
+								this.parentNode.insertBefore(newNode,this.nextSibling);
+							}else{
+								this.parentNode.appendChild(newNode);
+							}
+							this.newNodeAry.push(newNode);
+							//初始化新加的节点
+							$SCOPE.$INIT_MVVM(newNode);
+						}
+					} else if(val.length < this.newNodeAry.length){
+						var removeNum = this.newNodeAry.length-val.length;
+						for(var i=0;i<removeNum;i++){
+							var removeNode = this.newNodeAry.pop();
+							this.parentNode.removeChild(removeNode);
+						}
+					}
+				},
+				'parentNode':node.parentNode,
+				'nextSibling':node.nextSibling,//下一个兄弟节点，用来循环插标签
+				'newNodeAry':[]
+			};
+
+
+			//初始化的时候，就隐藏掉这个需要遍历的节点
+			node.parentNode.removeChild(node);
+
+			//原始节点html副本
+			var tmpDiv = document.createElement('div');
+			tmpDiv.appendChild(node);
+			var cloneHtml = tmpDiv.innerHTML;
+			NEW_NODE_MAP['nodeHtml'] = cloneHtml;
+
+			//加入到V2M_大Map里
+			$SCOPE.$ADD_V2M_NODE_MAP(proPath,NEW_NODE_MAP);
+		}
+	},{
+		'commandName':'nc-if',//双向绑定
+		'initFunc':function(node,expression){
+			if(node.getAttribute('nc-for')){
+				//nc-for指令与nc-if指令不重复渲染
+				return false;
+			}
+
+			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
+
+			//加入到V2M_大Map里
+			$SCOPE.$ADD_V2M_NODE_MAP(expression,{
+				'id':node_nc_id,
+				'node':node,
+				'expression':expression,
+				'render':function(expression,val){
+					if(val){
+						if(!this.node.parentNode){
+							if(this.nextSibling){
+								this.parentNode.insertBefore(this.node,this.nextSibling);
+							}else{
+								this.parentNode.appendChild(this.node);
+							}
+						}
+					}else{
+						if(this.node.parentNode){
+							this.node.parentNode.removeChild(this.node);
+						}
+					}
+				},
+				'parentNode':node.parentNode,
+				'nextSibling':node.nextSibling//下一个兄弟节点，用来循环插标签
+			});
+		}
+	},{
+		'commandName':'nc-class',//双向绑定
+		'initFunc':function(node,command){
+			if(node.getAttribute('nc-for')){
+				//nc-for指令与nc-class指令不重复渲染
+				return false;
+			}
+
+			var node_nc_id = $SCOPE.$NODE_ID_POINT++;
+
+			var words = command.split('?');
+			command = words[0];
+			var vals = words[1].split(':');
+
+
+			//加入到V2M_大Map里
+			$SCOPE.$ADD_V2M_NODE_MAP(command,{
+				'id':node_nc_id,
+				'node':node,
+				'expression':command,
+				'render':function(command,val){
+					if(val){
+						this.node.setAttribute('class',vals[0]);
+						this.node.setAttribute('className',vals[0]);//ie8以下
+					}else{
+						this.node.setAttribute('class',vals[1]);
+						this.node.setAttribute('className',vals[1]);//ie8以下
+					}
+				}
+			});
+		}
+	}];
 
 
 	$SCOPE.$BIND_NODE = function(node){
-		var attributes = node.attributes;
-		if(attributes && attributes.length > 0){
-			for(var i=0;i<attributes.length;i++){
-				var nodeName = attributes[i].nodeName;
-				var nodeValue = attributes[i].nodeValue;
-				if($SCOPE.$NICE_COMMAND[nodeName]){
-					//作为指令解析
-					$SCOPE.$NICE_COMMAND[nodeName].initFunc(node,nodeValue);
-				}else{
-					//将普通属性也作为节点，尝试纯文本解析{{}}
-					$SCOPE.$BIND_TXT(attributes[i]);
-				}
-			}
-		}
-		/*for(var i=0;i<$SCOPE.$NODE_PROCESSOR.length;i++){
+		for(var i=0;i<$SCOPE.$NODE_PROCESSOR.length;i++){
 			var val = node.getAttribute($SCOPE.$NODE_PROCESSOR[i].commandName);
 			if(val){
 				//如果有相关的指令，就执行指令预处理初始化
 				$SCOPE.$NODE_PROCESSOR[i].initFunc(node,val);
 			}
-		}*/
-	};
+		}
+	}
 
 	$SCOPE.$BIND_TXT = function(node){
 		var content = node.nodeValue;
-		if(!content){
-			return false;
-		}
+
 		var start = content.indexOf('{{');
 		var end = content.indexOf('}}');
 		if(start <0 || end <= 0){
@@ -444,7 +416,7 @@ window.onload = function(){
 				'nodeTxtAry':nodeTxtAry//节点中文本的组成
 			});
 		}
-	};
+	}
 
 	//设置参数
 	$SCOPE.$SET_VAL = function(proPath,val){
@@ -462,7 +434,7 @@ window.onload = function(){
 			}
 			obj = obj[pros[i]];
 		}
-	};
+	}
 
 	$SCOPE.$GET_VAL = function(proPath){
 		//proPath其实是指令里的具体参数值
@@ -537,7 +509,7 @@ window.onload = function(){
 		}catch(err){
 		  	return undefined;
 		}
-	};
+	}
 
 	//得到单层次展开的参数->值的映射
 	$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,DATA,emptyProSolidMap){
@@ -552,7 +524,7 @@ window.onload = function(){
 				$SCOPE.$GET_PRO_SOLID_MAP(pKey+key,DATA[key],emptyProSolidMap);
 			}
 		}
-	};
+	}
 
 	//同步值到副本总，并得到与副本中不一致的值，以此基准来更新dom
 	$SCOPE.$SYNC_SCOPE_DATA_ = function(proSolidMap){
@@ -624,7 +596,7 @@ window.onload = function(){
 		}
 
 		return needSyncProPath;
-	};
+	}
 
 	//是否需要在全部dom渲染完后，执行下回调
 	$SCOPE.$NEED_AFTER_RENDER = true;
@@ -692,7 +664,7 @@ window.onload = function(){
 			
 		}
 		
-	};
+	}
 
 	$SCOPE.$INIT_MVVM = function(node){
 	    ///Attribute  nodeType值为2，表示节点属性
@@ -717,7 +689,7 @@ window.onload = function(){
 	    for(var i=0;childrens !== undefined && i<childrens.length;i++) {
 	    	$SCOPE.$INIT_MVVM(childrens[i]);
 	    }
-	};
+	}
 	
 	$NICE_MVVM = $SCOPE;
 

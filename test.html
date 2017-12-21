@@ -13,13 +13,13 @@
 	</style>
 </head>
 <body>
+	我的{{zhangsan}}
 	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
 	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
 	<input type="radio" name="radio" onclick="setRadio(1)" />
 	<input type="radio" name="radio" onclick="setRadio(2)" />
-	<select >
-		<option></option>
-		<option nc-for="row in users" >{{row.name}}</option>
+	<select nc-value="userName">
+		<option nc-for="row in users" value="{{$index}}">{{row.name}}</option>
 	</select>
 	<button onclick="add()">addUser</button>
 	<table>
@@ -31,7 +31,7 @@
 		</tr>
 		<tbody>
 			<tr nc-for="row in users" nc-class="color?test: ">
-				<td>{{$index}}</td>
+				<td name="{{row.name}}">{{2+1+'abc'}}</td>
 				<td>{{row.name}}</td>
 				<td>{{row.age}}</td>
 				<td><button onclick="del({{$index}})">remove</button></td>
@@ -39,7 +39,7 @@
 		</tbody>
 	</table>
 </body>
-<script type="text/javascript" src="nice-mvvm.js"></script>
+<script type="text/javascript" src="nice-mvvm.min.js"></script>
 <script type="text/javascript">
 
 	function changeTxt(){
@@ -72,14 +72,10 @@
 			name:'zhangsan-'+$nc.users.length,
 			age:12
 		});
-		$nc.users.push({
-			name:''
-		})
 	}
 
 	function del(index){
 		console.log(index);
-		$nc.users.splice(index,1);
 	}
 	
 </script>
