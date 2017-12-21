@@ -19,7 +19,7 @@
 	<input type="radio" name="radio" onclick="setRadio(1)" />
 	<input type="radio" name="radio" onclick="setRadio(2)" />
 	<select nc-value="userName">
-		<option nc-for="row in users" value="{{$index}}">{{row.name}}</option>
+		<option nc-for="row in users" value="{{row.name}}">{{row.name}}</option>
 	</select>
 	<button onclick="add()">addUser</button>
 	<table>
@@ -39,7 +39,7 @@
 		</tbody>
 	</table>
 </body>
-<script type="text/javascript" src="nice-mvvm.min.js"></script>
+<script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
 
 	function changeTxt(){
@@ -55,6 +55,13 @@
 	});
 
 	$nc.users = [];
+	for(var i=0;i<30;i++){
+		$nc.users.push({
+			name:'zhangsan-'+i,
+			age:12
+		});
+	}
+
 	$nc.userlength = 0;
 	$nc.showUserLength = false;
 	$nc.userName = 'zhangsan-0';
@@ -76,6 +83,7 @@
 
 	function del(index){
 		console.log(index);
+		$nc.users.splice(index,1);
 	}
 	
 </script>
