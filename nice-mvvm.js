@@ -3,7 +3,7 @@
 //1.nc-value  只能写变量，不可以写表达式，双向绑定，凡是有value属性的元素，都可以使用。
 //2.nc-for	  只能写命令，row in ary 这样的形式，任何元素都可以使用，有一点注意，只能使用基本属性，不能传递entity，比如onclick="delete({{row}})"，这是不行的，但是可以onclick="delete({{$index}})"。
 //3.nc-if	  支持表达式
-//4.ng-class  支持指令，express?class1:class2这样的形式，express可以是表达式
+//（已放弃nc-class）4.nc-class  支持指令，express?class1:class2这样的形式，express可以是表达式
 //{{}}		  可以是表达式，可以接|过滤器，{{}}可以用在任何文本或者节点的属性里。
 //$watch(proPathAry,function)，proPathAry参数是需要监控的变量名数组，function是回调函数
 //
@@ -308,7 +308,7 @@ window.onload = function(){
 					'nextSibling':node.nextSibling//下一个兄弟节点，用来循环插标签
 				});
 			}
-		},
+		}/*,
 		'nc-class':{
 			'commandName':'nc-class',//双向绑定
 			'initFunc':function(node,command){
@@ -340,7 +340,7 @@ window.onload = function(){
 					}
 				});
 			}
-		}
+		}*/
 	};
 
 

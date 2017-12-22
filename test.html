@@ -9,12 +9,16 @@
 		color: red
 	}
 
+	.test2 {
+		color: green
+	}
+
 
 	</style>
 </head>
 <body>
 	我的{{zhangsan}}
-	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
+	<input type="text" name=""  nc-value="userName" style="{{userName|userNameFilter}}" onchange="changeTxt()" />
 	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
 	<input type="radio" name="radio" onclick="setRadio(1)" />
 	<input type="radio" name="radio" onclick="setRadio(2)" />
@@ -22,6 +26,7 @@
 		<option nc-for="row in users" value="{{row.name}}">{{row.name}}</option>
 	</select>
 	<button onclick="add()">addUser</button>
+	<button class="{{addUserBtn|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
 	<table>
 		<tr>
 			<th>index</th>
@@ -30,7 +35,7 @@
 			<th>operation</th>
 		</tr>
 		<tbody>
-			<tr nc-for="row in users" nc-class="color?test: ">
+			<tr nc-for="row in users">
 				<td name="{{row.name}}">{{2+1+'abc'}}</td>
 				<td>{{row.name}}</td>
 				<td>{{row.age}}</td>
@@ -41,6 +46,8 @@
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
+
+	$nc.addUserBtn = true;
 
 	function changeTxt(){
 		console.log('a-'+$nc.userlength);
@@ -65,7 +72,7 @@
 	$nc.userlength = 0;
 	$nc.showUserLength = false;
 	$nc.userName = 'zhangsan-0';
-	$nc.color = true;
+	$nc.color = "test";
 
 	$watch(['users'],function(users){
 		$nc.userlength = users.length;
@@ -84,6 +91,21 @@
 	function del(index){
 		console.log(index);
 		$nc.users.splice(index,1);
+	}
+
+	function userNameFilter(userName){
+		if(userName && userName.indexOf("10") > 0)
+			return "color:red";
+
+		return "color:blue";
+	}
+
+	function addUserBtnStyleFitler(addUserBtn){
+		if(addUserBtn){
+			return "test";
+		}else{
+			return "test2";
+		}
 	}
 	
 </script>
