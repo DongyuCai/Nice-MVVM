@@ -427,8 +427,7 @@ window.onload = function(){
 				'expression':commandAry[i].command,
 				'render':function(expression,val){
 					if(this.expressionFilter){
-						var param = isNaN(val)?'\''+val+'\'':val;
-						val = eval(this.expressionFilter+'('+param+')');
+						val = eval(this.expressionFilter+'(val)');
 					}
 
 					this.node.nodeValue = '';

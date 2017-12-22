@@ -26,7 +26,7 @@
 		<option nc-for="row in users" value="{{row.name}}">{{row.name}}</option>
 	</select>
 	<button onclick="add()">addUser</button>
-	<button class="{{addUserBtn|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
+	<button class="{{addUserBtn?users:[]|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
 	<table>
 		<tr>
 			<th>index</th>
@@ -101,11 +101,13 @@
 	}
 
 	function addUserBtnStyleFitler(addUserBtn){
-		if(addUserBtn){
+		console.log(addUserBtn.length);
+		if(addUserBtn.length > 30){
 			return "test";
 		}else{
 			return "test2";
 		}
+		// return addUserBtn;
 	}
 	
 </script>
