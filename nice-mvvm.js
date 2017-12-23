@@ -213,19 +213,23 @@ window.onload = function(){
 									for(var step=0;step<newHtml.length && (step+stepLen)<=newHtml.length;step++){
 										var stepStr = newHtml.substring(step,step+stepLen);
 										if(stepStr === flag){
+											var preStr = step>0?newHtml.substring(step-1,step):'';
+											var flagStrReg = /[_0-9a-z-A-Z]/;
 											//直接判断到下一个位置
 											step = step+stepLen;
-											if(step == newHtml.length){
-												//如果到底了，那么这个词，就是要替换的
-												stepIndexAry.push(step);
-											}else{
-												//如果还没到底
-												//判断是否后面跟着的，是_0-9a-z-A-Z
-												var nextStr = newHtml.substring(step,step+1);
-												var nextStrReg = /[_0-9a-z-A-Z]/;
-												if(!nextStrReg.test(nextStr)){
-													//这就说明确实是一个单词
+											//判断前一个字，是不是变量包含
+											if(!flagStrReg.test(preStr)){
+												if(step == newHtml.length){
+													//如果到底了，那么这个词，就是要替换的
 													stepIndexAry.push(step);
+												}else{
+													//如果还没到底
+													//判断是否后面跟着的，是_0-9a-z-A-Z
+													var nextStr = newHtml.substring(step,step+1);
+													if(!flagStrReg.test(nextStr)){
+														//这就说明确实是一个单词
+														stepIndexAry.push(step);
+													}
 												}
 											}
 										}

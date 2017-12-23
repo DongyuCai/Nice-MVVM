@@ -36,7 +36,7 @@
 		</tr>
 		<tbody>
 			<tr nc-for="row in users">
-				<td name="{{row.name}}">{{2+1+'abc'}}</td>
+				<td name="{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
 				<td>{{row.name}}</td>
 				<td>{{row.age}}</td>
 				<td><button onclick="del({{$index}})">remove</button></td>
