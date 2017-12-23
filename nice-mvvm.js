@@ -187,7 +187,6 @@ window.onload = function(){
 				//比如row in records，records是数组，这里在V2M_MAP里的键，是recrods，而不是records[0]这样。
 				var flag = command.substring(0,command.indexOf(' in '));
 				flag = flag.replace(/ +/g,'');
-				var flagReg = new RegExp(flag,'g');
 				var proPath = command.substring(command.indexOf(' in ')+4);
 				proPath = proPath.replace(/ +/g,'');
 
@@ -208,7 +207,43 @@ window.onload = function(){
 								newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
 
 								//替换row.
-								newHtml = newHtml.replace(flagReg,proPath+'['+i+']');
+								var stepLen = flag.length;
+								if(newHtml.indexOf(flag) >= 0){
+									var stepIndexAry = [];
+									for(var step=0;step<newHtml.length && (step+stepLen)<=newHtml.length;step++){
+										var stepStr = newHtml.substring(step,step+stepLen);
+										if(stepStr === flag){
+											//直接判断到下一个位置
+											step = step+stepLen;
+											if(step == newHtml.length){
+												//如果到底了，那么这个词，就是要替换的
+												stepIndexAry.push(step);
+											}else{
+												//如果还没到底
+												//判断是否后面跟着的，是_0-9a-z-A-Z
+												var nextStr = newHtml.substring(step,step+1);
+												var nextStrReg = /[_0-9a-z-A-Z]/;
+												if(!nextStrReg.test(nextStr)){
+													//这就说明确实是一个单词
+													stepIndexAry.push(step);
+												}
+											}
+										}
+									}
+									if(stepIndexAry.length > 0){
+										var newHtml_ = '';
+										var start = 0;
+										for(var step=0;step<stepIndexAry.length;step++){
+											var end = stepIndexAry[step]-stepLen;
+											newHtml_ = newHtml_+newHtml.substring(start,end);
+											newHtml_ = newHtml_+proPath+'['+i+']';
+											start = stepIndexAry[step];
+										}
+										newHtml_ = newHtml_+newHtml.substring(start);
+										newHtml = newHtml_;
+									}
+								}
+								// newHtml = newHtml.replace(flagReg,proPath+'['+i+']');
 								//替换$index
 								newHtml = newHtml.replace(/\$index/g,i);
 
