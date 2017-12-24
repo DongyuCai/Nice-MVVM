@@ -16,7 +16,7 @@
 
 	</style>
 </head>
-<body>
+<body id="body_">
 	我的{{zhangsan}}
 	<input type="text" name=""  nc-value="userName" style="{{userName|userNameFilter}}" onchange="changeTxt()" />
 	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
@@ -27,7 +27,7 @@
 	</select>
 	<button onclick="add()">addUser</button>
 	<button class="{{addUserBtn?users:[]|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
-	<table>
+	<table id="table_">
 		<tr>
 			<th>index</th>
 			<th>Name</th>
@@ -46,6 +46,9 @@
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
+	var nice_mvvm = $NICE_MVVM(document.getElementById('table_'));
+
+	var $nc = nice_mvvm.$scope;
 
 	$nc.addUserBtn = true;
 
@@ -56,10 +59,6 @@
 	function setRadio(val){
 		$nc.radio = val;
 	}
-
-	$watch(['radio'],function(radio){
-		console.log(radio);
-	});
 
 	$nc.users = [];
 	for(var i=0;i<30;i++){
@@ -74,13 +73,7 @@
 	$nc.userName = 'zhangsan-0';
 	$nc.color = "test";
 
-	$watch(['users'],function(users){
-		$nc.userlength = users.length;
-		if(users.length > 0){
-			$nc.showUserLength = true;
-		}
-	});
-
+	
 	function add(){
 		$nc.users.push({
 			name:'zhangsan-'+$nc.users.length,
@@ -114,7 +107,9 @@
 		console.log(row);
 		return row;
 	}
-	
+
+	nice_mvvm.$init();
+		
 </script>
 
 
