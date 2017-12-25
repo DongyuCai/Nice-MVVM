@@ -203,8 +203,9 @@ var $NICE_MVVM = function(mvvmElement){
 								for(var i=this.newNodeAry.length;i<val.length;i++){
 
 									//替换nc-for指令
-									var newHtml = this.nodeHtml.replace(/nc-for='[^']+'/g,'');
-									newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
+									var newHtml = this.nodeHtml;
+									// var newHtml = this.nodeHtml.replace(/nc-for='[^']+'/g,'');
+									// newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
 
 									//替换row.
 									var stepLen = flag.length;
@@ -305,6 +306,7 @@ var $NICE_MVVM = function(mvvmElement){
 
 					//原始节点html副本
 					var tmpDiv = document.createElement('div');
+					node.removeAttribute('nc-for');
 					tmpDiv.appendChild(node);
 					var cloneHtml = tmpDiv.innerHTML;
 					NEW_NODE_MAP['nodeHtml'] = cloneHtml;
