@@ -27,14 +27,14 @@
 	</select>
 	<button onclick="add()">addUser</button>
 	<button class="{{addUserBtn?users:[]|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
-	<table id="table_">
+	<table>
 		<tr>
 			<th>index</th>
 			<th>Name</th>
 			<th>Age</th>
 			<th>operation</th>
 		</tr>
-		<tbody>
+		<tbody id="table_" style="display: none;">
 			<tr nc-for="row in users">
 				<td name="{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
 				<td>{{row.name}}</td>
@@ -109,7 +109,10 @@
 	}
 
 	nice_mvvm.$init();
-		
+	
+	nice_mvvm.$onload(function(){
+		document.getElementById('table_').removeAttribute('style');
+	});
 </script>
 
 
