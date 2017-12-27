@@ -14,6 +14,10 @@
 //暴露给外部的全局对象
 //注意nice-mvvm.js要放在第一个引入
 var $NICE_MVVM = function(mvvmElement){
+	if(typeof mvvmElement === 'string'){
+		mvvmElement = document.getElementById(mvvmElement);
+	}
+
 	//内存参数mvvm中的model对象
 	var $nc = new Object();
 	//参数监听队列
