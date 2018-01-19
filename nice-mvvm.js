@@ -236,7 +236,7 @@ var $NICE_MVVM = function(mvvmElement){
 											var stepStr = newHtml.substring(step,step+stepLen);
 											if(stepStr === flag){
 												var preStr = step>0?newHtml.substring(step-1,step):'';
-												var flagStrReg = /[_0-9a-z-A-Z]/;
+												var flagStrReg = /[_0-9a-zA-Z]/;
 												//直接判断到下一个位置
 												step = step+stepLen;
 												//判断前一个字，是不是变量包含
@@ -246,7 +246,7 @@ var $NICE_MVVM = function(mvvmElement){
 														stepIndexAry.push(step);
 													}else{
 														//如果还没到底
-														//判断是否后面跟着的，是_0-9a-z-A-Z
+														//判断是否后面跟着的，是_0-9az-A-Z
 														var nextStr = newHtml.substring(step,step+1);
 														if(!flagStrReg.test(nextStr)){
 															//这就说明确实是一个单词

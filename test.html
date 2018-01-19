@@ -35,10 +35,10 @@
 			<th>operation</th>
 		</tr>
 		<tbody id="table_" style="display: none;">
-			<tr nc-for="row in users">
+			<tr nc-for="row in users" id="{{$index}}">
 				<td name="{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
 				<td>{{row.name}}</td>
-				<td>{{row.age}}</td>
+				<td>{{row.age-row.num}}</td>
 				<td><button onclick="del({{$index}})">remove</button></td>
 			</tr>
 		</tbody>
@@ -64,7 +64,8 @@
 	for(var i=0;i<30;i++){
 		$nc.users.push({
 			name:'zhangsan-'+i,
-			age:12
+			age:12,
+			num:0
 		});
 	}
 
@@ -77,7 +78,8 @@
 	function add(){
 		$nc.users.push({
 			name:'zhangsan-'+$nc.users.length,
-			age:12
+			age:12,
+			num:0
 		});
 	}
 
