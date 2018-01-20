@@ -2,6 +2,7 @@
 //支持指令：
 //1.nc-value  只能写变量，不可以写表达式，双向绑定，凡是有value属性的元素，都可以使用。
 //4.nc-src	  例 nc-src="{{basePictureUrl+item.picture}}"
+//5.nc-text   列 <span nc-text="{{item.name}}"></span>
 //2.nc-for	  只能写命令，row in ary 这样的形式，任何元素都可以使用，有一点注意，只能使用基本属性，不能传递entity，比如onclick="delete({{row}})"，这是不行的，但是可以onclick="delete({{$index}})"。
 //3.nc-if	  支持表达式
 //（已放弃nc-class）4.nc-class  支持指令，express?class1:class2这样的形式，express可以是表达式
@@ -188,33 +189,13 @@ var $NICE_MVVM = function(mvvmElement){
             'nc-src':{
                 'commandName':'nc-src',//绑定src属性，必须要求有nc-src值，可以避免原生html的src因为表达式出现网络404的问题。
                 'initFunc':function(node,proPath){
-                    var node_nc_id = $SCOPE.$NODE_ID_POINT++;
-
-                    //加入到V2M_大Map里
-                    $SCOPE.$ADD_V2M_NODE_MAP(proPath,{
-                        'id':node_nc_id,
-                        'node':node,
-                        'expression':proPath,
-                        'render':function(proPath,val){
-                            this.node.src=val;
-                        }
-                    });
+                    $SCOPE.$BIND_TXT(node,'src');
                 }
             },
             'nc-text':{
                 'commandName':'nc-text',//可以直接渲染元素的文本
                 'initFunc':function(node,proPath){
-                    var node_nc_id = $SCOPE.$NODE_ID_POINT++;
-
-                    //加入到V2M_大Map里
-                    $SCOPE.$ADD_V2M_NODE_MAP(proPath,{
-                        'id':node_nc_id,
-                        'node':node,
-                        'expression':proPath,
-                        'render':function(proPath,val){
-                            this.node.innerHTML=val;
-                        }
-                    });
+                    $SCOPE.$BIND_TXT(node,'innerHTML');
                 }
             },
             'nc-for':{
@@ -433,7 +414,7 @@ var $NICE_MVVM = function(mvvmElement){
 						$SCOPE.$NICE_COMMAND[nodeName].initFunc(node,nodeValue);
 					}else{
 						//将普通属性也作为节点，尝试纯文本解析{{}}
-						$SCOPE.$BIND_TXT(attributes[i]);
+						$SCOPE.$BIND_TXT(attributes[i],'nodeValue');
 					}
 				}
 			}
@@ -446,7 +427,7 @@ var $NICE_MVVM = function(mvvmElement){
 			}*/
 		};
 
-		$SCOPE.$BIND_TXT = function(node){
+		$SCOPE.$BIND_TXT = function(node,type){
 			var content = node.nodeValue;
 			if(!content){
 				return false;
@@ -508,13 +489,25 @@ var $NICE_MVVM = function(mvvmElement){
 							val = eval(this.expressionFilter+'(val)');
 						}
 
-						this.node.nodeValue = '';
+						if(type=='nodeValue'){
+							this.node.nodeValue = '';
+						}else if(type=='src'){
+							this.node.src = '';
+						}else if(type=='innerHTML'){
+							this.node.innerHTML = '';
+						}
 						for(var j=0;j<this.nodeTxtAry.length;j++){
 							if(this.nodeTxtAry[j].name == expression){
 								this.nodeTxtAry[j].value = val;
 							}
-
-							this.node.nodeValue = this.node.nodeValue+this.nodeTxtAry[j].value;
+							if(type=='nodeValue'){
+								this.node.nodeValue = this.node.nodeValue+this.nodeTxtAry[j].value;
+							}else if(type=='src'){
+								this.node.src = this.node.src+this.nodeTxtAry[j].value;
+							}else if(type=='innerHTML'){
+								this.node.innerHTML = this.node.innerHTML+this.nodeTxtAry[j].value;
+							}
+							
 						}
 					},
 					'expressionFilter':commandAry[i].filter,
@@ -796,7 +789,7 @@ var $NICE_MVVM = function(mvvmElement){
 		    //3代表节点为文本
 		    if(node.nodeType==3){
 		    	
-		    	$SCOPE.$BIND_TXT(node);
+		    	$SCOPE.$BIND_TXT(node,'nodeValue');
 		    }
 
 		    var childrens=node.childNodes;

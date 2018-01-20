@@ -36,9 +36,9 @@
 		</tr>
 		<tbody id="table_" style="display: none;">
 			<tr nc-for="row in users" id="{{$index}}">
-				<td name="{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
+				<td name="a{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
 				<td nc-text="{{'111'+row.name}}"></td>
-				<td>{{row.age-row.num}}</td>
+				<td>{{row.num|rowFilter}}</td>
 				<td><button onclick="del({{$index}})">remove</button></td>
 			</tr>
 		</tbody>
@@ -110,9 +110,9 @@
 		// return addUserBtn;
 	}
 
-	function rowFilter(row){
-		console.log(row);
-		return row;
+	function rowFilter(param){
+		console.log(param);
+		return param;
 	}
 
 	nice_mvvm.$init();
