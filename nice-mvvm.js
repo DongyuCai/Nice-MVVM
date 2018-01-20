@@ -427,8 +427,15 @@ var $NICE_MVVM = function(mvvmElement){
 			}*/
 		};
 
-		$SCOPE.$BIND_TXT = function(node,type){
-			var content = node.nodeValue;
+		$SCOPE.$BIND_TXT = function(node,renderType){
+			var content = '';
+			if(renderType=='nodeValue'){
+				content = node.nodeValue;
+			}else if(renderType=='src'){
+				content = node.getAttribute('nc-src');
+			}else if(renderType=='innerHTML'){
+				content = node.getAttribute('nc-text');
+			}
 			if(!content){
 				return false;
 			}
@@ -489,29 +496,18 @@ var $NICE_MVVM = function(mvvmElement){
 							val = eval(this.expressionFilter+'(val)');
 						}
 
-						if(type=='nodeValue'){
-							this.node.nodeValue = '';
-						}else if(type=='src'){
-							this.node.src = '';
-						}else if(type=='innerHTML'){
-							this.node.innerHTML = '';
-						}
+						this.node[this.renderType] = '';
 						for(var j=0;j<this.nodeTxtAry.length;j++){
 							if(this.nodeTxtAry[j].name == expression){
 								this.nodeTxtAry[j].value = val;
 							}
-							if(type=='nodeValue'){
-								this.node.nodeValue = this.node.nodeValue+this.nodeTxtAry[j].value;
-							}else if(type=='src'){
-								this.node.src = this.node.src+this.nodeTxtAry[j].value;
-							}else if(type=='innerHTML'){
-								this.node.innerHTML = this.node.innerHTML+this.nodeTxtAry[j].value;
-							}
 							
+							this.node[this.renderType] = this.node[this.renderType]+this.nodeTxtAry[j].value;
 						}
 					},
 					'expressionFilter':commandAry[i].filter,
-					'nodeTxtAry':nodeTxtAry//节点中文本的组成
+					'nodeTxtAry':nodeTxtAry,//节点中文本的组成
+					'renderType':renderType
 				});
 			}
 		};
