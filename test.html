@@ -37,7 +37,7 @@
 		<tbody id="table_" style="display: none;">
 			<tr nc-for="row in users" id="{{$index}}">
 				<td name="{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
-				<td>{{row.name}}</td>
+				<td nc-text="{{'111'+row.name}}"></td>
 				<td>{{row.age-row.num}}</td>
 				<td><button onclick="del({{$index}})">remove</button></td>
 			</tr>
@@ -58,6 +58,11 @@
 
 	function setRadio(val){
 		$nc.radio = val;
+	}
+	
+	function convert(param){
+		console.log(param);
+		return 'abc';
 	}
 
 	$nc.users = [];

@@ -96,7 +96,7 @@ var $NICE_MVVM = function(mvvmElement){
 
 			if(!find){
 				//尝试是否是数组形式的
-				var proReg = new RegExp(expression+'\\.[0-9]+\\..*');
+				var proReg = new RegExp("^"+expression+'\\.[0-9]+\\..*');
 				for(var pro in $SCOPE_DATA_){
 					if(proReg.test(pro)){
 						if(!$SCOPE.$V2M_NODE_MAP[expression]){
@@ -197,6 +197,22 @@ var $NICE_MVVM = function(mvvmElement){
                         'expression':proPath,
                         'render':function(proPath,val){
                             this.node.src=val;
+                        }
+                    });
+                }
+            },
+            'nc-text':{
+                'commandName':'nc-text',//可以直接渲染元素的文本
+                'initFunc':function(node,proPath){
+                    var node_nc_id = $SCOPE.$NODE_ID_POINT++;
+
+                    //加入到V2M_大Map里
+                    $SCOPE.$ADD_V2M_NODE_MAP(proPath,{
+                        'id':node_nc_id,
+                        'node':node,
+                        'expression':proPath,
+                        'render':function(proPath,val){
+                            this.node.innerHTML=val;
                         }
                     });
                 }
