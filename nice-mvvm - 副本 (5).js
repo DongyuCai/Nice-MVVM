@@ -1,7 +1,7 @@
 'use strict';
 //支持指令：
 //1.nc-value  只能写变量，不可以写表达式，双向绑定，凡是有value属性的元素，都可以使用。
-//4.删除nc-src  支持任何原生属性前加nc-
+//4.nc-src	  例 nc-src="{{basePictureUrl+item.picture}}"
 //5.nc-text   列 <span nc-text="{{item.name}}"></span>
 //2.nc-for	  只能写命令，row in ary 这样的形式，任何元素都可以使用，有一点注意，只能使用基本属性，不能传递entity，比如onclick="delete({{row}})"，这是不行的，但是可以onclick="delete({{$index}})"。
 //3.nc-if	  支持表达式
@@ -186,6 +186,12 @@ var $NICE_MVVM = function(mvvmElement){
 					});
 				}
 			},
+            'nc-src':{
+                'commandName':'nc-src',//绑定src属性，必须要求有nc-src值，可以避免原生html的src因为表达式出现网络404的问题。
+                'initFunc':function(node,proPath){
+                    $SCOPE.$BIND_TXT(node,'src');
+                }
+            },
             'nc-text':{
                 'commandName':'nc-text',//可以直接渲染元素的文本
                 'initFunc':function(node,proPath){
@@ -396,7 +402,7 @@ var $NICE_MVVM = function(mvvmElement){
 			}*/
 		};
 
-		var NC_ATTRINUTE_REG = /^nc-.*/;
+
 		$SCOPE.$BIND_NODE = function(node){
 			var attributes = node.attributes;
 			if(attributes && attributes.length > 0){
@@ -406,9 +412,6 @@ var $NICE_MVVM = function(mvvmElement){
 					if($SCOPE.$NICE_COMMAND[nodeName]){
 						//作为指令解析
 						$SCOPE.$NICE_COMMAND[nodeName].initFunc(node,nodeValue);
-					}else if(NC_ATTRINUTE_REG.test(nodeName)){
-						//如果是nc-开头的，那么作为特殊属性解析
-						$SCOPE.$BIND_TXT(attributes[i],'nc-');
 					}else{
 						//将普通属性也作为节点，尝试纯文本解析{{}}
 						$SCOPE.$BIND_TXT(attributes[i],'nodeValue');
@@ -428,11 +431,10 @@ var $NICE_MVVM = function(mvvmElement){
 			var content = '';
 			if(renderType=='nodeValue'){
 				content = node.nodeValue;
+			}else if(renderType=='src'){
+				content = node.getAttribute('nc-src');
 			}else if(renderType=='innerHTML'){
 				content = node.getAttribute('nc-text');
-			}else if(renderType=='nc-'){
-				content = node.nodeValue;
-				renderType = node.nodeName.substring(3);
 			}
 			if(!content){
 				return false;
