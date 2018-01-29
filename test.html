@@ -33,13 +33,32 @@
 			<th>Name</th>
 			<th>Age</th>
 			<th>operation</th>
+			<th>table</th>
 		</tr>
 		<tbody id="table_" style="display: none;">
-			<tr nc-for="row in users" id="{{$index}}">
+			<tr nc-for="row in users" id="{{row.$index}}">
 				<td name="a{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
-				<td nc-text="{{'111'+row.name}}"></td>
+				<td nc-class="{{row.name}}" nc-text="{{'111'+row.name}}"></td>
 				<td>{{row.num|rowFilter}}</td>
 				<td><button onclick="del({{$index}})">remove</button></td>
+				<td>
+					<table>
+						<tr>
+							<th>index</th>
+							<th>Name</th>
+							<th>Age</th>
+							<th>operation</th>
+						</tr>
+						<tbody>
+							<tr nc-for="row_2 in users" id="{{row_2.$index}}">
+								<td name="a{{row_2.name}}">{{2+1+'abcrow_row_'+row_2.age}}</td>
+								<td nc-class="{{row_2.name}}" nc-text="{{'111'+row_2.name}}"></td>
+								<td>{{row_2.num|rowFilter}}</td>
+								<td><button onclick="del({{$index}})">remove</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
 			</tr>
 		</tbody>
 	</table>
