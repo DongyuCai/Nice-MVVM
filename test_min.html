@@ -26,17 +26,18 @@
 		{{userName}}
 	</div>
 </body>
-<script type="text/javascript" src="nice-mvvm.min.js"></script>
+<script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
 	var NM_1 = $NICE_MVVM(document.getElementById('NM_1'));
 	var NM_2 = $NICE_MVVM(document.getElementById('NM_2'));
 	
-	NM_1.$init();
-	NM_2.$init();
 	$scope1 = NM_1.$scope;
 	$scope2 = NM_2.$scope;
 	$scope1.userName = 'abc';
 	$scope2.userName = 'abc';
+	
+	NM_1.$init();
+	NM_2.$init();
 </script>
 
 

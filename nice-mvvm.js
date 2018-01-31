@@ -497,6 +497,8 @@ var $NICE_MVVM = function(mvvmElement){
 			}
 			if(!content){
 				return false;
+			}else{
+				content = content+'';//转成String
 			}
 			var start = content.indexOf('{{');
 			var end = content.indexOf('}}');
