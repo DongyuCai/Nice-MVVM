@@ -1,37 +1,31 @@
 'use strict';
-//æ”¯æŒæŒ‡ä»¤ï¼š
-//1.nc-value  åªèƒ½å†™å˜é‡ï¼Œä¸å¯ä»¥å†™è¡¨è¾¾å¼ï¼ŒåŒå‘ç»‘å®šï¼Œå‡¡æ˜¯æœ‰valueå±æ€§çš„å…ƒç´ ï¼Œéƒ½å¯ä»¥ä½¿ç”¨ã€‚
-//4.nc-src	  ä¾‹ nc-src="{{basePictureUrl+item.picture}}"
-//5.nc-text   åˆ— <span nc-text="{{item.name}}"></span>
-//2.nc-for	  åªèƒ½å†™å‘½ä»¤ï¼Œrow in ary è¿™æ ·çš„å½¢å¼ï¼Œä»»ä½•å…ƒç´ éƒ½å¯ä»¥ä½¿ç”¨ï¼Œæœ‰ä¸€ç‚¹æ³¨æ„ï¼Œåªèƒ½ä½¿ç”¨åŸºæœ¬å±æ€§ï¼Œä¸èƒ½ä¼ é€’entityï¼Œæ¯”å¦‚onclick="delete({{row}})"ï¼Œè¿™æ˜¯ä¸è¡Œçš„ï¼Œä½†æ˜¯å¯ä»¥onclick="delete({{$index}})"ã€‚
-//3.nc-if	  æ”¯æŒè¡¨è¾¾å¼
-//ï¼ˆå·²æ”¾å¼ƒnc-classï¼‰4.nc-class  æ”¯æŒæŒ‡ä»¤ï¼Œexpress?class1:class2è¿™æ ·çš„å½¢å¼ï¼Œexpresså¯ä»¥æ˜¯è¡¨è¾¾å¼
-//{{}}		  å¯ä»¥æ˜¯è¡¨è¾¾å¼ï¼Œå¯ä»¥æ¥|è¿‡æ»¤å™¨ï¼Œ{{}}å¯ä»¥ç”¨åœ¨ä»»ä½•æ–‡æœ¬æˆ–è€…èŠ‚ç‚¹çš„å±æ€§é‡Œã€‚
-//$watch(proPathAry,function)ï¼ŒproPathAryå‚æ•°æ˜¯éœ€è¦ç›‘æ§çš„å˜é‡åæ•°ç»„ï¼Œfunctionæ˜¯å›è°ƒå‡½æ•°
+//Ö§³ÖÖ¸Áî£º
+//1.nc-value  Ö»ÄÜĞ´±äÁ¿£¬²»¿ÉÒÔĞ´±í´ïÊ½£¬Ë«Ïò°ó¶¨£¬·²ÊÇÓĞvalueÊôĞÔµÄÔªËØ£¬¶¼¿ÉÒÔÊ¹ÓÃ¡£
+//4.nc-src	  Àı nc-src="{{basePictureUrl+item.picture}}"
+//5.nc-text   ÁĞ <span nc-text="{{item.name}}"></span>
+//2.nc-for	  Ö»ÄÜĞ´ÃüÁî£¬row in ary ÕâÑùµÄĞÎÊ½£¬ÈÎºÎÔªËØ¶¼¿ÉÒÔÊ¹ÓÃ£¬ÓĞÒ»µã×¢Òâ£¬Ö»ÄÜÊ¹ÓÃ»ù±¾ÊôĞÔ£¬²»ÄÜ´«µİentity£¬±ÈÈçonclick="delete({{row}})"£¬ÕâÊÇ²»ĞĞµÄ£¬µ«ÊÇ¿ÉÒÔonclick="delete({{$index}})"¡£
+//3.nc-if	  Ö§³Ö±í´ïÊ½
+//£¨ÒÑ·ÅÆúnc-class£©4.nc-class  Ö§³ÖÖ¸Áî£¬express?class1:class2ÕâÑùµÄĞÎÊ½£¬express¿ÉÒÔÊÇ±í´ïÊ½
+//{{}}		  ¿ÉÒÔÊÇ±í´ïÊ½£¬¿ÉÒÔ½Ó|¹ıÂËÆ÷£¬{{}}¿ÉÒÔÓÃÔÚÈÎºÎÎÄ±¾»òÕß½ÚµãµÄÊôĞÔÀï¡£
+//$watch(proPathAry,function)£¬proPathAry²ÎÊıÊÇĞèÒª¼à¿ØµÄ±äÁ¿ÃûÊı×é£¬functionÊÇ»Øµ÷º¯Êı
 //
-//æ³¨æ„äº‹é¡¹ï¼š
-//1.å˜é‡å¿…é¡»å…ˆå£°æ˜ï¼Œå¦åˆ™ä¸åœ¨æ‰˜ç®¡èŒƒå›´
-//2.å˜é‡åªèƒ½ä½¿ç”¨a-zA-Z0-9_è¿™äº›
+//×¢ÒâÊÂÏî£º
+//1.±äÁ¿±ØĞëÏÈÉùÃ÷£¬·ñÔò²»ÔÚÍĞ¹Ü·¶Î§
+//2.±äÁ¿Ö»ÄÜÊ¹ÓÃa-zA-Z0-9_ÕâĞ©
 
-//æš´éœ²ç»™å¤–éƒ¨çš„å…¨å±€å¯¹è±¡
-//æ³¨æ„nice-mvvm.jsè¦æ”¾åœ¨ç¬¬ä¸€ä¸ªå¼•å…¥
+//±©Â¶¸øÍâ²¿µÄÈ«¾Ö¶ÔÏó
+//×¢Òânice-mvvm.jsÒª·ÅÔÚµÚÒ»¸öÒıÈë
 var $NICE_MVVM = function(mvvmElement){
 	if(typeof mvvmElement === 'string'){
 		mvvmElement = document.getElementById(mvvmElement);
 	}
 
-	//å†…å­˜å‚æ•°mvvmä¸­çš„modelå¯¹è±¡
+	//ÄÚ´æ²ÎÊımvvmÖĞµÄmodel¶ÔÏó
 	var $nc = new Object();
-	//å‚æ•°ç›‘å¬é˜Ÿåˆ—
+	//²ÎÊı¼àÌı¶ÓÁĞ
 	var $WATCH_QUEE = {};
-	//ç›‘å¬
+	//¼àÌı
 	var $watch = function(proPathAry,fun){
-		if(typeof proPathAry === 'string'){
-			var proPath = proPathAry;
-			proPathAry = [];
-			proPathAry.push(proPath);
-		}
-
 		for(var i=0;i<proPathAry.length;i++){
 			if(!$WATCH_QUEE[proPathAry[i]]){
 				$WATCH_QUEE[proPathAry[i]] = [];
@@ -42,12 +36,12 @@ var $NICE_MVVM = function(mvvmElement){
 			});
 		}
 	};
-	//èŠ‚ç‚¹æ¸²æŸ“æ‰§è¡Œå®Œæ¯•åçš„å›è°ƒ
+	//½ÚµãäÖÈ¾Ö´ĞĞÍê±ÏºóµÄ»Øµ÷
 	var $AFTER_RENDER = null;
 	var $onload = function(fun){
 		$AFTER_RENDER = fun;
 	};
-	//åœ¨nice-mvvmåˆ·æ–°å‘¨æœŸå†…ï¼Œä¼šè¢«ä¸»åŠ¨è°ƒç”¨ä¸€æ¬¡ã€‚
+	//ÔÚnice-mvvmË¢ĞÂÖÜÆÚÄÚ£¬»á±»Ö÷¶¯µ÷ÓÃÒ»´Î¡£
 	var $AFTER_FLUSH = null;
 	var $onflush = function(fun){
 		$AFTER_FLUSH = fun;
@@ -55,38 +49,38 @@ var $NICE_MVVM = function(mvvmElement){
 
 	var $init = function(){
 
-		//*********************** $ncå¦‚æœå†²çªï¼Œä»¥ä¸Šä»£ç å¯ä»¥ä¿®æ”¹****************
+		//*********************** $ncÈç¹û³åÍ»£¬ÒÔÉÏ´úÂë¿ÉÒÔĞŞ¸Ä****************
 		var $SCOPE = {
 			'$DATA': $nc
 		};
 
-		var $SCOPE_DATA_ = new Object();//å‰¯æœ¬ï¼Œç”¨äºè„å€¼æ£€æµ‹å’ŒåŒæ­¥
+		var $SCOPE_DATA_ = new Object();//¸±±¾£¬ÓÃÓÚÔàÖµ¼ì²âºÍÍ¬²½
 		
-		$SCOPE.$NODE_ID_POINT = 0;//èŠ‚ç‚¹idæŒ‡é’ˆ
-		$SCOPE.$UNREFRESH_NODE_ID = -1;//æ’é™¤åœ¨å¤–ï¼Œä¸éœ€è¦åŒæ­¥çš„èŠ‚ç‚¹id
-		$SCOPE.$V2M_NODE_MAP = new Object();//å­˜æ”¾VMæ¸²æŸ“çš„èŠ‚ç‚¹å¯¹è±¡
+		$SCOPE.$NODE_ID_POINT = 0;//½ÚµãidÖ¸Õë
+		$SCOPE.$UNREFRESH_NODE_ID = -1;//ÅÅ³ıÔÚÍâ£¬²»ĞèÒªÍ¬²½µÄ½Úµãid
+		$SCOPE.$V2M_NODE_MAP = new Object();//´æ·ÅVMäÖÈ¾µÄ½Úµã¶ÔÏó
 
 		$SCOPE.$ADD_V2M_NODE_MAP = function(expression,nodePack){
-			//è½¬æ¢æ•°ç»„çš„è¡¨è¾¾å½¢å¼
+			//×ª»»Êı×éµÄ±í´ïĞÎÊ½
 			expression = expression.replace(/\[/g,'.');
 			expression = expression.replace(/\]/g,'');
-			//è¿˜æœ‰åˆ«çš„åŸç”Ÿæ–¹æ³•ï¼Œå¦‚æœæ²¡å†™å…¨ï¼Œè¦è¡¥å……
-			expression = expression.replace(/\.indexOf\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.substring\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.substr\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.subStr\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.charAt\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.lastIndexOf\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.match\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.search\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.slice\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.split\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.split\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.length\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.toLowerCase\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.toUpperCase\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.replace\(/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
-			expression = expression.replace(/\.length/g,' ');//ä¸èƒ½è®©åŸç”Ÿæ–¹æ³•å½±å“å‚æ•°è§£æ
+			//»¹ÓĞ±ğµÄÔ­Éú·½·¨£¬Èç¹ûÃ»Ğ´È«£¬Òª²¹³ä
+			expression = expression.replace(/\.indexOf\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.substring\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.substr\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.subStr\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.charAt\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.lastIndexOf\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.match\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.search\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.slice\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.split\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.split\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.length\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.toLowerCase\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.toUpperCase\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.replace\(/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
+			expression = expression.replace(/\.length/g,' ');//²»ÄÜÈÃÔ­Éú·½·¨Ó°Ïì²ÎÊı½âÎö
 
 			var find = false;
 			for(var pro in $SCOPE_DATA_){
@@ -102,7 +96,7 @@ var $NICE_MVVM = function(mvvmElement){
 			}
 
 			if(!find){
-				//å°è¯•æ˜¯å¦æ˜¯æ•°ç»„å½¢å¼çš„
+				//³¢ÊÔÊÇ·ñÊÇÊı×éĞÎÊ½µÄ
 				var proReg = new RegExp("^"+expression+'\\.[0-9]+\\..*');
 				for(var pro in $SCOPE_DATA_){
 					if(proReg.test(pro)){
@@ -117,7 +111,7 @@ var $NICE_MVVM = function(mvvmElement){
 			}
 
 			if(!find){
-				//å°è¯•å¸¸é‡è¡¨è¾¾å¼è§£æï¼Œå¦‚æœèƒ½è§£æï¼Œé‚£å°±ç›´æ¥ä½œä¸ºå¸¸é‡å€¼
+				//³¢ÊÔ³£Á¿±í´ïÊ½½âÎö£¬Èç¹ûÄÜ½âÎö£¬ÄÇ¾ÍÖ±½Ó×÷Îª³£Á¿Öµ
 				try{
 					var val = eval(expression);
 					nodePack.render(expression,val);
@@ -125,61 +119,37 @@ var $NICE_MVVM = function(mvvmElement){
 			}
 			
 
-			//æ¯æ¬¡æœ‰æ–°çš„èŠ‚ç‚¹pushè¿›æ¥çš„æ—¶å€™ï¼Œéœ€è¦è®²å¯¹åº”keyçš„æ•°æ®å‰¯æœ¬æ¸…ç©ºé‡æ–°æ¸²æŸ“
+			//Ã¿´ÎÓĞĞÂµÄ½Úµãpush½øÀ´µÄÊ±ºò£¬ĞèÒª½²¶ÔÓ¦keyµÄÊı¾İ¸±±¾Çå¿ÕÖØĞÂäÖÈ¾
 			// delete $SCOPE_DATA_['.'+proPath];
 		};
 
 		$SCOPE.$COPY_NODE_PACK = function(nodePack){
-			//æŠŠæ‰€æœ‰çš„å†…å®¹éƒ½å¤åˆ¶å‡ºæ¥ï¼Œé™¤äº†node
-			//å› ä¸ºnodeè¦ç»Ÿä¸€æ¸²æŸ“ï¼Œæ‰€ä»¥è¦å…±ç”¨ï¼Œä½†æ˜¯å…¶ä½™éƒ¨åˆ†ï¼Œæ¯”å¦‚versionï¼Œæ˜¯ä¸å…¬ç”¨çš„
+			//°ÑËùÓĞµÄÄÚÈİ¶¼¸´ÖÆ³öÀ´£¬³ıÁËnode
+			//ÒòÎªnodeÒªÍ³Ò»äÖÈ¾£¬ËùÒÔÒª¹²ÓÃ£¬µ«ÊÇÆäÓà²¿·Ö£¬±ÈÈçversion£¬ÊÇ²»¹«ÓÃµÄ
 			var newNodePack = new Object();
 			for(var key in nodePack){
 				newNodePack[key] = nodePack[key];
 			}
-			//nodeå› ä¸ºä¸æ˜¯åŸºç¡€ç±»å‹ï¼Œæ‰€ä»¥ï¼Œè‡ªåŠ¨ä¼šè¢«æ‹·è´å¼•ç”¨çš„
+			//nodeÒòÎª²»ÊÇ»ù´¡ÀàĞÍ£¬ËùÒÔ£¬×Ô¶¯»á±»¿½±´ÒıÓÃµÄ
 			return newNodePack;
 		};
 
 
-		//proPathè¡¨ç¤ºå•ä¸€çš„å‚æ•°ï¼Œä¸æ˜¯è¡¨è¾¾å¼
-		//expressè¡¨ç¤ºè¡¨è¾¾å¼ï¼Œåªæœ‰nc-ifã€{{}}æœ‰
-		//commandè¡¨ç¤ºæŒ‡ä»¤ï¼Œnc-forå’Œnc-classéƒ½æ˜¯
+		//proPath±íÊ¾µ¥Ò»µÄ²ÎÊı£¬²»ÊÇ±í´ïÊ½
+		//express±íÊ¾±í´ïÊ½£¬Ö»ÓĞnc-if¡¢{{}}ÓĞ
+		//command±íÊ¾Ö¸Áî£¬nc-forºÍnc-class¶¼ÊÇ
 		$SCOPE.$NICE_COMMAND = {
 			'nc-value':{
-				'commandName':'nc-value',//åŒå‘ç»‘å®š
+				'commandName':'nc-value',//Ë«Ïò°ó¶¨
 				'initFunc':function(node,proPath){
 					var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 
 					var onchangeFun = node.onchange;
 					node.onchange=function(){
-						//ä¿å­˜å€¼åˆ°å†…å­˜
-						if(node.type.toLowerCase() == 'checkbox'){
-							//checkboxçš„å€¼ä¼šç»„æˆæ•°ç»„
-							var proPathVal = $SCOPE.$GET_VAL(proPath);
-							if(!proPathVal){
-								proPathVal = [];
-							}
-							if(node.checked){
-								proPathVal.push(node.value);
-							}else{
-								var spliceIndex = -1;
-								for(var i=0;i<proPathVal.length;i++){
-									if(proPathVal[i]==node.value){
-										spliceIndex = i;
-										break;
-									}
-								}
-								if(spliceIndex >= 0){
-									proPathVal.splice(spliceIndex,1);
-								}
-							}
-							$SCOPE.$SET_VAL(proPath,proPathVal);
-						}else{
-							//å…¶ä»–çš„éƒ½æ˜¯æ›¿æ¢
-							$SCOPE.$SET_VAL(proPath,node.value);
-						}
+						//±£´æÖµµ½ÄÚ´æ
+						$SCOPE.$SET_VAL(proPath,node.value);
 
-						//è°ƒç”¨ç”¨æˆ·åŸç”Ÿæ–¹æ³•
+						//µ÷ÓÃÓÃ»§Ô­Éú·½·¨
 						if(onchangeFun){
 							onchangeFun();
 						}
@@ -187,16 +157,9 @@ var $NICE_MVVM = function(mvvmElement){
 					
 					var onfocusFun = node.onfocus;
 					node.onfocus=function(){
-						//å°†è‡ªå·±è®¾ä¸ºä¸éœ€è¦domæ›´æ–°
-						if(node.type.toLowerCase() == 'checkbox'){
-							//ä¸è¦æ’é™¤æ‰æœ¬èº«
-						}else if(node.type.toLowerCase() == 'radio'){
-							//ä¸è¦æ’é™¤æ‰æœ¬èº«
-						}else{
-							//æ’é™¤æ‰æœ¬èº«
-							$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
-						}
-						//è°ƒç”¨ç”¨æˆ·åŸç”Ÿæ–¹æ³•
+						//½«×Ô¼ºÉèÎª²»ĞèÒªdom¸üĞÂ
+						$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
+						//µ÷ÓÃÓÃ»§Ô­Éú·½·¨
 						if(onfocusFun){
 							onfocusFun();
 						}
@@ -204,63 +167,42 @@ var $NICE_MVVM = function(mvvmElement){
 
 					var onblurFun = node.onblur;
 					node.onblur=function(){
-						//å°†è‡ªå·±è®¾ä¸ºéœ€è¦domæ›´æ–°
+						//½«×Ô¼ºÉèÎªĞèÒªdom¸üĞÂ
 						$SCOPE.$UNREFRESH_NODE_ID = -1;
-						//è°ƒç”¨ç”¨æˆ·åŸç”Ÿæ–¹æ³•
+						//µ÷ÓÃÓÃ»§Ô­Éú·½·¨
 						if(onblurFun){
 							onblurFun();
 						}
 					};
 
-					//åŠ å…¥åˆ°V2M_å¤§Mapé‡Œ
+					//¼ÓÈëµ½V2M_´óMapÀï
 					$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
 						'id':node_nc_id,
 						'node':node,
 						'expression':proPath,
 						'render':function(proPath,val){
-							if(this.node.type.toLowerCase() == 'checkbox'){
-								//éœ€è¦åˆ¤æ–­å‹¾é€‰
-								var proPathVal = $SCOPE.$GET_VAL(proPath);
-								this.node.checked = false;
-								if(proPathVal){
-									for(var i=0;i<proPathVal.length;i++){
-										if(proPathVal[i] == this.node.value){
-											this.node.checked = true;
-											break;
-										}
-									}
-								}
-							}else if(this.node.type.toLowerCase() == 'radio'){
-								//éœ€è¦åˆ¤æ–­é€‰ä¸­
-								var proPathVal = $SCOPE.$GET_VAL(proPath);
-								this.node.checked = false;
-								if(proPathVal == this.node.value){
-									this.node.checked = true;
-								}
-							}else{
-								this.node.value=val;
-							}
+							this.node.value=val;
 						}
 					});
 				}
 			},
             'nc-src':{
-                'commandName':'nc-src',//ç»‘å®šsrcå±æ€§ï¼Œå¿…é¡»è¦æ±‚æœ‰nc-srcå€¼ï¼Œå¯ä»¥é¿å…åŸç”Ÿhtmlçš„srcå› ä¸ºè¡¨è¾¾å¼å‡ºç°ç½‘ç»œ404çš„é—®é¢˜ã€‚
+                'commandName':'nc-src',//°ó¶¨srcÊôĞÔ£¬±ØĞëÒªÇóÓĞnc-srcÖµ£¬¿ÉÒÔ±ÜÃâÔ­ÉúhtmlµÄsrcÒòÎª±í´ïÊ½³öÏÖÍøÂç404µÄÎÊÌâ¡£
                 'initFunc':function(node,proPath){
                     $SCOPE.$BIND_TXT(node,'src');
                 }
             },
             'nc-text':{
-                'commandName':'nc-text',//å¯ä»¥ç›´æ¥æ¸²æŸ“å…ƒç´ çš„æ–‡æœ¬
+                'commandName':'nc-text',//¿ÉÒÔÖ±½ÓäÖÈ¾ÔªËØµÄÎÄ±¾
                 'initFunc':function(node,proPath){
                     $SCOPE.$BIND_TXT(node,'innerHTML');
                 }
             },
             'nc-for':{
-				'commandName':'nc-for',//forå¾ªç¯
+				'commandName':'nc-for',//forÑ­»·
 				'initFunc':function(node,command){
 					var node_nc_id = $SCOPE.$NODE_ID_POINT++;
-					//æ¯”å¦‚row in recordsï¼Œrecordsæ˜¯æ•°ç»„ï¼Œè¿™é‡Œåœ¨V2M_MAPé‡Œçš„é”®ï¼Œæ˜¯recrodsï¼Œè€Œä¸æ˜¯records[0]è¿™æ ·ã€‚
+					//±ÈÈçrow in records£¬recordsÊÇÊı×é£¬ÕâÀïÔÚV2M_MAPÀïµÄ¼ü£¬ÊÇrecrods£¬¶ø²»ÊÇrecords[0]ÕâÑù¡£
 					var flag = command.substring(0,command.indexOf(' in '));
 					flag = flag.replace(/ +/g,'');
 					var proPath = command.substring(command.indexOf(' in ')+4);
@@ -272,21 +214,21 @@ var $NICE_MVVM = function(mvvmElement){
 						'node':node,
 						'expression':proPath,
 						'render':function(proPath,val){
-							//å¦‚æœæ–°çš„valçš„é•¿åº¦ï¼Œå’Œå½“å‰çš„domèŠ‚ç‚¹åˆ—è¡¨å·²ç»ä¸ä¸€è‡´ï¼Œé‚£ä¹ˆéœ€è¦é‡æ–°åŠ è½½èŠ‚ç‚¹ï¼Œå¦åˆ™ä¸éœ€è¦åŠ è½½æ–°çš„èŠ‚ç‚¹
+							//Èç¹ûĞÂµÄvalµÄ³¤¶È£¬ºÍµ±Ç°µÄdom½ÚµãÁĞ±íÒÑ¾­²»Ò»ÖÂ£¬ÄÇÃ´ĞèÒªÖØĞÂ¼ÓÔØ½Úµã£¬·ñÔò²»ĞèÒª¼ÓÔØĞÂµÄ½Úµã
 							
 							if(val.length > this.newNodeAry.length){
 
-								//æœ‰ä¸‹ä¸€ä¸ªå…„å¼ŸèŠ‚ç‚¹ï¼Œå°±åœ¨è¿™ä¸ªå…„å¼ŸèŠ‚ç‚¹å‰ä½¿åŠ²æ’å…¥
+								//ÓĞÏÂÒ»¸öĞÖµÜ½Úµã£¬¾ÍÔÚÕâ¸öĞÖµÜ½ÚµãÇ°Ê¹¾¢²åÈë
 								for(var i=this.newNodeAry.length;i<val.length;i++){
 
-									//æ›¿æ¢nc-foræŒ‡ä»¤
+									//Ìæ»»nc-forÖ¸Áî
 									var newHtml = this.nodeHtml;
 									// var newHtml = this.nodeHtml.replace(/nc-for='[^']+'/g,'');
 									// newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
 
-									//æ›¿æ¢$index
+									//Ìæ»»$index
 									newHtml = newHtml.replace(indexReg,i);
-									//æ›¿æ¢row.
+									//Ìæ»»row.
 									var stepLen = flag.length;
 									if(newHtml.indexOf(flag) >= 0){
 										var stepIndexAry = [];
@@ -295,19 +237,19 @@ var $NICE_MVVM = function(mvvmElement){
 											if(stepStr === flag){
 												var preStr = step>0?newHtml.substring(step-1,step):'';
 												var flagStrReg = /[_0-9a-zA-Z]/;
-												//ç›´æ¥åˆ¤æ–­åˆ°ä¸‹ä¸€ä¸ªä½ç½®
+												//Ö±½ÓÅĞ¶Ïµ½ÏÂÒ»¸öÎ»ÖÃ
 												step = step+stepLen;
-												//åˆ¤æ–­å‰ä¸€ä¸ªå­—ï¼Œæ˜¯ä¸æ˜¯å˜é‡åŒ…å«
+												//ÅĞ¶ÏÇ°Ò»¸ö×Ö£¬ÊÇ²»ÊÇ±äÁ¿°üº¬
 												if(!flagStrReg.test(preStr)){
 													if(step == newHtml.length){
-														//å¦‚æœåˆ°åº•äº†ï¼Œé‚£ä¹ˆè¿™ä¸ªè¯ï¼Œå°±æ˜¯è¦æ›¿æ¢çš„
+														//Èç¹ûµ½µ×ÁË£¬ÄÇÃ´Õâ¸ö´Ê£¬¾ÍÊÇÒªÌæ»»µÄ
 														stepIndexAry.push(step);
 													}else{
-														//å¦‚æœè¿˜æ²¡åˆ°åº•
-														//åˆ¤æ–­æ˜¯å¦åé¢è·Ÿç€çš„ï¼Œæ˜¯_0-9az-A-Z
+														//Èç¹û»¹Ã»µ½µ×
+														//ÅĞ¶ÏÊÇ·ñºóÃæ¸ú×ÅµÄ£¬ÊÇ_0-9az-A-Z
 														var nextStr = newHtml.substring(step,step+1);
 														if(!flagStrReg.test(nextStr)){
-															//è¿™å°±è¯´æ˜ç¡®å®æ˜¯ä¸€ä¸ªå•è¯
+															//Õâ¾ÍËµÃ÷È·ÊµÊÇÒ»¸öµ¥´Ê
 															stepIndexAry.push(step);
 														}
 													}
@@ -330,9 +272,9 @@ var $NICE_MVVM = function(mvvmElement){
 									// newHtml = newHtml.replace(flagReg,proPath+'['+i+']');
 
 									var lowerNewHtml = newHtml.toLowerCase();
-									//newHtmlåœ¨æ‹¼æ¥å’Œå¤„ç†å‰ï¼Œéœ€è¦è¡¥å…¨
-									//tréœ€è¦è¡¥å……åˆ°table
-									//optionéœ€è¦è¡¥å……åˆ°select
+									//newHtmlÔÚÆ´½ÓºÍ´¦ÀíÇ°£¬ĞèÒª²¹È«
+									//trĞèÒª²¹³äµ½table
+									//optionĞèÒª²¹³äµ½select
 									var level = 1;
 									if(lowerNewHtml.indexOf('<tr') == 0){
 										newHtml = '<table><tbody>'+newHtml+'</tbody></table>';
@@ -346,7 +288,7 @@ var $NICE_MVVM = function(mvvmElement){
 									}else{
 										level=0;
 									}
-									//è¡¥å…¨ä¹‹åçš„newHtmlï¼ŒçŸ¥é“å±‚çº§ï¼Œæ·»åŠ åˆ°ä¸´æ—¶divåå¯ä»¥è·å–
+									//²¹È«Ö®ºóµÄnewHtml£¬ÖªµÀ²ã¼¶£¬Ìí¼Óµ½ÁÙÊ±divºó¿ÉÒÔ»ñÈ¡
 									var tmpDiv =  document.createElement('div');
 									tmpDiv.innerHTML = newHtml;
 									var newNode = tmpDiv.childNodes[0];
@@ -361,7 +303,7 @@ var $NICE_MVVM = function(mvvmElement){
 										this.parentNode.appendChild(newNode);
 									}
 									this.newNodeAry.push(newNode);
-									//åˆå§‹åŒ–æ–°åŠ çš„èŠ‚ç‚¹
+									//³õÊ¼»¯ĞÂ¼ÓµÄ½Úµã
 									$SCOPE.$INIT_MVVM(newNode);
 								}
 							} else if(val.length < this.newNodeAry.length){
@@ -373,36 +315,36 @@ var $NICE_MVVM = function(mvvmElement){
 							}
 						},
 						'parentNode':node.parentNode,
-						'nextSibling':node.nextSibling,//ä¸‹ä¸€ä¸ªå…„å¼ŸèŠ‚ç‚¹ï¼Œç”¨æ¥å¾ªç¯æ’æ ‡ç­¾
+						'nextSibling':node.nextSibling,//ÏÂÒ»¸öĞÖµÜ½Úµã£¬ÓÃÀ´Ñ­»·²å±êÇ©
 						'newNodeAry':[]
 					};
 
 
-					//åˆå§‹åŒ–çš„æ—¶å€™ï¼Œå°±éšè—æ‰è¿™ä¸ªéœ€è¦éå†çš„èŠ‚ç‚¹
+					//³õÊ¼»¯µÄÊ±ºò£¬¾ÍÒş²ØµôÕâ¸öĞèÒª±éÀúµÄ½Úµã
 					node.parentNode.removeChild(node);
 
-					//åŸå§‹èŠ‚ç‚¹htmlå‰¯æœ¬
+					//Ô­Ê¼½Úµãhtml¸±±¾
 					var tmpDiv = document.createElement('div');
 					node.removeAttribute('nc-for');
 					tmpDiv.appendChild(node);
 					var cloneHtml = tmpDiv.innerHTML;
 					NEW_NODE_MAP['nodeHtml'] = cloneHtml;
 
-					//åŠ å…¥åˆ°V2M_å¤§Mapé‡Œ
+					//¼ÓÈëµ½V2M_´óMapÀï
 					$SCOPE.$ADD_V2M_NODE_MAP(proPath,NEW_NODE_MAP);
 				}
 			},
 			'nc-if':{
-				'commandName':'nc-if',//åŒå‘ç»‘å®š
+				'commandName':'nc-if',//Ë«Ïò°ó¶¨
 				'initFunc':function(node,expression){
 					if(node.getAttribute('nc-for')){
-						//nc-foræŒ‡ä»¤ä¸nc-ifæŒ‡ä»¤ä¸é‡å¤æ¸²æŸ“
+						//nc-forÖ¸ÁîÓënc-ifÖ¸Áî²»ÖØ¸´äÖÈ¾
 						return false;
 					}
 
 					var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 
-					//åŠ å…¥åˆ°V2M_å¤§Mapé‡Œ
+					//¼ÓÈëµ½V2M_´óMapÀï
 					$SCOPE.$ADD_V2M_NODE_MAP(expression,{
 						'id':node_nc_id,
 						'node':node,
@@ -423,15 +365,15 @@ var $NICE_MVVM = function(mvvmElement){
 							}
 						},
 						'parentNode':node.parentNode,
-						'nextSibling':node.nextSibling//ä¸‹ä¸€ä¸ªå…„å¼ŸèŠ‚ç‚¹ï¼Œç”¨æ¥å¾ªç¯æ’æ ‡ç­¾
+						'nextSibling':node.nextSibling//ÏÂÒ»¸öĞÖµÜ½Úµã£¬ÓÃÀ´Ñ­»·²å±êÇ©
 					});
 				}
 			}/*,
 			'nc-class':{
-				'commandName':'nc-class',//åŒå‘ç»‘å®š
+				'commandName':'nc-class',//Ë«Ïò°ó¶¨
 				'initFunc':function(node,command){
 					if(node.getAttribute('nc-for')){
-						//nc-foræŒ‡ä»¤ä¸nc-classæŒ‡ä»¤ä¸é‡å¤æ¸²æŸ“
+						//nc-forÖ¸ÁîÓënc-classÖ¸Áî²»ÖØ¸´äÖÈ¾
 						return false;
 					}
 
@@ -442,7 +384,7 @@ var $NICE_MVVM = function(mvvmElement){
 					var vals = words[1].split(':');
 
 
-					//åŠ å…¥åˆ°V2M_å¤§Mapé‡Œ
+					//¼ÓÈëµ½V2M_´óMapÀï
 					$SCOPE.$ADD_V2M_NODE_MAP(command,{
 						'id':node_nc_id,
 						'node':node,
@@ -450,10 +392,10 @@ var $NICE_MVVM = function(mvvmElement){
 						'render':function(command,val){
 							if(val){
 								this.node.setAttribute('class',vals[0]);
-								this.node.setAttribute('className',vals[0]);//ie8ä»¥ä¸‹
+								this.node.setAttribute('className',vals[0]);//ie8ÒÔÏÂ
 							}else{
 								this.node.setAttribute('class',vals[1]);
-								this.node.setAttribute('className',vals[1]);//ie8ä»¥ä¸‹
+								this.node.setAttribute('className',vals[1]);//ie8ÒÔÏÂ
 							}
 						}
 					});
@@ -469,10 +411,10 @@ var $NICE_MVVM = function(mvvmElement){
 					var nodeName = attributes[i].nodeName;
 					var nodeValue = attributes[i].nodeValue;
 					if($SCOPE.$NICE_COMMAND[nodeName]){
-						//ä½œä¸ºæŒ‡ä»¤è§£æ
+						//×÷ÎªÖ¸Áî½âÎö
 						$SCOPE.$NICE_COMMAND[nodeName].initFunc(node,nodeValue);
 					}else{
-						//å°†æ™®é€šå±æ€§ä¹Ÿä½œä¸ºèŠ‚ç‚¹ï¼Œå°è¯•çº¯æ–‡æœ¬è§£æ{{}}
+						//½«ÆÕÍ¨ÊôĞÔÒ²×÷Îª½Úµã£¬³¢ÊÔ´¿ÎÄ±¾½âÎö{{}}
 						$SCOPE.$BIND_TXT(attributes[i],'nodeValue');
 					}
 				}
@@ -480,7 +422,7 @@ var $NICE_MVVM = function(mvvmElement){
 			/*for(var i=0;i<$SCOPE.$NODE_PROCESSOR.length;i++){
 				var val = node.getAttribute($SCOPE.$NODE_PROCESSOR[i].commandName);
 				if(val){
-					//å¦‚æœæœ‰ç›¸å…³çš„æŒ‡ä»¤ï¼Œå°±æ‰§è¡ŒæŒ‡ä»¤é¢„å¤„ç†åˆå§‹åŒ–
+					//Èç¹ûÓĞÏà¹ØµÄÖ¸Áî£¬¾ÍÖ´ĞĞÖ¸ÁîÔ¤´¦Àí³õÊ¼»¯
 					$SCOPE.$NODE_PROCESSOR[i].initFunc(node,val);
 				}
 			}*/
@@ -510,7 +452,7 @@ var $NICE_MVVM = function(mvvmElement){
 			for(;!stop;){
 				var first = content.substring(0,start);
 				var second = content.substring(start+2,end);
-				//è½¬æ¢æ•°ç»„çš„è¡¨è¾¾å½¢å¼
+				//×ª»»Êı×éµÄ±í´ïĞÎÊ½
 				second = second.replace(/\[/g,'.');
 				second = second.replace(/\]/g,'');
 				var filter = '';
@@ -536,7 +478,7 @@ var $NICE_MVVM = function(mvvmElement){
 					'value':''
 				});
 				if(start <0 || end <= 0){
-					//å¦‚æœä¸‹é¢æ²¡æœ‰éœ€è¦è§£æçš„{{}}äº†ï¼Œå°±ç»“æŸï¼ŒæŠŠå’åä¸€ä¸ªcontentæ‹¼æ¥ä¸Š
+					//Èç¹ûÏÂÃæÃ»ÓĞĞèÒª½âÎöµÄ{{}}ÁË£¬¾Í½áÊø£¬°Ñ×äºóÒ»¸öcontentÆ´½ÓÉÏ
 					nodeTxtAry.push({
 						'name':content,
 						'value':content
@@ -566,13 +508,13 @@ var $NICE_MVVM = function(mvvmElement){
 						this.node[this.renderType] = renderVal;
 					},
 					'expressionFilter':commandAry[i].filter,
-					'nodeTxtAry':nodeTxtAry,//èŠ‚ç‚¹ä¸­æ–‡æœ¬çš„ç»„æˆ
+					'nodeTxtAry':nodeTxtAry,//½ÚµãÖĞÎÄ±¾µÄ×é³É
 					'renderType':renderType
 				});
 			}
 		};
 
-		//è®¾ç½®å‚æ•°
+		//ÉèÖÃ²ÎÊı
 		$SCOPE.$SET_VAL = function(proPath,val){
 			proPath = proPath.replace(/\[/g,'.');
 			proPath = proPath.replace(/\]/g,'');
@@ -591,14 +533,14 @@ var $NICE_MVVM = function(mvvmElement){
 		};
 
 		$SCOPE.$GET_VAL = function(proPath){
-			//proPathå…¶å®æ˜¯æŒ‡ä»¤é‡Œçš„å…·ä½“å‚æ•°å€¼
-			//æœ‰å¯èƒ½æ˜¯ name
-			//æœ‰å¯èƒ½æ˜¯ !name
-			//è¿˜æœ‰å¯èƒ½æ˜¯ name.something æˆ–è€… age-1è¿™æ ·
+			//proPathÆäÊµÊÇÖ¸ÁîÀïµÄ¾ßÌå²ÎÊıÖµ
+			//ÓĞ¿ÉÄÜÊÇ name
+			//ÓĞ¿ÉÄÜÊÇ !name
+			//»¹ÓĞ¿ÉÄÜÊÇ name.something »òÕß age-1ÕâÑù
 			for(var pro in $SCOPE_DATA_){
 				if(proPath.indexOf(pro) >= 0){
 					var words = proPath.split(pro);
-					//æ¯”å¦‚ ' user.name' æŒ‰ç…§'user.name'åˆ†è§£ä¼šæœ‰ä¸€ä¸ªç©ºæ ¼å’Œä¸€ä¸ª'user.name'
+					//±ÈÈç ' user.name' °´ÕÕ'user.name'·Ö½â»áÓĞÒ»¸ö¿Õ¸ñºÍÒ»¸ö'user.name'
 					if(words.length>1){
 						var newProPath = '';
 						for(var i=0;i<words.length-1;i++){
@@ -626,7 +568,7 @@ var $NICE_MVVM = function(mvvmElement){
 			var obj = $SCOPE.$DATA;
 			for(var i=0;i<pros.length;i++){
 				if(i == pros.length-1){
-					//åˆ°åº•äº†
+					//µ½µ×ÁË
 					return obj[pros[i]];
 				}else{
 					if( obj[pros[i]]){
@@ -637,7 +579,7 @@ var $NICE_MVVM = function(mvvmElement){
 				}
 			}*/
 			try{
-				//å¦‚æœé‡Œé¢å«æœ‰æ•°ç»„çš„æˆåˆ†ï¼Œæ¯”å¦‚$SCOPE.$DATA.ary.0.nameï¼Œåº”è¯¥æ”¹æˆ...ary[0].name
+				//Èç¹ûÀïÃæº¬ÓĞÊı×éµÄ³É·Ö£¬±ÈÈç$SCOPE.$DATA.ary.0.name£¬Ó¦¸Ã¸Ä³É...ary[0].name
 				var words = proPath.split('.');
 				proPath = '';
 				for(var i=0;i<words.length;i++){
@@ -645,7 +587,7 @@ var $NICE_MVVM = function(mvvmElement){
 						if(isNaN(words[i])){
 							proPath = proPath+'.';
 						}else{
-							//å¦‚æœæ˜¯çº¯æ•°å­—ï¼Œæ”¹æˆæ•°ç»„æ–¹å¼å–
+							//Èç¹ûÊÇ´¿Êı×Ö£¬¸Ä³ÉÊı×é·½Ê½È¡
 							proPath = proPath+'[';
 						}
 					}
@@ -653,7 +595,7 @@ var $NICE_MVVM = function(mvvmElement){
 					proPath = proPath+words[i];
 
 					if(!isNaN(words[i])){
-						//å¦‚æœæ˜¯çº¯æ•°å­—ï¼Œæ”¹æˆæ•°ç»„æ–¹å¼å–
+						//Èç¹ûÊÇ´¿Êı×Ö£¬¸Ä³ÉÊı×é·½Ê½È¡
 						proPath = proPath+']';
 					}
 				}
@@ -665,7 +607,7 @@ var $NICE_MVVM = function(mvvmElement){
 			}
 		};
 
-		//å¾—åˆ°å•å±‚æ¬¡å±•å¼€çš„å‚æ•°->å€¼çš„æ˜ å°„
+		//µÃµ½µ¥²ã´ÎÕ¹¿ªµÄ²ÎÊı->ÖµµÄÓ³Éä
 		$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,DATA,emptyProSolidMap){
 			if(pKey){
 				emptyProSolidMap[pKey]=DATA;
@@ -680,19 +622,19 @@ var $NICE_MVVM = function(mvvmElement){
 			}
 		};
 
-		//åŒæ­¥å€¼åˆ°å‰¯æœ¬æ€»ï¼Œå¹¶å¾—åˆ°ä¸å‰¯æœ¬ä¸­ä¸ä¸€è‡´çš„å€¼ï¼Œä»¥æ­¤åŸºå‡†æ¥æ›´æ–°dom
+		//Í¬²½Öµµ½¸±±¾×Ü£¬²¢µÃµ½Óë¸±±¾ÖĞ²»Ò»ÖÂµÄÖµ£¬ÒÔ´Ë»ù×¼À´¸üĞÂdom
 		$SCOPE.$SYNC_SCOPE_DATA_ = function(proSolidMap){
 			var keys = {};
 			
-			// æ•°æ®ç‰ˆæœ¬ä¸ä¸€è‡´ï¼Œéœ€è¦åŒæ­¥çš„å­—æ®µ
+			// Êı¾İ°æ±¾²»Ò»ÖÂ£¬ĞèÒªÍ¬²½µÄ×Ö¶Î
 			for(var proPath in proSolidMap){
 				do{
 					if($SCOPE_DATA_[proPath] === undefined && proSolidMap[proPath] === undefined){
-						//å¦‚æœä¸¤ç«¯éƒ½æ˜¯undefinedï¼Œé‚£ä¹ˆæ²¡æœ‰ç»§ç»­æ¯”è¾ƒçš„æ„ä¹‰ï¼Œå› ä¸ºjsä¸­å¦‚æœå€¼æ˜¯undefinedï¼Œé‚£ä¹ˆä¼šå­˜å‚¨ä¸æˆåŠŸ
+						//Èç¹ûÁ½¶Ë¶¼ÊÇundefined£¬ÄÇÃ´Ã»ÓĞ¼ÌĞø±È½ÏµÄÒâÒå£¬ÒòÎªjsÖĞÈç¹ûÖµÊÇundefined£¬ÄÇÃ´»á´æ´¢²»³É¹¦
 						break;
 					}
 					if($SCOPE_DATA_[proPath] !== undefined && $SCOPE_DATA_[proPath].value === proSolidMap[proPath]){
-						//å¦‚æœå­˜åœ¨å¹¶ä¸”å·²ç»æœ€æ–°ï¼Œä¸éœ€è¦åŒæ­¥
+						//Èç¹û´æÔÚ²¢ÇÒÒÑ¾­×îĞÂ£¬²»ĞèÒªÍ¬²½
 						break;
 					}
 
@@ -706,22 +648,21 @@ var $NICE_MVVM = function(mvvmElement){
 					};
 
 					keys[proPath]=$SCOPE_DATA_[proPath]['version'];
-
 				}while(false);
 			}
 
-			//æ•°æ®åˆ°domèŠ‚ç‚¹ç‰ˆæœ¬ä¸ä¸€è‡´ï¼Œéœ€è¦åŒæ­¥çš„
+			//Êı¾İµ½dom½Úµã°æ±¾²»Ò»ÖÂ£¬ĞèÒªÍ¬²½µÄ
 			for(var proPath in $SCOPE_DATA_){
 				var version = $SCOPE_DATA_[proPath]['version'];
 				do{
 					if(keys[proPath] !== undefined) {
-						//å·²ç»å­˜åœ¨çš„è¦åŒæ­¥å­—æ®µï¼Œå°±ä¸éœ€è¦é‡å¤æ·»åŠ åˆ°ç­‰å¾…åŒæ­¥äº†
+						//ÒÑ¾­´æÔÚµÄÒªÍ¬²½×Ö¶Î£¬¾Í²»ĞèÒªÖØ¸´Ìí¼Óµ½µÈ´ıÍ¬²½ÁË
 						break;
 					}
 
-					//å¦‚æœå€¼å·²ç»åˆ é™¤äº†ï¼ŒåŒæ ·éœ€è¦æ›´æ–°domï¼Œä½†æ˜¯ç‰ˆæœ¬è¿˜æ˜¯è¦ä¸€è‡´çš„
+					//Èç¹ûÖµÒÑ¾­É¾³ıÁË£¬Í¬ÑùĞèÒª¸üĞÂdom£¬µ«ÊÇ°æ±¾»¹ÊÇÒªÒ»ÖÂµÄ
 					if(proSolidMap[proPath] === undefined){
-						//æ¸…é™¤å‰¯æœ¬
+						//Çå³ı¸±±¾
 						delete $SCOPE_DATA_[proPath];
 						keys[proPath] = version;
 						break;
@@ -732,12 +673,12 @@ var $NICE_MVVM = function(mvvmElement){
 							keys[proPath] = version;
 							break;
 						}
-						//selectå…ƒç´ ï¼Œå¾ˆæœ‰å¯èƒ½åœ¨nc-forå¯¹optionè¿›è¡Œæ¸²æŸ“åï¼Œä¼šè‡ªåŠ¨æ”¹å˜selectçš„å€¼ï¼Œè‡ªåŠ¨é€‰ä¸­æœ€åä¸€ä¸ªã€‚
-						//è¿™æ˜¯ä¸è¡Œçš„ï¼Œæ‰€ä»¥å¿…é¡»æŠŠå€¼è°ƒæ•´å›æ¥ï¼Œè°ƒæ•´åˆ°æ­£ç¡®å€¼ã€‚
+						//selectÔªËØ£¬ºÜÓĞ¿ÉÄÜÔÚnc-for¶Ôoption½øĞĞäÖÈ¾ºó£¬»á×Ô¶¯¸Ä±äselectµÄÖµ£¬×Ô¶¯Ñ¡ÖĞ×îºóÒ»¸ö¡£
+						//ÕâÊÇ²»ĞĞµÄ£¬ËùÒÔ±ØĞë°ÑÖµµ÷Õû»ØÀ´£¬µ÷Õûµ½ÕıÈ·Öµ¡£
 						if($SCOPE.$V2M_NODE_MAP[proPath][i]['node']['nodeName'].toLowerCase() == 'select'){
 							if($SCOPE_DATA_[proPath]){
 								if($SCOPE.$V2M_NODE_MAP[proPath][i]['node'].value != $SCOPE_DATA_[proPath]['value']){
-									$SCOPE.$V2M_NODE_MAP[proPath][i]['version'] = 0;//é™ä½ç‰ˆæœ¬ï¼Œç­‰å¾…ä¸‹æ¬¡åŒæ­¥
+									$SCOPE.$V2M_NODE_MAP[proPath][i]['version'] = 0;//½µµÍ°æ±¾£¬µÈ´ıÏÂ´ÎÍ¬²½
 								}
 							}
 						}
@@ -746,7 +687,7 @@ var $NICE_MVVM = function(mvvmElement){
 				}while(false);
 			}
 
-			//æ ¹æ®keysï¼Œå‘ä¸Šè¿½æº¯ï¼Œæ‰€æœ‰è¿™æ¡çº¿çš„ï¼Œéƒ½éœ€è¦æ¸²æŸ“
+			//¸ù¾İkeys£¬ÏòÉÏ×·Ëİ£¬ËùÓĞÕâÌõÏßµÄ£¬¶¼ĞèÒªäÖÈ¾
 			var needSyncProPath = new Object();
 			for(var proPath in keys){
 				needSyncProPath[proPath] = keys[proPath];
@@ -762,12 +703,12 @@ var $NICE_MVVM = function(mvvmElement){
 			return needSyncProPath;
 		};
 
-		//æ˜¯å¦éœ€è¦åœ¨å…¨éƒ¨domæ¸²æŸ“å®Œåï¼Œæ‰§è¡Œä¸‹å›è°ƒ
+		//ÊÇ·ñĞèÒªÔÚÈ«²¿domäÖÈ¾Íêºó£¬Ö´ĞĞÏÂ»Øµ÷
 		$SCOPE.$NEED_AFTER_RENDER = true;
 		$SCOPE.$FLUSH = function(){
 
-			//è®¡ç®—çš„å‡ºï¼Œéœ€è¦è¿›è¡ŒåŒæ­¥çš„proPath
-			//æ·±åº¦ä¼˜å…ˆéå†
+			//¼ÆËãµÄ³ö£¬ĞèÒª½øĞĞÍ¬²½µÄproPath
+			//Éî¶ÈÓÅÏÈ±éÀú
 			var proSolidMap = {};
 			$SCOPE.$GET_PRO_SOLID_MAP(null,$SCOPE.$DATA,proSolidMap);
 
@@ -784,7 +725,6 @@ var $NICE_MVVM = function(mvvmElement){
 					nodePack['version'] = needSyncProPath[proPath];
 
 					var val = $SCOPE.$GET_VAL(nodePack.expression);
-
 					if(val === undefined){
 						val = '';
 					}
@@ -811,18 +751,18 @@ var $NICE_MVVM = function(mvvmElement){
 			}
 			
 			if(needSyncProPathSize > 0){
-				//éœ€è¦æ¸²æŸ“ï¼Œå‰é¢çš„forå·²ç»åšäº†æ¸²æŸ“ï¼Œç­‰åˆ°ä¸‹æ¬¡åˆ—è¡¨ä¸ºç©ºï¼Œæ¸²æŸ“ç»“æŸï¼Œé‚£ä¹ˆè¿›å…¥åˆ°elseé‡Œã€‚
+				//ĞèÒªäÖÈ¾£¬Ç°ÃæµÄforÒÑ¾­×öÁËäÖÈ¾£¬µÈµ½ÏÂ´ÎÁĞ±íÎª¿Õ£¬äÖÈ¾½áÊø£¬ÄÇÃ´½øÈëµ½elseÀï¡£
 				$SCOPE.$NEED_AFTER_RENDER = true;
 			}else{
-				//#æ¸²æŸ“ç»“æŸå›è°ƒï¼Œå‘¨æœŸæ˜¯æ¯æ¬¡æ‰¹é‡æ¸²æŸ“å®Œé¡µé¢åï¼Œæœ‰ä¸”åªæ‰§è¡Œä¸€æ¬¡ã€‚
+				//#äÖÈ¾½áÊø»Øµ÷£¬ÖÜÆÚÊÇÃ¿´ÎÅúÁ¿äÖÈ¾ÍêÒ³Ãæºó£¬ÓĞÇÒÖ»Ö´ĞĞÒ»´Î¡£
 				if($SCOPE.$NEED_AFTER_RENDER){
-					//ä¸éœ€è¦æ¸²æŸ“äº†ï¼Œé‚£ä¹ˆå°±æ‰§è¡Œä¸€æ¬¡å›è°ƒï¼Œç„¶åç­‰å¾…ä¸‹æ¬¡éœ€è¦æ¸²æŸ“çš„æ—¶å€™å†æ¬¡è§¦å‘ã€‚
+					//²»ĞèÒªäÖÈ¾ÁË£¬ÄÇÃ´¾ÍÖ´ĞĞÒ»´Î»Øµ÷£¬È»ºóµÈ´ıÏÂ´ÎĞèÒªäÖÈ¾µÄÊ±ºòÔÙ´Î´¥·¢¡£
 					$SCOPE.$NEED_AFTER_RENDER = false;
 					if($AFTER_RENDER){
 						$AFTER_RENDER();
 					}
 				}
-				//#flushå‘¨æœŸå›è°ƒï¼Œæ¬¡æ•°æ˜¯ï¼Œæ¯æ¬¡å½“flushç©ºé—²åˆ·æ–°çš„æ—¶å€™ï¼Œéƒ½ä¼šè¢«å›è°ƒã€‚
+				//#flushÖÜÆÚ»Øµ÷£¬´ÎÊıÊÇ£¬Ã¿´Îµ±flush¿ÕÏĞË¢ĞÂµÄÊ±ºò£¬¶¼»á±»»Øµ÷¡£
 				if($AFTER_FLUSH){
 					$AFTER_FLUSH();
 				}
@@ -832,18 +772,19 @@ var $NICE_MVVM = function(mvvmElement){
 		};
 
 		$SCOPE.$INIT_MVVM = function(node){
-		    ///Attribute  nodeTypeå€¼ä¸º2ï¼Œè¡¨ç¤ºèŠ‚ç‚¹å±æ€§
-		    ///Comment    nodeTypeå€¼ä¸º8ï¼Œè¡¨ç¤ºæ³¨é‡Šæ–‡æœ¬
-		    ///Document   nodeTypeå€¼ä¸º9ï¼Œè¡¨ç¤ºDocument
-		    ///DocumentFragment   nodeTypeå€¼ä¸º11ï¼Œè¡¨ç¤ºDocumentç‰‡æ®µ
-		    ///Element            nodeTypeå€¼ä¸º1ï¼Œè¡¨ç¤ºå…ƒç´ èŠ‚ç‚¹
-		    ///Text               nodeTypeå€¼ä¸º3ï¼Œè¡¨ç¤ºæ–‡æœ¬èŠ‚ç‚¹
-		    //1ä»£è¡¨èŠ‚ç‚¹çš„ç±»å‹ä¸ºElement
+		    ///Attribute  nodeTypeÖµÎª2£¬±íÊ¾½ÚµãÊôĞÔ
+		    ///Comment    nodeTypeÖµÎª8£¬±íÊ¾×¢ÊÍÎÄ±¾
+		    ///Document   nodeTypeÖµÎª9£¬±íÊ¾Document
+		    ///DocumentFragment   nodeTypeÖµÎª11£¬±íÊ¾DocumentÆ¬¶Î
+		    ///Element            nodeTypeÖµÎª1£¬±íÊ¾ÔªËØ½Úµã
+		    ///Text               nodeTypeÖµÎª3£¬±íÊ¾ÎÄ±¾½Úµã
+		    var total=0;
+		    //1´ú±í½ÚµãµÄÀàĞÍÎªElement
 		    if(node.nodeType==1) {
-		    	//åˆå§‹åŒ–èŠ‚ç‚¹
+		    	//³õÊ¼»¯½Úµã
 		    	$SCOPE.$BIND_NODE(node);
 		    }
-		    //3ä»£è¡¨èŠ‚ç‚¹ä¸ºæ–‡æœ¬
+		    //3´ú±í½ÚµãÎªÎÄ±¾
 		    if(node.nodeType==3){
 		    	
 		    	$SCOPE.$BIND_TXT(node,'nodeValue');

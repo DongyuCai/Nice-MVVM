@@ -16,12 +16,12 @@
 
 	</style>
 </head>
-<body id="body_">
+<body id="table_" style="display: none;">
 	我的{{zhangsan}}
 	<input type="text" name=""  nc-value="userName" style="{{userName|userNameFilter}}" onchange="changeTxt()" />
 	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
-	<input type="radio" name="radio" onclick="setRadio(1)" />
-	<input type="radio" name="radio" onclick="setRadio(2)" />
+	<input type="radio" name="radio" nc-value="radio_val" value="a"  />
+	<input type="radio" name="radio" nc-value="radio_val"  value="b" />
 	<select nc-value="userName">
 		<option nc-for="row in users" value="{{row.name}}">{{row.name}}</option>
 	</select>
@@ -29,14 +29,18 @@
 	<button class="{{addUserBtn?users:[]|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
 	<table>
 		<tr>
+			<th><input type="checkbox" nc-value="checkbox_val" value="abc"></input></th>
 			<th>index</th>
 			<th>Name</th>
 			<th>Age</th>
 			<th>operation</th>
-			<th>table</th>
+			<th>
+				<span nc-for="item in pictures.split(',')">{{item-}}</span>
+			</th>
 		</tr>
-		<tbody id="table_" style="display: none;">
+		<tbody>
 			<tr nc-for="row in users" id="{{row.$index}}">
+				<td></td>
 				<td name="a{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
 				<td nc-class="{{row.name}}" nc-text="{{'111'+row.name}}"></td>
 				<td>{{row.num|rowFilter}}</td>
@@ -69,10 +73,12 @@
 
 	var $nc = nice_mvvm.$scope;
 
+	$nc.checkbox_val = ['abc'];
+	$nc.radio_val = '';
 	$nc.addUserBtn = true;
 
 	function changeTxt(){
-		console.log('a-'+$nc.userlength);
+		//console.log('a-'+$nc.userlength);
 	}
 
 	function setRadio(val){
@@ -80,7 +86,7 @@
 	}
 	
 	function convert(param){
-		console.log(param);
+		//console.log(param);
 		return 'abc';
 	}
 
@@ -97,7 +103,7 @@
 	$nc.showUserLength = false;
 	$nc.userName = 'zhangsan-0';
 	$nc.color = "test";
-
+	$nc.pictures = "张三,李四,王五";
 	
 	function add(){
 		$nc.users.push({
@@ -108,7 +114,7 @@
 	}
 
 	function del(index){
-		console.log(index);
+		//console.log(index);
 		$nc.users.splice(index,1);
 	}
 
@@ -120,7 +126,7 @@
 	}
 
 	function addUserBtnStyleFitler(addUserBtn){
-		console.log(addUserBtn.length);
+		//console.log(addUserBtn.length);
 		if(addUserBtn.length > 30){
 			return "test";
 		}else{
@@ -130,9 +136,14 @@
 	}
 
 	function rowFilter(param){
-		console.log(param);
+		//console.log(param);
 		return param;
 	}
+
+	nice_mvvm.$watch(['checkbox_val','radio_val'],function(checkbox_val,radio_val){
+		console.log(checkbox_val);
+		console.log(radio_val);
+	});
 
 	nice_mvvm.$init();
 	
