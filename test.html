@@ -16,141 +16,99 @@
 
 	</style>
 </head>
-<body id="table_" style="display: none;">
-	我的{{zhangsan}}
-	<input type="text" name=""  nc-value="userName" style="{{userName|userNameFilter}}" onchange="changeTxt()" />
-	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
-	<input type="radio" name="radio" nc-value="radio_val" value="a"  />
-	<input type="radio" name="radio" nc-value="radio_val"  value="b" />
-	<select nc-value="userName">
-		<option nc-for="row in users" value="{{row.name}}">{{row.name}}</option>
-	</select>
-	<button onclick="add()">addUser</button>
-	<button class="{{addUserBtn?users:[]|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
-	<table>
-		<tr>
-			<th><input type="checkbox" nc-value="checkbox_val" value="abc"></input></th>
-			<th>index</th>
-			<th>Name</th>
-			<th>Age</th>
-			<th>operation</th>
-			<th>
-				<span nc-for="item in pictures.split(',')">{{item-}}</span>
-			</th>
-		</tr>
-		<tbody>
-			<tr nc-for="row in users" id="{{row.$index}}">
-				<td></td>
-				<td name="a{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
-				<td nc-class="{{row.name}}" nc-text="{{'111'+row.name}}"></td>
-				<td>{{row.num|rowFilter}}</td>
-				<td><button onclick="del({{$index}})">remove</button></td>
-				<td>
-					<table>
-						<tr>
-							<th>index</th>
-							<th>Name</th>
-							<th>Age</th>
-							<th>operation</th>
-						</tr>
-						<tbody>
-							<tr nc-for="row_2 in users" id="{{row_2.$index}}">
-								<td name="a{{row_2.name}}">{{2+1+'abcrow_row_'+row_2.age}}</td>
-								<td nc-class="{{row_2.name}}" nc-text="{{'111'+row_2.name}}"></td>
-								<td>{{row_2.num|rowFilter:row_2}}</td>
-								<td><button onclick="del({{$index}})">remove</button></td>
-							</tr>
-						</tbody>
-					</table>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+<body id="body_">
+	MVVM第一个实例：
+	<div id="NM_1">
+		<input type="text" nc-value="userName"></input>
+		{{userName}}
+	</div>
+	MVVM第二个实例（与第一个实例互不影响）：
+	<div id="NM_2">
+		nc-value：
+		<input type="text" nc-value="userName"></input>
+		{{userName}}
+		<input type="text" nc-value="userName"></input>
+		<br/>
+
+		nc-src：
+		<img style="width: 15px;height: 15px;" nc-src="https://github.com/DongyuCai/Axe/raw/branch-jdk1.7/axe/{{imgName}}"></img>
+		<br/>
+
+		nc-text：
+		<span nc-text="{{userName+'最棒'}}...!"></span>
+		<br/>
+
+		nc-for：
+		<span nc-for="item in userName.split(',')" nc-text="{{item.$index+1}}、{{item}} "></span>
+		<br/>
+	
+		nc-if：
+		<span nc-if="userName.split(',').length > 1">多个</span>
+		<span nc-if="userName.split(',').length <= 1">单个</span>
+		<br/>
+
+		过滤器：
+		<span nc-text="{{userName|uppercaseFilter}}"></span>---
+		<span nc-text="{{userName|infoFilter:age,sex}}"></span>
+		<br/>
+		
+		渲染监听：
+		$onload(function(){...});
+		<br/>
+
+		变量监控：
+		$watch('field1',function(field1){...});
+		<br/>
+		$watch(['field1','field2'...],function(field1,field2...){...});
+		<br/>
+
+	</div>
+
+
 </body>
-<script type="text/javascript" src="nice-mvvm.js"></script>
+<script type="text/javascript" src="nice-mvvm.min.js"></script>
 <script type="text/javascript">
-	var nice_mvvm = $NICE_MVVM(document.getElementById('table_'));
-
-	var $nc = nice_mvvm.$scope;
-
-	$nc.checkbox_val = ['abc'];
-	$nc.radio_val = '';
-	$nc.addUserBtn = true;
-
-	function changeTxt(){
-		//console.log('a-'+$nc.userlength);
-	}
-
-	function setRadio(val){
-		$nc.radio = val;
-	}
+	//新建MVVM实例
+	var NM_1 = $NICE_MVVM(document.getElementById('NM_1'));
+	$scope1 = NM_1.$scope;//拿到数据绑定对象
+	$scope1.userName = 'abc';
+	NM_1.$init();//初始化MVVM
 	
-	function convert(param){
-		//console.log(param);
-		return 'abc';
-	}
+	//新建MVVM实例，可以只写id
+	var NM_2 = $NICE_MVVM('NM_2');
+	$scope2 = NM_2.$scope;//拿到数据绑定对象
+	$scope2.userName = '张三ZhangSan,李四LiSi';
+	$scope2.age = 1;
+	$scope2.sex = '男';
+	$scope2.imgName = 'favicon.png';
 
-	$nc.users = [];
-	for(var i=0;i<30;i++){
-		$nc.users.push({
-			name:'zhangsan-'+i,
-			age:12,
-			num:0
-		});
-	}
-
-	$nc.userlength = 0;
-	$nc.showUserLength = false;
-	$nc.userName = 'zhangsan-0';
-	$nc.color = "test";
-	$nc.pictures = "张三,李四,王五";
-	
-	function add(){
-		$nc.users.push({
-			name:'zhangsan-'+$nc.users.length,
-			age:12,
-			num:0
-		});
-	}
-
-	function del(index){
-		//console.log(index);
-		$nc.users.splice(index,1);
-	}
-
-	function userNameFilter(userName){
-		if(userName && userName.indexOf("10") > 0)
-			return "color:red";
-
-		return "color:blue";
-	}
-
-	function addUserBtnStyleFitler(addUserBtn){
-		//console.log(addUserBtn.length);
-		if(addUserBtn.length > 30){
-			return "test";
-		}else{
-			return "test2";
-		}
-		// return addUserBtn;
-	}
-
-	function rowFilter(param){
-		console.log(param);
-		// console.log($scope);
-		return param;
-	}
-
-	/*nice_mvvm.$watch(['checkbox_val','radio_val'],function(checkbox_val,radio_val){
-		console.log(checkbox_val);
-		console.log(radio_val);
-	});*/
-
-	nice_mvvm.$init();
-	
-	nice_mvvm.$onload(function(){
-		document.getElementById('table_').removeAttribute('style');
+	NM_2.$onload(function(){
+		console.log('渲染完毕');//渲染完毕会触发，页面动作触发渲染，也会执行。
 	});
+
+	NM_2.$watch(['userName','age'],function(userName,age){
+		//如果userName发生修改，age发生修改，会检测到并触发，如果只有一个检测值，可以不写数组直接'userName'字符串。
+		console.log('检测到值的改变：'+userName+"--"+age);
+	});
+
+	NM_2.$init();//初始化MVVM
+
+	//大写转换器
+	function uppercaseFilter(userName,$scope){
+		//过滤器符号|前的表达式计算值，作为第一个参数接受。
+		//$scope是额外框架会传给过滤器的参数，永远放在最后一个位置，可以不接。
+		console.log("过滤器：uppercaseFilter");
+		console.log($scope);
+		return userName.toUpperCase();//转成大写
+	}
+
+	//信息过滤器，带多个参数
+	function infoFilter(userName,age,sex){
+		//过滤器符号|前的表达式计算值，作为第一个参数接受。
+		//age,sex是额外的两个参数
+		//$scope是额外框架会传给过滤器的参数，永远放在最后一个位置，可以不接。
+		return '年龄'+age+'岁，性别'+sex;//转成大写
+	}
 </script>
 
 

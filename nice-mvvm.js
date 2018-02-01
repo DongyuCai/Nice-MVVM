@@ -546,6 +546,7 @@ var $NICE_MVVM = function(mvvmElement){
 									val = eval(filterExpression);
 								}catch(e){
 									console.error('过滤器失败 '+filterExpression);
+									console.error(e);
 								}
 							}
 
