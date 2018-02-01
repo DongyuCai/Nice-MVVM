@@ -57,7 +57,7 @@
 							<tr nc-for="row_2 in users" id="{{row_2.$index}}">
 								<td name="a{{row_2.name}}">{{2+1+'abcrow_row_'+row_2.age}}</td>
 								<td nc-class="{{row_2.name}}" nc-text="{{'111'+row_2.name}}"></td>
-								<td>{{row_2.num|rowFilter}}</td>
+								<td>{{row_2.num|rowFilter:row_2}}</td>
 								<td><button onclick="del({{$index}})">remove</button></td>
 							</tr>
 						</tbody>
