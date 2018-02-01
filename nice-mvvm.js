@@ -541,7 +541,7 @@ var $NICE_MVVM = function(mvvmElement){
 										}
 									}
 								}
-								filterExpression = filterExpression+')';
+								filterExpression = filterExpression+',$SCOPE.$DATA)';
 								try{
 									val = eval(filterExpression);
 								}catch(e){

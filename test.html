@@ -136,14 +136,15 @@
 	}
 
 	function rowFilter(param){
-		//console.log(param);
+		console.log(param);
+		// console.log($scope);
 		return param;
 	}
 
-	nice_mvvm.$watch(['checkbox_val','radio_val'],function(checkbox_val,radio_val){
+	/*nice_mvvm.$watch(['checkbox_val','radio_val'],function(checkbox_val,radio_val){
 		console.log(checkbox_val);
 		console.log(radio_val);
-	});
+	});*/
 
 	nice_mvvm.$init();
 	
