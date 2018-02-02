@@ -1,0 +1,157 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>test</title>
+
+	<style type="text/css">
+	
+	.test {
+		color: red
+	}
+
+	.test2 {
+		color: green
+	}
+
+
+	</style>
+</head>
+<body id="table_" style="display: none;">
+	我的{{zhangsan}}
+	<input type="text" name=""  nc-value="userName" style="{{userName|userNameFilter}}" onchange="changeTxt()" />
+	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
+	<input type="radio" name="radio" nc-value="radio_val" value="a"  />
+	<input type="radio" name="radio" nc-value="radio_val"  value="b" />
+	<select nc-value="userName">
+		<option nc-for="row in users" value="{{row.name}}">{{row.name}}</option>
+	</select>
+	<button onclick="add()">addUser</button>
+	<button class="{{addUserBtn?users:[]|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
+	<table>
+		<tr>
+			<th><input type="checkbox" nc-value="checkbox_val" value="abc"></input></th>
+			<th>index</th>
+			<th>Name</th>
+			<th>Age</th>
+			<th>operation</th>
+			<th>
+				<span nc-for="item in pictures.split(',')">{{item-}}</span>
+			</th>
+		</tr>
+		<tbody>
+			<tr nc-for="row in users" id="{{row.$index}}">
+				<td></td>
+				<td name="a{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
+				<td nc-class="{{row.name}}" nc-text="{{'111'+row.name}}"></td>
+				<td>{{row.num|rowFilter}}</td>
+				<td><button onclick="del({{$index}})">remove</button></td>
+				<td>
+					<table>
+						<tr>
+							<th>index</th>
+							<th>Name</th>
+							<th>Age</th>
+							<th>operation</th>
+						</tr>
+						<tbody>
+							<tr nc-for="row_2 in users" id="{{row_2.$index}}">
+								<td name="a{{row_2.name}}">{{2+1+'abcrow_row_'+row_2.age}}</td>
+								<td nc-class="{{row_2.name}}" nc-text="{{'111'+row_2.name}}"></td>
+								<td>{{row_2.num|rowFilter:row_2}}</td>
+								<td><button onclick="del({{$index}})">remove</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+<script type="text/javascript" src="../nice-mvvm.js"></script>
+<script type="text/javascript">
+	var nice_mvvm = $NICE_MVVM(document.getElementById('table_'));
+
+	var $nc = nice_mvvm.$scope;
+
+	$nc.checkbox_val = ['abc'];
+	$nc.radio_val = '';
+	$nc.addUserBtn = true;
+
+	function changeTxt(){
+		//console.log('a-'+$nc.userlength);
+	}
+
+	function setRadio(val){
+		$nc.radio = val;
+	}
+	
+	function convert(param){
+		//console.log(param);
+		return 'abc';
+	}
+
+	$nc.users = [];
+	for(var i=0;i<30;i++){
+		$nc.users.push({
+			name:'zhangsan-'+i,
+			age:12,
+			num:0
+		});
+	}
+
+	$nc.userlength = 0;
+	$nc.showUserLength = false;
+	$nc.userName = 'zhangsan-0';
+	$nc.color = "test";
+	$nc.pictures = "张三,李四,王五";
+	
+	function add(){
+		$nc.users.push({
+			name:'zhangsan-'+$nc.users.length,
+			age:12,
+			num:0
+		});
+	}
+
+	function del(index){
+		//console.log(index);
+		$nc.users.splice(index,1);
+	}
+
+	function userNameFilter(userName){
+		if(userName && userName.indexOf("10") > 0)
+			return "color:red";
+
+		return "color:blue";
+	}
+
+	function addUserBtnStyleFitler(addUserBtn){
+		//console.log(addUserBtn.length);
+		if(addUserBtn.length > 30){
+			return "test";
+		}else{
+			return "test2";
+		}
+		// return addUserBtn;
+	}
+
+	function rowFilter(param){
+		console.log(param);
+		// console.log($scope);
+		return param;
+	}
+
+	nice_mvvm.$watch(['checkbox_val','radio_val'],function(checkbox_val,radio_val){
+		console.log(checkbox_val);
+		console.log(radio_val);
+	});
+
+	nice_mvvm.$init();
+	
+	nice_mvvm.$onload(function(){
+		document.getElementById('table_').removeAttribute('style');
+	});
+</script>
+
+
+</html>
