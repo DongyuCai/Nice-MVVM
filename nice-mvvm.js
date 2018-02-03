@@ -16,8 +16,14 @@
 //暴露给外部的全局对象
 //注意nice-mvvm.js要放在第一个引入
 var $NICE_MVVM = function(mvvmElement){
+	var mvvmElementId = null;
 	if(typeof mvvmElement === 'string'){
+		mvvmElementId = mvvmElement;
 		mvvmElement = document.getElementById(mvvmElement);
+	}else{
+		if(mvvmElement.id){
+			mvvmElementId = mvvmElement.id;
+		}
 	}
 
 	//内存参数mvvm中的model对象
@@ -53,7 +59,26 @@ var $NICE_MVVM = function(mvvmElement){
 		$AFTER_FLUSH = fun;
 	};
 
+
+	var $INITED = false;
 	var $init = function(){
+		if(!$INITED){
+			$INITED = true;
+		}else{
+			//把缓存放回去
+			if(mvvmElementId){
+				var newElement = document.getElementById(mvvmElementId);
+				newElement.innerHTML="";
+				while(mvvmElement.childNodes && mvvmElement.childNodes.length > 0){
+					newElement.appendChild(mvvmElement.firstChild);
+				}
+				mvvmElement = newElement;
+			}else{
+				console.error('请使用$NICE_MVVM("elementId")方式初始化，否则不支持缓存机制');
+			}
+
+			return false;
+		}
 
 		//*********************** $nc如果冲突，以上代码可以修改****************
 		var $SCOPE = {

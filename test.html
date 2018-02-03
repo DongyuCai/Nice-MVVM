@@ -50,7 +50,7 @@
 
 		过滤器：
 		<span nc-text="{{userName|uppercaseFilter}}"></span>---
-		<span nc-text="{{userName|infoFilter:age,sex}}"></span>
+		<span nc-text="{{sex|infoFilter:userName,age}}"></span>
 		<br/>
 		
 		渲染监听：
@@ -62,7 +62,7 @@
 		<br/>
 		$watch(['field1','field2'...],function(field1,field2...){...});
 		<br/>
-
+		<a href="历史的/test.html">跳转</a>
 	</div>
 
 
@@ -104,7 +104,7 @@
 	}
 
 	//信息过滤器，带多个参数
-	function infoFilter(userName,age,sex){
+	function infoFilter(sex,userName,age){
 		//过滤器符号|前的表达式计算值，作为第一个参数接受。
 		//age,sex是额外的两个参数
 		//$scope是额外框架会传给过滤器的参数，永远放在最后一个位置，可以不接。
