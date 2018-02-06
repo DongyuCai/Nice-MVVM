@@ -1,4 +1,5 @@
 'use strict';
+console.log('mvvm version:18.2.5');
 //支持指令：
 //1.nc-value  只能写变量，不可以写表达式，双向绑定，凡是有value属性的元素，都可以使用。
 //4.nc-src	  例 nc-src="{{basePictureUrl+item.picture}}"
@@ -824,11 +825,10 @@ var $NICE_MVVM = function(mvvmElement){
 				needSyncProPathSize++;
 				for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 					var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
+					nodePack['version'] = needSyncProPath[proPath];
 					if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
 
 					//flush dom
-					nodePack['version'] = needSyncProPath[proPath];
-
 					var val = $SCOPE.$GET_VAL(nodePack.expression);
 
 					if(val === undefined){
