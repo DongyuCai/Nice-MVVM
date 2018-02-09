@@ -122,15 +122,7 @@ var $NICE_MVVM = function(mvvmElement){
 							$SCOPE.$V2M_NODE_MAP[pro] = [];
 						}
 						find = true;
-						var dublicNode = false;
-						for(var arryIndex=0;arryIndex<$SCOPE.$V2M_NODE_MAP[pro].length;arryIndex++){
-							if($SCOPE.$V2M_NODE_MAP[pro][arryIndex].node == nodePack.node){
-								dublicNode = true;
-							}
-						}
-						if(!dublicNode){
-							$SCOPE.$V2M_NODE_MAP[pro].push($SCOPE.$COPY_NODE_PACK(nodePack));
-						}
+						$SCOPE.$V2M_NODE_MAP[pro].push($SCOPE.$COPY_NODE_PACK(nodePack));
 					}
 				}
 			}
@@ -143,16 +135,7 @@ var $NICE_MVVM = function(mvvmElement){
 						if(!$SCOPE.$V2M_NODE_MAP[expression]){
 							$SCOPE.$V2M_NODE_MAP[expression] = [];
 						}
-						var dublicNode = false;
-						for(var arryIndex=0;arryIndex<$SCOPE.$V2M_NODE_MAP[expression].length;arryIndex++){
-							if($SCOPE.$V2M_NODE_MAP[expression][arryIndex].node == nodePack.node){
-								dublicNode = true;
-							}
-						}
-						if(!dublicNode){
-							$SCOPE.$V2M_NODE_MAP[expression].push($SCOPE.$COPY_NODE_PACK(nodePack));
-						}
-						
+						$SCOPE.$V2M_NODE_MAP[expression].push($SCOPE.$COPY_NODE_PACK(nodePack));
 						find = true;
 						break;
 					}
@@ -328,14 +311,14 @@ var $NICE_MVVM = function(mvvmElement){
 									// newHtml = newHtml.replace(/nc-for="[^"]+"/g,'');
 
 									//替换$index
-									newHtml = newHtml.replace(this.indexReg,i);
+									newHtml = newHtml.replace(indexReg,i);
 									//替换row.
-									var stepLen = this.flag.length;
-									if(newHtml.indexOf(this.flag) >= 0){
+									var stepLen = flag.length;
+									if(newHtml.indexOf(flag) >= 0){
 										var stepIndexAry = [];
 										for(var step=0;step<newHtml.length && (step+stepLen)<=newHtml.length;step++){
 											var stepStr = newHtml.substring(step,step+stepLen);
-											if(stepStr === this.flag){
+											if(stepStr === flag){
 												var preStr = step>0?newHtml.substring(step-1,step):'';
 												var flagStrReg = /[_0-9a-zA-Z]/;
 												//直接判断到下一个位置
@@ -417,9 +400,7 @@ var $NICE_MVVM = function(mvvmElement){
 						},
 						'parentNode':node.parentNode,
 						'nextSibling':node.nextSibling,//下一个兄弟节点，用来循环插标签
-						'newNodeAry':[],
-						'flag':flag,
-						'indexReg':indexReg
+						'newNodeAry':[]
 					};
 
 
@@ -656,8 +637,38 @@ var $NICE_MVVM = function(mvvmElement){
 			}
 		};
 
-		$SCOPE.PRO_PATH_CACHE = {};
 		$SCOPE.$GET_VAL = function(proPath){
+			//proPath其实是指令里的具体参数值
+			//有可能是 name
+			//有可能是 !name
+			//还有可能是 name.something 或者 age-1这样
+			for(var pro in $SCOPE_DATA_){
+				if(proPath.indexOf(pro) >= 0){
+					var words = proPath.split(pro);
+					//比如 ' user.name' 按照'user.name'分解会有一个空格和一个'user.name'
+					if(words.length>1){
+						var newProPath = '';
+						for(var i=0;i<words.length-1;i++){
+							if(words[i].length > 0){
+								if(words[i].substring(words[i].length-1)=="."){
+									newProPath = newProPath+words[i]+pro;
+								}else{
+									newProPath = newProPath+words[i]+'$SCOPE.$DATA.'+pro;
+								}
+							}else{
+								newProPath = newProPath+words[i]+'$SCOPE.$DATA.'+pro;
+							}
+						}
+						proPath = newProPath+words[words.length-1];
+					}
+				}else{
+					//cotinue;
+				}
+			}		
+			
+
+			
+
 			/*var pros = proPath.split('.');
 			var obj = $SCOPE.$DATA;
 			for(var i=0;i<pros.length;i++){
@@ -673,61 +684,26 @@ var $NICE_MVVM = function(mvvmElement){
 				}
 			}*/
 			try{
-				if($SCOPE.PRO_PATH_CACHE[proPath] === undefined){
-					var key = proPath;
-					//proPath其实是指令里的具体参数值
-					//有可能是 name
-					//有可能是 !name
-					//还有可能是 name.something 或者 age-1这样
-					for(var pro in $SCOPE_DATA_){
-						if(proPath.indexOf(pro) >= 0){
-							var words = proPath.split(pro);
-							//比如 ' user.name' 按照'user.name'分解会有一个空格和一个'user.name'
-							if(words.length>1){
-								var newProPath = '';
-								for(var i=0;i<words.length-1;i++){
-									if(words[i].length > 0){
-										if(words[i].substring(words[i].length-1)=="."){
-											newProPath = newProPath+words[i]+pro;
-										}else{
-											newProPath = newProPath+words[i]+'$SCOPE.$DATA.'+pro;
-										}
-									}else{
-										newProPath = newProPath+words[i]+'$SCOPE.$DATA.'+pro;
-									}
-								}
-								proPath = newProPath+words[words.length-1];
-							}
+				//如果里面含有数组的成分，比如$SCOPE.$DATA.ary.0.name，应该改成...ary[0].name
+				var words = proPath.split('.');
+				proPath = '';
+				for(var i=0;i<words.length;i++){
+					if(proPath.length > 0){
+						if(isNaN(words[i])){
+							proPath = proPath+'.';
 						}else{
-							//cotinue;
-						}
-					}	
-
-					//如果里面含有数组的成分，比如$SCOPE.$DATA.ary.0.name，应该改成...ary[0].name
-					var words = proPath.split('.');
-					proPath = '';
-					for(var i=0;i<words.length;i++){
-						if(proPath.length > 0){
-							if(isNaN(words[i])){
-								proPath = proPath+'.';
-							}else{
-								//如果是纯数字，改成数组方式取
-								proPath = proPath+'[';
-							}
-						}
-
-						proPath = proPath+words[i];
-
-						if(!isNaN(words[i])){
 							//如果是纯数字，改成数组方式取
-							proPath = proPath+']';
+							proPath = proPath+'[';
 						}
 					}
-					$SCOPE.PRO_PATH_CACHE[key] = proPath;
-				}else{
-					proPath = $SCOPE.PRO_PATH_CACHE[proPath];
+
+					proPath = proPath+words[i];
+
+					if(!isNaN(words[i])){
+						//如果是纯数字，改成数组方式取
+						proPath = proPath+']';
+					}
 				}
-				
 
 				var result = eval(proPath);
 				return result;
@@ -794,7 +770,6 @@ var $NICE_MVVM = function(mvvmElement){
 					if(proSolidMap[proPath] === undefined){
 						//清除副本
 						delete $SCOPE_DATA_[proPath];
-						delete $SCOPE.$V2M_NODE_MAP[proPath];
 						keys[proPath] = version;
 						break;
 					}
@@ -847,6 +822,7 @@ var $NICE_MVVM = function(mvvmElement){
 
 			var needSyncProPathSize = 0;
 			for(var proPath in needSyncProPath){
+				needSyncProPathSize++;
 				for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 					var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
 					nodePack['version'] = needSyncProPath[proPath];
@@ -858,7 +834,6 @@ var $NICE_MVVM = function(mvvmElement){
 					if(val === undefined){
 						val = '';
 					}
-					needSyncProPathSize++;
 					nodePack.render(nodePack.expression,val);
 
 				}
