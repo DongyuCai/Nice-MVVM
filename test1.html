@@ -1,0 +1,32 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>test</title>
+</head>
+<body id="body_">
+	MVVM第一个实例：
+	<div id="NM_1">
+		{{user.userName}} {{user.age}} <button onclick="init()">click</button>
+	</div>
+	
+
+</body>
+<script type="text/javascript" src="nice-mvvm.js"></script>
+<script type="text/javascript">
+	//新建MVVM实例
+	var NM_1 = $NICE_MVVM(document.getElementById('NM_1'));
+	$scope1 = NM_1.$scope;//拿到数据绑定对象
+	$scope1.user = null;
+	NM_1.$init();//初始化MVVM
+	
+	function init(){
+		$scope1.user = {
+			userName:'xxx',
+			age:1
+		};
+	}
+	
+</script>
+
+
+</html>
