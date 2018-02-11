@@ -40,7 +40,7 @@
 		</tr>
 		<tbody>
 			<tr nc-for="row in users" id="{{row.$index}}">
-				<td></td>
+				<td><span nc-if="row.$index">1</span></td>
 				<td name="a{{row.name}}">{{2+1+'abcrow_row_'+row.age}}</td>
 				<td nc-class="{{row.name}}" nc-text="{{'111'+row.name}}"></td>
 				<td>{{row.num|rowFilter}}</td>
