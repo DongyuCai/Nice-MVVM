@@ -1036,7 +1036,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 		    	}
 		    }else{
 		    	nodePackIds = ','+nodePackIds+',';
-		    	nodePackIds_4_return = ','+nodePackIds+',';
+		    	nodePackIds_4_return = nodePackIds;
 		    }
 	    	var childrens=node.childNodes;
 		    for(var i=0;childrens !== undefined && i<childrens.length;i++) {
