@@ -1030,17 +1030,17 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 		    if(!nodePackIds){
 		    	//如果不存在，说明没有需要挂接V2M_NODEL_MAP的节点，那么新起始一个分支
 		    	nodePackIds = $SCOPE.$NODE_ID_POINT++;
-		    	nodePackIds_4_return = ','+nodePackIds+',';
-		    	//但是因为是新起的，所以子节点必须以上级也作为上级，否则删除时候删不着或者错删
-		    	if(parentNodePackIds){
-		    		nodePackIds = parentNodePackIds+nodePackIds+',';
-		    	}else{
-		    		nodePackIds = ','+nodePackIds+',';
-		    	}
-		    }else{
-		    	nodePackIds = ','+nodePackIds+',';
-		    	nodePackIds_4_return = nodePackIds;
+		    	
 		    }
+
+		    nodePackIds_4_return = ','+nodePackIds+',';
+	    	//但是因为是新起的，所以子节点必须以上级也作为上级，否则删除时候删不着或者错删
+	    	if(parentNodePackIds){
+	    		nodePackIds = parentNodePackIds+nodePackIds+',';
+	    	}else{
+	    		nodePackIds = ','+nodePackIds+',';
+	    	}
+	    	
 	    	var childrens=node.childNodes;
 		    for(var i=0;childrens !== undefined && i<childrens.length;i++) {
 		    	$SCOPE.$INIT_MVVM(childrens[i],nodePackIds);
