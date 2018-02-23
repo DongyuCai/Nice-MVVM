@@ -39,7 +39,7 @@
 		<span nc-text="{{userName+'最棒'}}...!"></span>
 		<br/>
 
-		nc-for：
+		nc-for和$index：
 		<span nc-for="item in userName.split(',')" nc-text="{{item.$index+1}}、{{item}} "></span>
 		<br/>
 	
@@ -70,7 +70,7 @@
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
 	//新建MVVM实例
-	var NM_1 = $NICE_MVVM(document.getElementById('NM_1'));
+	var NM_1 = $NICE_MVVM('NM_1');
 	$scope1 = NM_1.$scope;//拿到数据绑定对象
 	$scope1.userName = 'abc';
 	NM_1.$init();//初始化MVVM

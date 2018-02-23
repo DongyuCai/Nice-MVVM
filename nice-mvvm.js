@@ -86,6 +86,9 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 			//转换数组的表达形式
 			expression = expression.replace(/\[/g,'.');
 			expression = expression.replace(/\]/g,'');
+			
+/*			
+			//TODO:因为后续改了expression的分析方式，所以不需要这样僵化的替换原生方法
 			//还有别的原生方法，如果没写全，要补充
 			expression = expression.replace(/\.indexOf\(/g,' ');//不能让原生方法影响参数解析
 			expression = expression.replace(/\.substring\(/g,' ');//不能让原生方法影响参数解析
@@ -103,7 +106,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 			expression = expression.replace(/\.toUpperCase\(/g,' ');//不能让原生方法影响参数解析
 			expression = expression.replace(/\.replace\(/g,' ');//不能让原生方法影响参数解析
 			expression = expression.replace(/\.length/g,' ');//不能让原生方法影响参数解析
-
+*/
 			var find = false;
 			for(var pro in $SCOPE_DATA_){
 				var expression_ = $SCOPE.$REPLACE_PROPATH(expression,pro,'');
