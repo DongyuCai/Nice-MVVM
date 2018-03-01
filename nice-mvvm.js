@@ -41,9 +41,12 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 
 		for(var i=0;i<proPathAry.length;i++){
 			if(!$WATCH_QUEE[proPathAry[i]]){
-				$WATCH_QUEE[proPathAry[i]] = [];
+				$WATCH_QUEE[proPathAry[i]] = {
+					'version':0,
+					'quee':[]
+				};
 			}
-			$WATCH_QUEE[proPathAry[i]].push({
+			$WATCH_QUEE[proPathAry[i]]['quee'].push({
 				'proPathAry':proPathAry,
 				'fun':fun
 			});
@@ -939,6 +942,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 			var needSyncProPath =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
 
 			var needSyncProPathSize = 0;
+			var watchStatement = {};//$watch监听的语句执行，一次Flush中，相同的语句只执行一遍
 			for(var proPath in needSyncProPath){
 				needSyncProPathSize++;
 				for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
@@ -956,9 +960,10 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 				}
 
 				//flush $watch data
-				if($WATCH_QUEE[proPath] && $WATCH_QUEE[proPath].length > 0){
-					for(var j=0;j<$WATCH_QUEE[proPath].length;j++){
-						var $watchObj = $WATCH_QUEE[proPath][j];
+				if($WATCH_QUEE[proPath] && $WATCH_QUEE[proPath]['version'] < needSyncProPath[proPath]){
+					$WATCH_QUEE[proPath]['version'] = needSyncProPath[proPath];
+					for(var j=0;j<$WATCH_QUEE[proPath]['quee'].length;j++){
+						var $watchObj = $WATCH_QUEE[proPath]['quee'][j];
 						
 						var execStatement = '$watchObj.fun(';
 						for(var k=0;k<$watchObj.proPathAry.length;k++){
@@ -968,7 +973,10 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 							}
 						}
 						execStatement = execStatement+')';
-						eval(execStatement);
+						if(!watchStatement[execStatement]){
+							eval(execStatement);
+							watchStatement[execStatement] = true;
+						}
 					}
 				}
 			}
@@ -985,14 +993,14 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 						$AFTER_RENDER();
 					}
 
-					var num=0;
+					/*var num=0;
 					for(var key in $SCOPE.$V2M_NODE_MAP){
 						num = num+$SCOPE.$V2M_NODE_MAP[key].length;
-						/*for(var ai=0;ai<$SCOPE.$V2M_NODE_MAP[key].length;ai++){
+						for(var ai=0;ai<$SCOPE.$V2M_NODE_MAP[key].length;ai++){
 							console.log('['+mvvmElementId+']'+$SCOPE.$V2M_NODE_MAP[key][ai].parentNodePackIds);
-						}*/
+						}
 					}
-					console.log('['+mvvmElementId+']总计:'+num);
+					console.log('['+mvvmElementId+']总计:'+num);*/
 				}
 				//#flush周期回调，次数是，每次当flush空闲刷新的时候，都会被回调。
 				if($AFTER_FLUSH){
@@ -1063,12 +1071,12 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 		$SCOPE.$INIT_MVVM(mvvmElement,'');
 
 		$SCOPE.$INTERVAL = setInterval(function(){
-			var startTime = new Date().getTime();
+			// var startTime = new Date().getTime();
 			$SCOPE.$FLUSH();
-			var endTime = new Date().getTime();
+			/*var endTime = new Date().getTime();
 			if(endTime-startTime > 100){
 				console.log('['+mvvmElementId+']耗时：'+(endTime-startTime)+'ms');
-			}
+			}*/
 		},1);
 		
 	};
