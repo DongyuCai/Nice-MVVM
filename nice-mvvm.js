@@ -941,7 +941,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 
 			//计算的出，需要进行同步的proPath
 			//深度优先遍历
-			var proSolidMap = $SCOPE.$GET_PRO_SOLID_MAP(null,$SCOPE.$DATA,proSolidMap);
+			var proSolidMap = $SCOPE.$GET_PRO_SOLID_MAP(null,$SCOPE.$DATA);
 
 			var needSyncProPath =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
 
