@@ -41,12 +41,9 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 
 		for(var i=0;i<proPathAry.length;i++){
 			if(!$WATCH_QUEE[proPathAry[i]]){
-				$WATCH_QUEE[proPathAry[i]] = {
-					'version':0,
-					'quee':[]
-				};
+				$WATCH_QUEE[proPathAry[i]] = [];
 			}
-			$WATCH_QUEE[proPathAry[i]]['quee'].push({
+			$WATCH_QUEE[proPathAry[i]].push({
 				'proPathAry':proPathAry,
 				'fun':fun
 			});
@@ -833,7 +830,8 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 		};
 
 		//得到单层次展开的参数->值的映射
-		$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,DATA,emptyProSolidMap){
+		$SCOPE.$GET_PRO_SOLID_MAP = function(pKey,DATA){
+			var emptyProSolidMap = {};
 			if(pKey){
 				emptyProSolidMap[pKey]=DATA;
 				pKey = pKey+'.';
@@ -842,9 +840,13 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 			}
 			if(DATA instanceof Object){
 				for(var key in DATA){
-					$SCOPE.$GET_PRO_SOLID_MAP(pKey+key,DATA[key],emptyProSolidMap);
+					var nextMap = $SCOPE.$GET_PRO_SOLID_MAP(pKey+key,DATA[key]);
+					for(var nextKey in nextMap){
+						emptyProSolidMap[nextKey] = nextMap[nextKey];
+					}
 				}
 			}
+			return emptyProSolidMap;
 		};
 
 		//同步值到副本总，并得到与副本中不一致的值，以此基准来更新dom
@@ -876,6 +878,8 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 
 				}while(false);
 			}
+
+			
 
 			//数据到dom节点版本不一致，需要同步的
 			for(var proPath in $SCOPE_DATA_){
@@ -917,12 +921,13 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 			//根据keys，向上追溯，所有这条线的，都需要渲染
 			var needSyncProPath = new Object();
 			for(var proPath in keys){
-				needSyncProPath[proPath] = keys[proPath];
+				var version = keys[proPath];
+				needSyncProPath[proPath] = version;
 
 				var end = proPath.lastIndexOf('.');
 				while(end > 0){
 					proPath = proPath.substring(0,end);
-					needSyncProPath[proPath]=keys[proPath];
+					needSyncProPath[proPath]=version;
 					end = proPath.lastIndexOf('.');
 				}
 			}
@@ -936,8 +941,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 
 			//计算的出，需要进行同步的proPath
 			//深度优先遍历
-			var proSolidMap = {};
-			$SCOPE.$GET_PRO_SOLID_MAP(null,$SCOPE.$DATA,proSolidMap);
+			var proSolidMap = $SCOPE.$GET_PRO_SOLID_MAP(null,$SCOPE.$DATA,proSolidMap);
 
 			var needSyncProPath =  $SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
 
@@ -960,10 +964,9 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 				}
 
 				//flush $watch data
-				if($WATCH_QUEE[proPath] && $WATCH_QUEE[proPath]['version'] < needSyncProPath[proPath]){
-					$WATCH_QUEE[proPath]['version'] = needSyncProPath[proPath];
-					for(var j=0;j<$WATCH_QUEE[proPath]['quee'].length;j++){
-						var $watchObj = $WATCH_QUEE[proPath]['quee'][j];
+				if($WATCH_QUEE[proPath]){
+					for(var j=0;j<$WATCH_QUEE[proPath].length;j++){
+						var $watchObj = $WATCH_QUEE[proPath][j];
 						
 						var execStatement = '$watchObj.fun(';
 						for(var k=0;k<$watchObj.proPathAry.length;k++){
@@ -1067,7 +1070,11 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 		    return nodePackIds_4_return;
 		};
 
-		$SCOPE.$FLUSH();
+		//第一步：需要先建立$SCOPE_DATA_，
+		var proSolidMap = $SCOPE.$GET_PRO_SOLID_MAP(null,$SCOPE.$DATA,proSolidMap);
+		$SCOPE.$SYNC_SCOPE_DATA_(proSolidMap);
+
+		//第二步：进行节点映射
 		$SCOPE.$INIT_MVVM(mvvmElement,'');
 
 		$SCOPE.$INTERVAL = setInterval(function(){
