@@ -318,9 +318,9 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 					};
 					var onkeyupFun = node.onkeyup;
 					var onchangeFun = node.onchange;
+					var onclickFun = node.onclick;
 					node.onkeyup = function(){
 						changeVal();
-
 						//调用用户原生方法
 						if(onkeyupFun){
 							onkeyupFun();
@@ -328,7 +328,6 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 					};
 					node.onchange = function(){
 						changeVal();
-
 						//调用用户原生方法
 						if(onchangeFun){
 							onchangeFun();
@@ -346,6 +345,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 							//排除掉本身
 							$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
 						}
+						changeVal();
 						//调用用户原生方法
 						if(onfocusFun){
 							onfocusFun();
@@ -357,6 +357,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 						//将自己设为需要dom更新
 						$SCOPE.$UNREFRESH_NODE_ID = -1;
 						//调用用户原生方法
+						changeVal();
 						if(onblurFun){
 							onblurFun();
 						}
