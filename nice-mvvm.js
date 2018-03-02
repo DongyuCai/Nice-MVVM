@@ -173,7 +173,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 			// delete $SCOPE_DATA_['.'+proPath];
 		};
 
-		$SCOPE.$DEL_V2M_NODE_MAP = function(nodePackIds){var num=0;
+		$SCOPE.$DEL_V2M_NODE_MAP = function(nodePackIds){
 			/*var num1=0;
 			for(var key in $SCOPE.$V2M_NODE_MAP){
 				num1 = num1+$SCOPE.$V2M_NODE_MAP[key].length;
@@ -426,7 +426,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 						'expression':proPath,
 						'render':function(proPath,val){
 							//如果新的val的长度，和当前的dom节点列表已经不一致，那么需要重新加载节点，否则不需要加载新的节点
-							
+							val = val === null?[]:val;
 							if(val.length > this.newNodeAry.length){
 
 								//有下一个兄弟节点，就在这个兄弟节点前使劲插入
