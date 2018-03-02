@@ -288,8 +288,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 				'initFunc':function(node,proPath,parentNodePackIds){
 					var node_nc_id = $SCOPE.$NODE_ID_POINT++;
 
-					var onchangeFun = node.onchange;
-					node.onchange=function(){
+					var changeVal = function(){
 						//保存值到内存
 						if(node.type.toLowerCase() == 'checkbox'){
 							//checkbox的值会组成数组
@@ -316,6 +315,19 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 							//其他的都是替换
 							$SCOPE.$SET_VAL(proPath,node.value);
 						}
+					};
+					var onkeyupFun = node.onkeyup;
+					var onchangeFun = node.onchange;
+					node.onkeyup = function(){
+						changeVal();
+
+						//调用用户原生方法
+						if(onkeyupFun){
+							onkeyupFun();
+						}
+					};
+					node.onchange = function(){
+						changeVal();
 
 						//调用用户原生方法
 						if(onchangeFun){
