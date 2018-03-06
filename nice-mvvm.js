@@ -316,26 +316,35 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 							$SCOPE.$SET_VAL(proPath,node.value);
 						}
 					};
+					//onkeyup
 					var onkeyupFun = node.onkeyup;
-					var onchangeFun = node.onchange;
-					var onclickFun = node.onclick;
-					node.onkeyup = function(){
+					var aspectOnkeyupFun = function(){
 						changeVal();
+
+						
 						//调用用户原生方法
 						if(onkeyupFun){
-							onkeyupFun();
+							node.onkeyup = onkeyupFun;
+							node.onkeyup();
+							node.onkeyup = aspectOnkeyupFun;
 						}
 					};
-					node.onchange = function(){
+					node.onkeyup = aspectOnkeyupFun;
+					//onchange
+					var onchangeFun = node.onchange;
+					var aspectOnchangeFun = function(){
 						changeVal();
 						//调用用户原生方法
 						if(onchangeFun){
-							onchangeFun();
+							node.onchange = onchangeFun;
+							node.onchange();
+							node.onchange = aspectOnchangeFun;
 						}
 					};
-					
+					node.onchange = aspectOnchangeFun;
+					//onfocus
 					var onfocusFun = node.onfocus;
-					node.onfocus=function(){
+					var aspectOnfocusFun = function(){
 						//将自己设为不需要dom更新
 						if(node.type.toLowerCase() == 'checkbox'){
 							//不要排除掉本身
@@ -348,20 +357,26 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 						changeVal();
 						//调用用户原生方法
 						if(onfocusFun){
-							onfocusFun();
+							node.onfocus = onfocusFun;
+							node.onfocus();
+							node.onfocus = aspectOnfocusFun;
 						}
 					};
-
+					node.onfocus = aspectOnfocusFun;
+					//onblur
 					var onblurFun = node.onblur;
-					node.onblur=function(){
+					var aspectOnblurFun = function(){
 						//将自己设为需要dom更新
 						$SCOPE.$UNREFRESH_NODE_ID = -1;
 						//调用用户原生方法
 						changeVal();
 						if(onblurFun){
-							onblurFun();
+							node.onblur = onblurFun;
+							node.onblur();
+							node.onblur = aspectOnblurFun;
 						}
 					};
+					node.onblur = aspectOnblurFun;
 
 					//加入到V2M_大Map里
 					$SCOPE.$ADD_V2M_NODE_MAP(proPath,{
