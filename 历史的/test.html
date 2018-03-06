@@ -18,11 +18,11 @@
 </head>
 <body id="table_" style="display: none;">
 	我的{{zhangsan}}
-	<input type="text" name=""  nc-value="userName" style="{{userName|userNameFilter}}" onchange="changeTxt()" />
+	<input type="text" name=""  nc-value="userName" style="{{userName|userNameFilter}}" onchange="changeTxt();console.log(this);" />
 	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
 	<input type="radio" name="radio" nc-value="radio_val" value="a"  />
 	<input type="radio" name="radio" nc-value="radio_val"  value="b" />
-	<select nc-value="userName">
+	<select nc-value="userName" onchange="console.log(this)">
 		<option nc-for="row in users" value="{{row.name}}">{{row.name}}</option>
 	</select>
 	<button onclick="add()">addUser</button>
