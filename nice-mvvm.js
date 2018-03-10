@@ -935,8 +935,8 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 						//select元素，很有可能在nc-for对option进行渲染后，会自动改变select的值，自动选中最后一个。
 						//这是不行的，所以必须把值调整回来，调整到正确值。
 						if($SCOPE.$V2M_NODE_MAP[proPath][i]['node']['nodeName'].toLowerCase() == 'select'){
-							if($SCOPE_DATA_[proPath]){
-								if($SCOPE.$V2M_NODE_MAP[proPath][i]['node'].value != $SCOPE_DATA_[proPath]['value']){
+							if($SCOPE_DATA_[$SCOPE.$V2M_NODE_MAP[proPath][i]['expression']]){
+								if($SCOPE.$V2M_NODE_MAP[proPath][i]['node'].value != $SCOPE_DATA_[$SCOPE.$V2M_NODE_MAP[proPath][i]['expression']]['value']){
 									$SCOPE.$V2M_NODE_MAP[proPath][i]['version'] = 0;//降低版本，等待下次同步
 								}
 							}
