@@ -352,9 +352,9 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 							//不要排除掉本身
 						}else{
 							//排除掉本身
-							$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
+							// $SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
 						}
-						changeVal();
+						// changeVal();
 						//调用用户原生方法
 						if(onfocusFun){
 							node.onfocus = onfocusFun;
@@ -937,7 +937,17 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 						if($SCOPE.$V2M_NODE_MAP[proPath][i]['node']['nodeName'].toLowerCase() == 'select'){
 							if($SCOPE_DATA_[$SCOPE.$V2M_NODE_MAP[proPath][i]['expression']]){
 								if($SCOPE.$V2M_NODE_MAP[proPath][i]['node'].value != $SCOPE_DATA_[$SCOPE.$V2M_NODE_MAP[proPath][i]['expression']]['value']){
-									$SCOPE.$V2M_NODE_MAP[proPath][i]['version'] = 0;//降低版本，等待下次同步
+									if($SCOPE.$V2M_NODE_MAP[proPath][i]['version_pre_val_1'] === undefined || $SCOPE.$V2M_NODE_MAP[proPath][i]['version_pre_val_2'] === undefined){
+										$SCOPE.$V2M_NODE_MAP[proPath][i]['version_pre_val_1'] = $SCOPE_DATA_[$SCOPE.$V2M_NODE_MAP[proPath][i]['expression']]['value'];
+										$SCOPE.$V2M_NODE_MAP[proPath][i]['version_pre_val_2'] = $SCOPE.$V2M_NODE_MAP[proPath][i]['node'].value;
+										$SCOPE.$V2M_NODE_MAP[proPath][i]['version'] = 0;//降低版本，等待下次同步
+									}else{
+										if($SCOPE.$V2M_NODE_MAP[proPath][i]['version_pre_val_1'] !== $SCOPE_DATA_[$SCOPE.$V2M_NODE_MAP[proPath][i]['expression']]['value'] || $SCOPE.$V2M_NODE_MAP[proPath][i]['version_pre_val_2'] !== $SCOPE.$V2M_NODE_MAP[proPath][i]['node'].value){
+											delete $SCOPE.$V2M_NODE_MAP[proPath][i]['version_pre_val_1'];
+											delete $SCOPE.$V2M_NODE_MAP[proPath][i]['version_pre_val_2'];
+										}
+									}
+									
 								}
 							}
 						}
