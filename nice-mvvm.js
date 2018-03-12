@@ -297,11 +297,20 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 								proPathVal = [];
 							}
 							if(node.checked){
-								proPathVal.push(node.value);
+								var findSameVal = false;
+								for(var i=0;i<proPathVal.length;i++){
+									if(proPathVal[i]===node.value){
+										findSameVal = true;
+										break;
+									}
+								}
+								if(!findSameVal){
+									proPathVal.push(node.value);
+								}
 							}else{
 								var spliceIndex = -1;
 								for(var i=0;i<proPathVal.length;i++){
-									if(proPathVal[i]==node.value){
+									if(proPathVal[i]===node.value){
 										spliceIndex = i;
 										break;
 									}
