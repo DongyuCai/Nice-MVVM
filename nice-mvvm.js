@@ -1034,6 +1034,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 			if(needSyncProPathSize > 0){
 				//需要渲染，前面的for已经做了渲染，等到下次列表为空，渲染结束，那么进入到else里。
 				$SCOPE.$NEED_AFTER_RENDER = true;
+				$SCOPE.timeOut = 1;//检测到需要渲染，那么刷新率改成1毫秒
 			}else{
 				//#渲染结束回调，周期是每次批量渲染完页面后，有且只执行一次。
 				if($SCOPE.$NEED_AFTER_RENDER){
@@ -1042,7 +1043,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 					if($AFTER_RENDER){
 						$AFTER_RENDER();
 					}
-
+					$SCOPE.timeOut = 100;//不需要渲染了，刷新率降低
 					/*var num=0;
 					for(var key in $SCOPE.$V2M_NODE_MAP){
 						num = num+$SCOPE.$V2M_NODE_MAP[key].length;
@@ -1124,14 +1125,19 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 		//第二步：进行节点映射
 		$SCOPE.$INIT_MVVM(mvvmElement,'');
 
-		$SCOPE.$INTERVAL = setInterval(function(){
-			// var startTime = new Date().getTime();
-			$SCOPE.$FLUSH();
-			/*var endTime = new Date().getTime();
-			if(endTime-startTime > 100){
-				console.log('['+mvvmElementId+']耗时：'+(endTime-startTime)+'ms');
-			}*/
-		},1);
+		$SCOPE.timeOut = 1;//默认1毫秒开始
+		$SCOPE.$INTERVAL = function(){
+			setTimeout(function(){
+				// var startTime = new Date().getTime();
+				$SCOPE.$FLUSH();
+				/*var endTime = new Date().getTime();
+				if(endTime-startTime > 100){
+					console.log('['+mvvmElementId+']耗时：'+(endTime-startTime)+'ms');
+				}*/
+				$SCOPE.$INTERVAL();
+			},$SCOPE.timeOut);
+		};
+		$SCOPE.$INTERVAL();
 		
 	};
 	
