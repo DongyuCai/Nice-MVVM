@@ -90,6 +90,10 @@
 	NM_2.$watch(['userName','age'],function(userName,age){
 		//如果userName发生修改，age发生修改，会检测到并触发，如果只有一个检测值，可以不写数组直接'userName'字符串。
 		console.log('检测到值的改变：'+userName+"--"+age);
+		if($scope2.userName.length > 5){
+			$scope2.userName = $scope2.userName.substring(0,5);
+		}
+		NM_2.$apply('userName');
 	});
 
 	NM_2.$init();//初始化MVVM

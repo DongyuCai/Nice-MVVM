@@ -1,0 +1,40 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>test</title>
+</head>
+<body >
+	
+<button type="button" onclick="setData()">set</button>
+<button type="button" onclick="getData()">get</button>
+
+</body>
+<script type="text/javascript">
+	var $scope = new Object();
+
+	$scope.user = null;
+
+	Object.defineProperty($scope,'user_',{
+		get:function(){
+			return this.user;
+		},
+		set:function(newValue){
+			console.log("set");
+			this.user = newValue;
+		}
+	});
+
+	function setData(){
+		$scope.user_ = {
+			"name":"t-"+new Date().getTime()
+		};
+	}
+
+	function getData(){
+		console.log($scope.user_.name);
+	}
+
+</script>
+
+
+</html>

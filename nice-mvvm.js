@@ -27,8 +27,11 @@ console.log('mvvm version:18.2.5');
 var $NICE_MVVM = function(mvvmElementId,excludeIds){
 	var mvvmElement = document.getElementById(mvvmElementId);
 
-	//内存参数mvvm中的model对象
-	var $nc = new Object();
+	//数据model
+	var $SCOPE = {
+		'$DATA':new Object()
+	};
+
 	//参数监听队列
 	var $WATCH_QUEE = {};
 	//监听
@@ -60,6 +63,22 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 		$AFTER_FLUSH = fun;
 	};
 
+	//强制刷新参数关联的所有node节点，无论是否在获取焦点的状态下
+	var $APPLY_PRO_PATH_MAP = new Object();
+	var $apply = function(proPathAry){
+		if(typeof proPathAry === 'string'){
+			var proPath = proPathAry;
+			proPathAry = [];
+			proPathAry.push(proPath);
+		}
+		for(var i=0;i<proPathAry.length;i++){
+			$APPLY_PRO_PATH_MAP[proPathAry[i]] = true;//构造map，只是为了降低时间复杂度	
+		}
+
+		$SCOPE.$FLUSH();
+
+		$APPLY_PRO_PATH_MAP = new Object();
+	};
 
 	var $INITED = false;
 	var $init = function(){
@@ -76,11 +95,6 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 
 			return false;
 		}
-
-		//*********************** $nc如果冲突，以上代码可以修改****************
-		var $SCOPE = {
-			'$DATA': $nc
-		};
 
 		var $SCOPE_DATA_ = new Object();//副本，用于脏值检测和同步
 		
@@ -361,7 +375,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 							//不要排除掉本身
 						}else{
 							//排除掉本身
-							// $SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
+							$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
 						}
 						// changeVal();
 						//调用用户原生方法
@@ -999,7 +1013,10 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 				for(var i=0;$SCOPE.$V2M_NODE_MAP[proPath] !== undefined && i<$SCOPE.$V2M_NODE_MAP[proPath].length;i++){
 					var nodePack = $SCOPE.$V2M_NODE_MAP[proPath][i];
 					nodePack['version'] = needSyncProPath[proPath];
-					if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
+
+					if(!$APPLY_PRO_PATH_MAP[proPath]){//如果非强制刷新，就要判断是否要跳过，因为可能是焦点状态
+						if(nodePack.id == $SCOPE.$UNREFRESH_NODE_ID) continue;
+					}
 
 					//flush dom
 					var val = $SCOPE.$GET_VAL(nodePack.expression);
@@ -1142,11 +1159,12 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 	};
 	
 	return {
-		'$scope':$nc,
+		'$scope':$SCOPE.$DATA,
 		'$watch':$watch,
 		'$onload':$onload,
 		'$onflush':$onflush,
-		'$init':$init
+		'$init':$init,
+		'$apply':$apply
 	};
 };
 
