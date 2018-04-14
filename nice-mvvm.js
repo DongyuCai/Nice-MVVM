@@ -343,8 +343,6 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 					var onkeyupFun = node.onkeyup;
 					var aspectOnkeyupFun = function(){
 						changeVal();
-
-						
 						//调用用户原生方法
 						if(onkeyupFun){
 							node.onkeyup = onkeyupFun;
@@ -369,15 +367,7 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 					var onfocusFun = node.onfocus;
 					var aspectOnfocusFun = function(){
 						//将自己设为不需要dom更新
-						if(node.type.toLowerCase() == 'checkbox'){
-							//不要排除掉本身
-						}else if(node.type.toLowerCase() == 'radio'){
-							//不要排除掉本身
-						}else{
-							//排除掉本身
-							$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
-						}
-						// changeVal();
+						$SCOPE.$UNREFRESH_NODE_ID = node_nc_id;
 						//调用用户原生方法
 						if(onfocusFun){
 							node.onfocus = onfocusFun;
@@ -954,6 +944,51 @@ var $NICE_MVVM = function(mvvmElementId,excludeIds){
 						if($SCOPE.$V2M_NODE_MAP[proPath][i]['version'] !== version){
 							keys[proPath] = version;
 							break;
+						}else{
+							/*var node = $SCOPE.$V2M_NODE_MAP[proPath][i].node;
+							if(node.type){
+								if(node.type.toLowerCase() == 'checkbox'){
+									var proPathVal = $SCOPE_DATA_[proPath]['value'];
+									if(!proPathVal){
+										proPathVal = [];
+									}
+									if(node.checked){
+										var findSameVal = false;
+										for(var k=0;k<proPathVal.length;k++){
+											if(proPathVal[k]===node.value){
+												findSameVal = true;
+												break;
+											}
+										}
+										if(!findSameVal){
+											proPathVal.push(node.value);
+										}
+									}else{
+										var spliceIndex = -1;
+										for(var k=0;k<proPathVal.length;k++){
+											if(proPathVal[k]===node.value){
+												spliceIndex = k;
+												break;
+											}
+										}
+										if(spliceIndex >= 0){
+											proPathVal.splice(spliceIndex,1);
+										}
+									}
+									$SCOPE.$SET_VAL(proPath,proPathVal);
+								}else if(node.type.toLowerCase() == 'radio'){
+									if(node.value !== undefined && node.value !== $SCOPE_DATA_[proPath]['value']){
+										if(node.checked){
+											$SCOPE.$SET_VAL(proPath,node.value);
+										}
+									}
+								}else if(node.nodeName.toLowerCase() != 'select'){
+									//如果版本相等，但是值不等，那就需要以节点值为准
+									if(node.value !== undefined && node.value !== $SCOPE_DATA_[proPath]['value']){
+										$SCOPE.$SET_VAL(proPath,node.value);
+									}
+								}
+							}*/
 						}
 						//select元素，很有可能在nc-for对option进行渲染后，会自动改变select的值，自动选中最后一个。
 						//这是不行的，所以必须把值调整回来，调整到正确值。

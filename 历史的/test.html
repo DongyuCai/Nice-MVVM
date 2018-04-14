@@ -21,16 +21,18 @@
 	<input type="text" name=""  nc-value="userName" style="{{userName|userNameFilter}}" onchange="changeTxt();console.log(this);" />
 	<input type="text" name=""  nc-value="userName" onchange="changeTxt()" />
 	<input type="radio" name="radio" nc-value="radio_val" value="a"  />
-	<input type="radio" name="radio" nc-value="radio_val"  value="b" />
-	<select nc-value="userName" onchange="console.log(this)">
+	<input id="radio_1" type="radio" name="radio" nc-value="radio_val"  value="b" />
+	<button onclick="clickRadio()">clickRadio</button>
+	<select  id="select_1" nc-value="userName" onchange="console.log(this)">
 		<option nc-for="row in users" value="{{row.name}}">{{row.name}}</option>
 	</select>
 	<button onclick="add()">addUser</button>
 	<button class="{{addUserBtn|addUserBtnStyleFitler}}" onclick="$nc.addUserBtn=!$nc.addUserBtn">反色</button>
+	<button onclick="changeSelect()">changeSelect</button>
 	<textarea nc-value="userName"></textarea>
 	<table>
 		<tr>
-			<th><input type="checkbox" nc-value="checkbox_val" value=""></input><input type="checkbox" nc-value="checkbox_val" value="0"></input></th>
+			<th><input id="checkbox_1" type="checkbox" nc-value="checkbox_val" value=""></input><input type="checkbox" nc-value="checkbox_val" value="0"></input><button type="button" onclick="checkCheckBox()">checkCheckBox</button></th>
 			<th>index</th>
 			<th>Name</th>
 			<th>Age</th>
@@ -151,6 +153,19 @@
 		document.getElementById('table_').removeAttribute('style');
 		console.log("渲染结束");
 	});
+
+
+	function changeSelect(){
+		document.getElementById("select_1").value = "zhangsan-1";
+	}
+
+	function checkCheckBox(){
+		document.getElementById("checkbox_1").checked = !document.getElementById("checkbox_1").checked;
+	}
+
+	function clickRadio(){
+		document.getElementById("radio_1").checked = true;
+	}
 </script>
 
 

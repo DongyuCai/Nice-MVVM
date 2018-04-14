@@ -62,6 +62,10 @@
 		<br/>
 		$watch(['field1','field2'...],function(field1,field2...){...});
 		<br/>
+
+		修改元素表面值
+		<input id="input_2" type="text" nc-value="age"></input><button type="button" onclick="changeInputVal()">change</button>
+		<br/>
 		<a href="历史的/test.html">跳转</a>
 	</div>
 
@@ -113,6 +117,10 @@
 		//age,sex是额外的两个参数
 		//$scope是额外框架会传给过滤器的参数，永远放在最后一个位置，可以不接。
 		return '年龄'+age+'岁，性别'+sex;//转成大写
+	}
+
+	function changeInputVal(){
+		document.getElementById("input_2").value = 2;
 	}
 </script>
 
