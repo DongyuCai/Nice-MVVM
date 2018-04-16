@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('mvvm version:18.2.5');
+console.log('mvvm version:18.4.16');
 
 var $NICE_MVVM = function(mvvmElementId,excludeIds){
 	var mvvmElement = document.getElementById(mvvmElementId);
