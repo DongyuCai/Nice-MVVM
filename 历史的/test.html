@@ -147,6 +147,10 @@
 		console.log(radio_val);
 	});
 
+	nice_mvvm.$watch(['users.0.name'],function(name){
+		console.log(name);
+	});
+
 	nice_mvvm.$init();
 	
 	nice_mvvm.$onload(function(){

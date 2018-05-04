@@ -19,8 +19,8 @@
 <body id="body_">
 	MVVM第一个实例：
 	<div id="NM_1">
-		<input type="text" nc-value="userName" onkeyup="console.log(this)"></input>
-		{{userName}}
+		<input type="text" nc-value="user.name" onkeyup="console.log(this)"></input>
+		{{user.name}}
 	</div>
 	MVVM第二个实例（与第一个实例互不影响）：
 	<div id="NM_2">
@@ -76,9 +76,9 @@
 	//新建MVVM实例
 	var NM_1 = $NICE_MVVM('NM_1');
 	$scope1 = NM_1.$scope;//拿到数据绑定对象
-	$scope1.userName = 'abc';
+	$scope1.user = new Object();
 	NM_1.$init();//初始化MVVM
-	
+	/*
 	//新建MVVM实例，可以只写id
 	var NM_2 = $NICE_MVVM('NM_2');
 	$scope2 = NM_2.$scope;//拿到数据绑定对象
@@ -121,7 +121,7 @@
 
 	function changeInputVal(){
 		document.getElementById("input_2").value = 2;
-	}
+	}*/
 </script>
 
 
