@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('mvvm version:18.6.9');
+console.log('mvvm version:18.4.16');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -81,10 +81,6 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
         $APPLY_PRO_PATH_MAP = new Object();
     };
 
-    var $STOP_FLAG = false;
-    var $stop = function(){
-        $STOP_FLAG = true;
-    }
     var $INITED = false;
     var $init = function () {
         if (!$INITED) {
@@ -1201,7 +1197,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 if(endTime-startTime > 100){
                     console.log('['+mvvmElementId+']耗时：'+(endTime-startTime)+'ms');
                 }*/
-                if(!$STOP_FLAG) $SCOPE.$INTERVAL();
+                $SCOPE.$INTERVAL();
             }, $SCOPE.timeOut);
         };
         $SCOPE.$INTERVAL();
@@ -1214,8 +1210,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
         '$onload': $onload,
         '$onflush': $onflush,
         '$init': $init,
-        '$apply': $apply,
-        '$stop': $stop
+        '$apply': $apply
     };
 };
 

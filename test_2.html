@@ -1,0 +1,26 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>test</title>
+</head>
+<body id="mvvm">
+	
+	<input nc-value="request.str"></input>
+	<input nc-value="request.str"></input>
+	<textarea>{{request.str}}</textarea>
+	<button onclick="ok()">ccc</button>
+</body>
+<script type="text/javascript" src="nice-mvvm.js"></script>
+<script type="text/javascript">
+	var mvvm = $NICE_MVVM('mvvm');
+	$scope = mvvm.$scope;//拿到数据绑定对象
+	$scope.request = new Object();
+	mvvm.$init();//初始化MVVM
+
+	function ok(){
+		$scope.request = new Object();
+	}
+</script>
+
+
+</html>
