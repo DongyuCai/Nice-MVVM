@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('mvvm version:18.6.9');
+console.log('mvvm version:18.6.27');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -54,14 +54,14 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
         }
     };
     //节点渲染执行完毕后的回调
-    var $AFTER_RENDER = null;
+    var $AFTER_RENDER_CALLBACK_ARY = [];
     var $onload = function (fun) {
-        $AFTER_RENDER = fun;
+        $AFTER_RENDER_CALLBACK_ARY.push(fun);
     };
     //在nice-mvvm刷新周期内，会被主动调用一次。
-    var $AFTER_FLUSH = null;
+    var $AFTER_FLUSH_CALLBACK_ARY = [];
     var $onflush = function (fun) {
-        $AFTER_FLUSH = fun;
+        $AFTER_FLUSH_CALLBACK_ARY.push(fun);
     };
 
     //强制刷新参数关联的所有node节点，无论是否在获取焦点的状态下
@@ -1107,8 +1107,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 if ($SCOPE.$NEED_AFTER_RENDER) {
                     //不需要渲染了，那么就执行一次回调，然后等待下次需要渲染的时候再次触发。
                     $SCOPE.$NEED_AFTER_RENDER = false;
-                    if ($AFTER_RENDER) {
-                        $AFTER_RENDER();
+                    for (var afterRenderIndex=0;afterRenderIndex<$AFTER_RENDER_CALLBACK_ARY.length;afterRenderIndex++) {
+                        $AFTER_RENDER_CALLBACK_ARY[afterRenderIndex]();
                     }
                     $SCOPE.timeOut = 100;//不需要渲染了，刷新率降低
                     /*var num=0;
@@ -1121,8 +1121,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                     console.log('['+mvvmElementId+']总计:'+num);*/
                 }
                 //#flush周期回调，次数是，每次当flush空闲刷新的时候，都会被回调。
-                if ($AFTER_FLUSH) {
-                    $AFTER_FLUSH();
+                for (var afterFlushIndex=0;afterFlushIndex<$AFTER_FLUSH_CALLBACK_ARY.length;afterFlushIndex++) {
+                    $AFTER_FLUSH_CALLBACK_ARY[afterFlushIndex]();
                 }
 
             }
