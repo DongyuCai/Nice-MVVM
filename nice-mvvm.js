@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('mvvm version:18.6.27');
+console.log('mvvm version:18.7.11');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -576,13 +576,16 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                         'expression': expression,
                         'render': function (expression, val) {
                             if (val) {
-                                if (!this.node.parentNode) {
-                                    if (this.nextSibling) {
-                                        this.parentNode.insertBefore(this.node, this.nextSibling);
-                                    } else {
-                                        this.parentNode.appendChild(this.node);
-                                    }
+                                //不再判断此时this.node是否还具有parentNode，因为这个在ie8下会失效，
+                                //在高版本浏览器正常都已经是this.node.parentNod=null
+                                //而ie8下是this.node.parentNod=HtmlDocument，也就是说，remove掉的节点，还是有parenNode的。
+                                // if (!this.node.parentNode) {
+                                if (this.nextSibling) {
+                                    this.parentNode.insertBefore(this.node, this.nextSibling);
+                                } else {
+                                    this.parentNode.appendChild(this.node);
                                 }
+                                // }
                             } else {
                                 if (this.node.parentNode) {
                                     this.node.parentNode.removeChild(this.node);
