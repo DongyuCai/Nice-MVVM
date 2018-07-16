@@ -78,7 +78,7 @@
 	$scope1 = NM_1.$scope;//拿到数据绑定对象
 	$scope1.user = new Object();
 	NM_1.$init();//初始化MVVM
-	/*
+	
 	//新建MVVM实例，可以只写id
 	var NM_2 = $NICE_MVVM('NM_2');
 	$scope2 = NM_2.$scope;//拿到数据绑定对象
@@ -121,7 +121,8 @@
 
 	function changeInputVal(){
 		document.getElementById("input_2").value = 2;
-	}*/
+		document.getElementById("input_2").onchange();
+	}
 </script>
 
 
