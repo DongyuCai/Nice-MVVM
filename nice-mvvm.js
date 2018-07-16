@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('mvvm version:18.7.11');
+console.log('nice-mvvm version:18.7.11');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -84,7 +84,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var $STOP_FLAG = false;
     var $stop = function(){
         $STOP_FLAG = true;
-    }
+    };
     var $INITED = false;
     var $init = function () {
         if (!$INITED) {

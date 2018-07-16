@@ -4,11 +4,16 @@
 	<title>test</title>
 </head>
 <body id="mvvm">
-	<span nc-if="step == 1">11111</span>
-	<span nc-if="step == 2">22222</span>
+	<div>
+		<span nc-if="step == 1">11111</span>
+		<span nc-if="step == 1">11111</span>
+		<span nc-if="step == 2">22222</span>
+		<span nc-if="step == 2">22222</span>
+		<span nc-if="step == 3">22222</span>
+	</div>
 	<button onclick="ok()">ccc</button>
 </body>
-<script type="text/javascript" src="nice-mvvm.js"></script>
+<script type="text/javascript" src="nice-mvvm.min.js"></script>
 <script type="text/javascript">
 	var mvvm = $NICE_MVVM('mvvm');
 	$scope = mvvm.$scope;//拿到数据绑定对象
