@@ -624,7 +624,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                         //2018.7.18 这是非NICE_COMMAND中预定义的nc指令，作为属性补充用，防止属性初始化时候的报错
                         if(node.setAttribute){//2018.7.18 ie8一下没有这个方法,就不支持nc-自定义指令了
                             nodeName = nodeName.substring(3);
-                            node.setAttribute(nodeName,'');//2018.7.18 创建的这个属性，默认是没有值的，等待渲染
+                            node.setAttribute(nodeName,'0');//2018.7.18 创建的这个属性，默认值就放0吧，比较通用一些，有些属性是必须要值的，比如svg里的width，等待渲染
                             for(var attrIndex=0;attrIndex<node.attributes.length;attrIndex++){
                                 if(node.attributes[attrIndex].nodeName === nodeName){
                                     $SCOPE.$BIND_TXT(node.attributes[attrIndex], 'nodeValue', nodeValue, parentNodePackIds);
