@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:18.7.11');
+console.log('nice-mvvm version:18.7.18');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -438,13 +438,13 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             'nc-src': {
                 'commandName': 'nc-src',//绑定src属性，必须要求有nc-src值，可以避免原生html的src因为表达式出现网络404的问题。
                 'initFunc': function (node, proPath, parentNodePackIds) {
-                    return $SCOPE.$BIND_TXT(node, 'src', parentNodePackIds);
+                    return $SCOPE.$BIND_TXT(node, 'src', node.getAttribute('nc-src'), parentNodePackIds);
                 }
             },
             'nc-text': {
                 'commandName': 'nc-text',//可以直接渲染元素的文本
                 'initFunc': function (node, proPath, parentNodePackIds) {
-                    return $SCOPE.$BIND_TXT(node, 'innerHTML', parentNodePackIds);
+                    return $SCOPE.$BIND_TXT(node, 'innerHTML', node.getAttribute('nc-text'), parentNodePackIds);
                 }
             },
             'nc-for': {
@@ -602,7 +602,10 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
 
 
         $SCOPE.$BIND_NODE = function (node, parentNodePackIds) {
-            var attributes = node.attributes;
+            var attributes = [];
+            for(var i=0;i<node.attributes.length;i++){
+                attributes.push(node.attributes[i]);
+            }
             var nodePackIds = '';
             if (attributes && attributes.length > 0) {
                 for (var i = 0; i < attributes.length; i++) {
@@ -617,9 +620,20 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                             }
                             nodePackIds = nodePackIds + nodePackId;
                         }
+                    } else if(nodeName.indexOf('nc-') === 0){
+                        //2018.7.18 这是非NICE_COMMAND中预定义的nc指令，作为属性补充用，防止属性初始化时候的报错
+                        if(node.setAttribute){//2018.7.18 ie8一下没有这个方法,就不支持nc-自定义指令了
+                            nodeName = nodeName.substring(3);
+                            node.setAttribute(nodeName,'');//2018.7.18 创建的这个属性，默认是没有值的，等待渲染
+                            for(var attrIndex=0;attrIndex<node.attributes.length;attrIndex++){
+                                if(node.attributes[attrIndex].nodeName === nodeName){
+                                    $SCOPE.$BIND_TXT(node.attributes[attrIndex], 'nodeValue', nodeValue, parentNodePackIds);
+                                }
+                            }
+                        }
                     } else {
                         //将普通属性也作为节点，尝试纯文本解析{{}}
-                        var nodePackId = $SCOPE.$BIND_TXT(attributes[i], 'nodeValue', parentNodePackIds);
+                        var nodePackId = $SCOPE.$BIND_TXT(attributes[i], 'nodeValue', nodeValue, parentNodePackIds);
                         if (nodePackId) {
                             if (nodePackIds.length > 0) {
                                 nodePackIds = nodePackIds + ',';
@@ -632,22 +646,14 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             return nodePackIds;
         };
 
-        $SCOPE.$BIND_TXT = function (node, renderType, parentNodePackIds) {
-            var content = '';
-            if (renderType == 'nodeValue') {
-                content = node.nodeValue;
-            } else if (renderType == 'src') {
-                content = node.getAttribute('nc-src');
-            } else if (renderType == 'innerHTML') {
-                content = node.getAttribute('nc-text');
-            }
-            if (!content) {
+        $SCOPE.$BIND_TXT = function (node, renderType, renderContent, parentNodePackIds) {
+            if (!renderContent) {
                 return false;
             } else {
-                content = content + '';//转成String
+                renderContent = renderContent + '';//转成String
             }
-            var start = content.indexOf('{{');
-            var end = content.indexOf('}}');
+            var start = renderContent.indexOf('{{');
+            var end = renderContent.indexOf('}}');
             if (start < 0 || end <= 0) {
                 return false;
             }
@@ -656,7 +662,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             var expressionAry = [];
             var stop = false;
             for (; !stop;) {
-                var first = content.substring(0, start);//常量部分
+                var first = renderContent.substring(0, start);//常量部分
                 //##########前面常量部分的保存
                 nodeTxtAry.push({
                     'name': first,
@@ -664,7 +670,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 });
 
                 //##########中间变量部分表达式的解析
-                var second = content.substring(start + 2, end);//{{}}内的部分
+                var second = renderContent.substring(start + 2, end);//{{}}内的部分
                 //转换数组的表达形式
                 second = second.replace(/\[/g, '.');
                 second = second.replace(/\]/g, '');
@@ -703,14 +709,14 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 });
 
                 //##########后面常量部分的保存
-                var content = content.substring(end + 2);
-                start = content.indexOf('{{');
-                end = content.indexOf('}}');
+                var renderContent = renderContent.substring(end + 2);
+                start = renderContent.indexOf('{{');
+                end = renderContent.indexOf('}}');
                 if (start < 0 || end <= 0) {
-                    //如果下面没有需要解析的{{}}了，就结束，把卒后一个content拼接上
+                    //如果下面没有需要解析的{{}}了，就结束，把卒后一个renderContent拼接上
                     nodeTxtAry.push({
-                        'name': content,
-                        'value': content
+                        'name': renderContent,
+                        'value': renderContent
                     });
                     stop = true;
                 }
@@ -1163,7 +1169,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             //3代表节点为文本
             if (node.nodeType == 3) {
 
-                nodePackIds = $SCOPE.$BIND_TXT(node, 'nodeValue', parentNodePackIds);
+                nodePackIds = $SCOPE.$BIND_TXT(node, 'nodeValue', node.nodeValue, parentNodePackIds);
             }
 
             var nodePackIds_4_return = '';
