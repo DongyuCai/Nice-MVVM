@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:18.7.18');
+console.log('nice-mvvm version:18.7.27');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -624,7 +624,16 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                         //2018.7.18 这是非NICE_COMMAND中预定义的nc指令，作为属性补充用，防止属性初始化时候的报错
                         if(node.setAttribute){//2018.7.18 ie8一下没有这个方法,就不支持nc-自定义指令了
                             nodeName = nodeName.substring(3);
-                            node.setAttribute(nodeName,'0');//2018.7.18 创建的这个属性，默认值就放0吧，比较通用一些，有些属性是必须要值的，比如svg里的width，等待渲染
+                            //2018.7.27 如果nodeValue中，最后含有[[]]包含的内容，那么这里面是默认值
+                            var defVal = '';
+                            var nodeValueStr = ('#'+nodeValue);//加#是为了格式化成字符串
+                            var defValFlagStartIndex = nodeValueStr.lastIndexOf('[[');
+                            var defValFlagEndIndex = nodeValueStr.lastIndexOf(']]');
+                            if(defValFlagStartIndex >0 && defValFlagStartIndex < defValFlagEndIndex && defValFlagEndIndex == nodeValueStr.length-2){
+                                defVal = nodeValueStr.substring(defValFlagStartIndex+2,defValFlagEndIndex);
+                                nodeValue = nodeValueStr.substring(1,defValFlagStartIndex);
+                            }
+                            node.setAttribute(nodeName,defVal);
                             for(var attrIndex=0;attrIndex<node.attributes.length;attrIndex++){
                                 if(node.attributes[attrIndex].nodeName === nodeName){
                                     $SCOPE.$BIND_TXT(node.attributes[attrIndex], 'nodeValue', nodeValue, parentNodePackIds);
