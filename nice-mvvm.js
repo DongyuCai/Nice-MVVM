@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:18.7.27');
+console.log('nice-mvvm version:18.8.21');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -112,26 +112,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             expression = expression.replace(/\[/g, '.');
             expression = expression.replace(/\]/g, '');
 
-            /*
-                        //TODO:因为后续改了expression的分析方式，所以不需要这样僵化的替换原生方法
-                        //还有别的原生方法，如果没写全，要补充
-                        expression = expression.replace(/\.indexOf\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.substring\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.substr\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.subStr\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.charAt\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.lastIndexOf\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.match\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.search\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.slice\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.split\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.split\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.length\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.toLowerCase\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.toUpperCase\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.replace\(/g,' ');//不能让原生方法影响参数解析
-                        expression = expression.replace(/\.length/g,' ');//不能让原生方法影响参数解析
-            */
+            
             var find = false;
             for (var pro in $SCOPE.$DATA_SOLID_COPY) {
                 var expression_ = $SCOPE.$REPLACE_PROPATH(expression, pro, '');
@@ -438,13 +419,13 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             'nc-src': {
                 'commandName': 'nc-src',//绑定src属性，必须要求有nc-src值，可以避免原生html的src因为表达式出现网络404的问题。
                 'initFunc': function (node, proPath, parentNodePackIds) {
-                    return $SCOPE.$BIND_TXT(node, 'src', node.getAttribute('nc-src'), parentNodePackIds);
+                    return $SCOPE.$BIND_TXT(node, null, 'src', node.getAttribute('nc-src'), parentNodePackIds);
                 }
             },
             'nc-text': {
                 'commandName': 'nc-text',//可以直接渲染元素的文本
                 'initFunc': function (node, proPath, parentNodePackIds) {
-                    return $SCOPE.$BIND_TXT(node, 'innerHTML', node.getAttribute('nc-text'), parentNodePackIds);
+                    return $SCOPE.$BIND_TXT(node, null, 'innerHTML', node.getAttribute('nc-text'), parentNodePackIds);
                 }
             },
             'nc-for': {
@@ -621,28 +602,17 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                             nodePackIds = nodePackIds + nodePackId;
                         }
                     } else if(nodeName.indexOf('nc-') === 0){
-                        //2018.7.18 这是非NICE_COMMAND中预定义的nc指令，作为属性补充用，防止属性初始化时候的报错
-                        if(node.setAttribute){//2018.7.18 ie8一下没有这个方法,就不支持nc-自定义指令了
-                            nodeName = nodeName.substring(3);
-                            //2018.7.27 如果nodeValue中，最后含有[[]]包含的内容，那么这里面是默认值
-                            var defVal = '';
-                            var nodeValueStr = ('#'+nodeValue);//加#是为了格式化成字符串
-                            var defValFlagStartIndex = nodeValueStr.lastIndexOf('[[');
-                            var defValFlagEndIndex = nodeValueStr.lastIndexOf(']]');
-                            if(defValFlagStartIndex >0 && defValFlagStartIndex < defValFlagEndIndex && defValFlagEndIndex == nodeValueStr.length-2){
-                                defVal = nodeValueStr.substring(defValFlagStartIndex+2,defValFlagEndIndex);
-                                nodeValue = nodeValueStr.substring(1,defValFlagStartIndex);
+                        //2018.8.21 换一种方式，渲染原nc-*指令，渲染过程中，进行setAttribute
+                        var nodePackId = $SCOPE.$BIND_TXT(attributes[i], node, nodeName, nodeValue, parentNodePackIds);
+                        if (nodePackId) {
+                            if (nodePackIds.length > 0) {
+                                nodePackIds = nodePackIds + ',';
                             }
-                            node.setAttribute(nodeName,defVal);
-                            for(var attrIndex=0;attrIndex<node.attributes.length;attrIndex++){
-                                if(node.attributes[attrIndex].nodeName === nodeName){
-                                    $SCOPE.$BIND_TXT(node.attributes[attrIndex], 'nodeValue', nodeValue, parentNodePackIds);
-                                }
-                            }
+                            nodePackIds = nodePackIds + nodePackId;
                         }
                     } else {
                         //将普通属性也作为节点，尝试纯文本解析{{}}
-                        var nodePackId = $SCOPE.$BIND_TXT(attributes[i], 'nodeValue', nodeValue, parentNodePackIds);
+                        var nodePackId = $SCOPE.$BIND_TXT(attributes[i], null, 'nodeValue', nodeValue, parentNodePackIds);
                         if (nodePackId) {
                             if (nodePackIds.length > 0) {
                                 nodePackIds = nodePackIds + ',';
@@ -655,7 +625,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             return nodePackIds;
         };
 
-        $SCOPE.$BIND_TXT = function (node, renderType, renderContent, parentNodePackIds) {
+        $SCOPE.$BIND_TXT = function (node, nodeParent, renderType, renderContent, parentNodePackIds) {
             if (!renderContent) {
                 return false;
             } else {
@@ -742,6 +712,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                     'id': node_nc_id,
                     'parentNodePackIds': parentNodePackIds,
                     'node': node,
+                    'nodeParent': nodeParent,//2018.8.21 如果是nc-的绑定指令，那就会有这个值
                     'expression': expressionAry[i].expression,
                     'render': function (expression, val) {
                         //判断是否是主表达式，如果不是，那么val要改成主表达式的值，val的值，是filter里的参数的
@@ -789,7 +760,18 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
 
                             renderVal = renderVal + this.nodeTxtAry[j].value;
                         }
-                        this.node[this.renderType] = renderVal;
+                        //2018.7.18 ie8一下没有这个方法,就不支持nc-自定义指令了
+                        if(this.renderType.indexOf('nc-') === 0){
+                            if(this.nodeParent.setAttribute){
+                                if(!renderVal && ('#'+renderVal) != '#0'){
+                                    this.nodeParent.removeAttribute(this.renderType.substring(3));
+                                }else{
+                                    this.nodeParent.setAttribute(this.renderType.substring(3),renderVal);
+                                }
+                            }
+                        }else{
+                            this.node[this.renderType] = renderVal;
+                        }
                     },
                     'mainExpression': expressionAry[i].mainExpression,//这是主表达式
                     'expressionFilter': expressionAry[i].filter,
@@ -820,20 +802,6 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
 
         $SCOPE.PRO_PATH_CACHE = {};
         $SCOPE.$GET_VAL = function (proPath) {
-            /*var pros = proPath.split('.');
-            var obj = $SCOPE.$DATA;
-            for(var i=0;i<pros.length;i++){
-                if(i == pros.length-1){
-                    //到底了
-                    return obj[pros[i]];
-                }else{
-                    if( obj[pros[i]]){
-                        obj = obj[pros[i]];
-                    }else{
-                        return null;
-                    }
-                }
-            }*/
             try {
                 if ($SCOPE.PRO_PATH_CACHE[proPath] === undefined) {
                     var key = proPath;
@@ -971,52 +939,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                         if ($SCOPE.$V2M_NODE_MAP[proPath][i]['version'] !== version) {
                             keys[proPath] = version;
                             break;
-                        } else {
-                            /*var node = $SCOPE.$V2M_NODE_MAP[proPath][i].node;
-                            if(node.type){
-                                if(node.type.toLowerCase() == 'checkbox'){
-                                    var proPathVal = $SCOPE.$DATA_SOLID_COPY[proPath]['value'];
-                                    if(!proPathVal){
-                                        proPathVal = [];
-                                    }
-                                    if(node.checked){
-                                        var findSameVal = false;
-                                        for(var k=0;k<proPathVal.length;k++){
-                                            if(proPathVal[k]===node.value){
-                                                findSameVal = true;
-                                                break;
-                                            }
-                                        }
-                                        if(!findSameVal){
-                                            proPathVal.push(node.value);
-                                        }
-                                    }else{
-                                        var spliceIndex = -1;
-                                        for(var k=0;k<proPathVal.length;k++){
-                                            if(proPathVal[k]===node.value){
-                                                spliceIndex = k;
-                                                break;
-                                            }
-                                        }
-                                        if(spliceIndex >= 0){
-                                            proPathVal.splice(spliceIndex,1);
-                                        }
-                                    }
-                                    $SCOPE.$SET_VAL(proPath,proPathVal);
-                                }else if(node.type.toLowerCase() == 'radio'){
-                                    if(node.value !== undefined && node.value !== $SCOPE.$DATA_SOLID_COPY[proPath]['value']){
-                                        if(node.checked){
-                                            $SCOPE.$SET_VAL(proPath,node.value);
-                                        }
-                                    }
-                                }else if(node.nodeName.toLowerCase() != 'select'){
-                                    //如果版本相等，但是值不等，那就需要以节点值为准
-                                    if(node.value !== undefined && node.value !== $SCOPE.$DATA_SOLID_COPY[proPath]['value']){
-                                        $SCOPE.$SET_VAL(proPath,node.value);
-                                    }
-                                }
-                            }*/
                         }
+
                         //select元素，很有可能在nc-for对option进行渲染后，会自动改变select的值，自动选中最后一个。
                         //这是不行的，所以必须把值调整回来，调整到正确值。
                         if ($SCOPE.$V2M_NODE_MAP[proPath][i]['node']['nodeName'].toLowerCase() == 'select') {
@@ -1178,7 +1102,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             //3代表节点为文本
             if (node.nodeType == 3) {
 
-                nodePackIds = $SCOPE.$BIND_TXT(node, 'nodeValue', node.nodeValue, parentNodePackIds);
+                nodePackIds = $SCOPE.$BIND_TXT(node, null, 'nodeValue', node.nodeValue, parentNodePackIds);
             }
 
             var nodePackIds_4_return = '';
