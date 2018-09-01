@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:18.9.1');
+console.log('nice-mvvm version:18.8.21');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -60,33 +60,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     };
     //在nice-mvvm刷新周期内，会被主动调用一次。
     var $AFTER_FLUSH_CALLBACK_ARY = [];
-    var $onflush = function (fun,timeOut,repeat,id) {
-        timeOut = timeOut?0:timeOut;
-
-        var exists = false;
-        for(var i=0;i<$AFTER_FLUSH_CALLBACK_ARY.length;i++){
-            if($AFTER_FLUSH_CALLBACK_ARY[i].id && $AFTER_FLUSH_CALLBACK_ARY[i].id==id){
-                $AFTER_FLUSH_CALLBACK_ARY[i] = {
-                    fun:fun,
-                    timeOut:timeOut,
-                    repeat:repeat,
-                    id:id,
-                    startTime:new Date().getTime()
-                };
-                break;
-                exists = true;
-            }
-        }
-        if(!exists){
-            $AFTER_FLUSH_CALLBACK_ARY.push({
-                fun:fun,
-                timeOut:timeOut,
-                repeat:repeat,
-                id:id,
-                startTime:new Date().getTime()
-            });
-        }
-        
+    var $onflush = function (fun) {
+        $AFTER_FLUSH_CALLBACK_ARY.push(fun);
     };
 
     //强制刷新参数关联的所有node节点，无论是否在获取焦点的状态下
@@ -1088,22 +1063,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                     console.log('['+mvvmElementId+']总计:'+num);*/
                 }
                 //#flush周期回调，次数是，每次当flush空闲刷新的时候，都会被回调。
-                var NEXT_AFTER_FLUSH_CALLBACK_ARY = [];
                 for (var afterFlushIndex=0;afterFlushIndex<$AFTER_FLUSH_CALLBACK_ARY.length;afterFlushIndex++) {
-                    var afterFlushObj = $AFTER_FLUSH_CALLBACK_ARY[afterFlushIndex];
-                    var afterFlushDurTime = new Date().getTime()-afterFlushObj.startTime;
-                    var afterFushExcuted = false;
-                    if(afterFlushDurTime>afterFlushObj.timeOut){
-                        afterFlushObj.fun();
-                        afterFlushObj.startTime = new Date().getTime();
-                        afterFushExcuted = true;
-                    }
-                    if(!afterFushExcuted){
-                        NEXT_AFTER_FLUSH_CALLBACK_ARY.push(afterFlushObj);
-                    }else if(afterFlushObj.repeat){
-                        NEXT_AFTER_FLUSH_CALLBACK_ARY.push(afterFlushObj);
-                    }
-                    $AFTER_FLUSH_CALLBACK_ARY = NEXT_AFTER_FLUSH_CALLBACK_ARY;
+                    $AFTER_FLUSH_CALLBACK_ARY[afterFlushIndex]();
                 }
 
             }
