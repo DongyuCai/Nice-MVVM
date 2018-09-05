@@ -61,7 +61,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     //在nice-mvvm刷新周期内，会被主动调用一次。
     var $AFTER_FLUSH_CALLBACK_ARY = [];
     var $onflush = function (fun,timeOut,repeat,id) {
-        timeOut = timeOut?0:timeOut;
+        timeOut = timeOut?timeOut:0;
 
         var exists = false;
         for(var i=0;i<$AFTER_FLUSH_CALLBACK_ARY.length;i++){

@@ -6,7 +6,8 @@
 <body id="body_">
 	MVVM第一个实例：
 	<div id="NM_1">
-		<p title="{{user.age}}" nc-text="{{user.name}}{{user.age}}"></p>
+		<p nc-text="{{user.name}}{{user.age}}"></p>
+		<textarea onchange="$scope1.user.age=this.value;NM_1.$watch('user.age',function(age){this.value=age;});">{{user.age}}</textarea>
 		<button onclick="add()">click</button>
 	</div>
 </body>
