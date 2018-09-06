@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:18.9.1');
+console.log('nice-mvvm version:18.9.6');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -587,7 +587,14 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                                 //而ie8下是this.node.parentNod=HtmlDocument，也就是说，remove掉的节点，还是有parenNode的。
                                 // if (!this.node.parentNode) {
                                 if (this.nextSibling) {
-                                    this.parentNode.insertBefore(this.node, this.nextSibling);
+                                    //2018-9-6 nc-if可能会导致节点的兄弟关系改变，因此需要再次确认是否真的是兄弟节点，才做插入
+                                    var tmpChildNodes = this.parentNode.childNodes;
+                                    for(var nodeIndex=0;nodeIndex<tmpChildNodes.length;nodeIndex++){
+                                        if(tmpChildNodes[nodeIndex] == this.nextSibling){
+                                            this.parentNode.insertBefore(this.node, this.nextSibling);
+                                            break;
+                                        }
+                                    }
                                 } else {
                                     this.parentNode.appendChild(this.node);
                                 }
