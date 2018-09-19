@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:18.9.6');
+console.log('nice-mvvm version:18.9.19');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -117,7 +117,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
         } else {
             //把缓存放回去
             var newElement = document.getElementById(mvvmElementId);
-            newElement.innerHTML = "";
+            newElement.innerHTML = '';
             while (mvvmElement.childNodes && mvvmElement.childNodes.length > 0) {
                 newElement.appendChild(mvvmElement.firstChild);
             }
@@ -161,7 +161,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
 
             if (!find) {
                 //尝试是否是数组形式的
-                var proReg = new RegExp("^" + expression + '\\.[0-9]+\\..*');
+                var proReg = new RegExp('^' + expression + '\\.[0-9]+\\..*');
                 for (var pro in $SCOPE.$DATA_SOLID_COPY) {
                     if (proReg.test(pro)) {
                         if (!$SCOPE.$V2M_NODE_MAP[expression]) {
@@ -320,6 +320,11 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                             if (!proPathVal) {
                                 proPathVal = [];
                             }
+                            //如果是字符串，那么就按逗号分隔了看
+                            var proPathValType = typeof proPathVal;
+                            if(proPathValType === 'string'){
+                                proPathVal = proPathVal.split(',');
+                            }
                             if (node.checked) {
                                 var findSameVal = false;
                                 for (var i = 0; i < proPathVal.length; i++) {
@@ -328,6 +333,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                                         break;
                                     }
                                 }
+                                
                                 if (!findSameVal) {
                                     proPathVal.push(node.value);
                                 }
@@ -342,6 +348,11 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                                 if (spliceIndex >= 0) {
                                     proPathVal.splice(spliceIndex, 1);
                                 }
+                            }
+
+                            if(proPathValType === 'string'){
+                                //如果是字符串，那么还是要换回字符串
+                                proPathVal = proPathVal.join(',');
                             }
                             $SCOPE.$SET_VAL(proPath, proPathVal);
                         } else {
@@ -737,7 +748,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             for (var i = 0; i < expressionAry.length; i++) {
                 var node_nc_id = $SCOPE.$NODE_ID_POINT++;
                 if (node_nc_ids.length > 0) {
-                    node_nc_ids = node_nc_ids + ",";
+                    node_nc_ids = node_nc_ids + ',';
                 }
                 node_nc_ids = node_nc_ids + node_nc_id;
                 $SCOPE.$ADD_V2M_NODE_MAP(expressionAry[i].expression, {
@@ -849,7 +860,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                                 var newProPath = '';
                                 for (var i = 0; i < words.length - 1; i++) {
                                     if (words[i].length > 0) {
-                                        if (words[i].substring(words[i].length - 1) == ".") {
+                                        if (words[i].substring(words[i].length - 1) == '.') {
                                             newProPath = newProPath + words[i] + pro;
                                         } else {
                                             newProPath = newProPath + words[i] + '$SCOPE.$DATA.' + pro;
