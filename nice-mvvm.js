@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:18.9.19');
+console.log('nice-mvvm version:18.10.12');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -187,7 +187,9 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 //尝试常量表达式解析，如果能解析，那就直接作为常量值
                 try {
                     var val = eval(expression);
-                    nodePack.render(expression, val);
+                    if(val !== undefined){//如果expression是"item.name"这样的零时变量，根本不会有值
+                    	nodePack.render(expression, val);
+                    }
                 } catch (err) {
                 }
             }
@@ -600,11 +602,17 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                                 if (this.nextSibling) {
                                     //2018-9-6 nc-if可能会导致节点的兄弟关系改变，因此需要再次确认是否真的是兄弟节点，才做插入
                                     var tmpChildNodes = this.parentNode.childNodes;
+                                    var findNextSibling = false;
                                     for(var nodeIndex=0;nodeIndex<tmpChildNodes.length;nodeIndex++){
                                         if(tmpChildNodes[nodeIndex] == this.nextSibling){
                                             this.parentNode.insertBefore(this.node, this.nextSibling);
+                                            findNextSibling = true;
                                             break;
                                         }
+                                    }
+                                    if(!findNextSibling){
+                                    	//ie8下可能会出现：两个挨着的标签都有nc-if，那么第一个标签会一直存在一个sibling，可是实际上当只有第一个标签显示的时候，他是没有sibling的，ie8就是这样，所以需要反复确认
+                                    	this.parentNode.appendChild(this.node);
                                     }
                                 } else {
                                     this.parentNode.appendChild(this.node);
