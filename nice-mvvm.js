@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2017 CaiDongyu
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -60,6 +60,10 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     };
     //在nice-mvvm刷新周期内，会被主动调用一次。
     var $AFTER_FLUSH_CALLBACK_ARY = [];
+    //fun 回调函数
+    //timeOut 多少毫秒执行一次，超过设定值才会执行
+    //repeat 是否重复执行
+    //id 用来$onflush重复调用时候去重，如果id已存在，就会跟新对应的fun和参数，如果不存在，追加到末尾
     var $onflush = function (fun,timeOut,repeat,id) {
         timeOut = timeOut?timeOut:0;
 
@@ -86,7 +90,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 startTime:new Date().getTime()
             });
         }
-        
+
     };
 
     //强制刷新参数关联的所有node节点，无论是否在获取焦点的状态下
@@ -98,7 +102,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             proPathAry.push(proPath);
         }
         for (var i = 0; i < proPathAry.length; i++) {
-            $APPLY_PRO_PATH_MAP[proPathAry[i]] = true;//构造map，只是为了降低时间复杂度   
+            $APPLY_PRO_PATH_MAP[proPathAry[i]] = true;//构造map，只是为了降低时间复杂度
         }
 
         $SCOPE.$FLUSH();
@@ -137,7 +141,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             expression = expression.replace(/\[/g, '.');
             expression = expression.replace(/\]/g, '');
 
-            
+
             var find = false;
             for (var pro in $SCOPE.$DATA_SOLID_COPY) {
                 var expression_ = $SCOPE.$REPLACE_PROPATH(expression, pro, '');
@@ -188,7 +192,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 try {
                     var val = eval(expression);
                     if(val !== undefined){//如果expression是"item.name"这样的零时变量，根本不会有值
-                    	nodePack.render(expression, val);
+                        nodePack.render(expression, val);
                     }
                 } catch (err) {
                 }
@@ -335,7 +339,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                                         break;
                                     }
                                 }
-                                
+
                                 if (!findSameVal) {
                                     proPathVal.push(node.value);
                                 }
@@ -611,8 +615,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                                         }
                                     }
                                     if(!findNextSibling){
-                                    	//ie8下可能会出现：两个挨着的标签都有nc-if，那么第一个标签会一直存在一个sibling，可是实际上当只有第一个标签显示的时候，他是没有sibling的，ie8就是这样，所以需要反复确认
-                                    	this.parentNode.appendChild(this.node);
+                                        //ie8下可能会出现：两个挨着的标签都有nc-if，那么第一个标签会一直存在一个sibling，可是实际上当只有第一个标签显示的时候，他是没有sibling的，ie8就是这样，所以需要反复确认
+                                        this.parentNode.appendChild(this.node);
                                     }
                                 } else {
                                     this.parentNode.appendChild(this.node);
@@ -1225,4 +1229,3 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
         '$stop': $stop
     };
 };
-
