@@ -738,7 +738,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
 
                 nodeTxtAry.push({
                     'name': second,
-                    'value': '',
+                    'value': second.indexOf('.$index')>0?second:'',//对下标变量进行额外过滤，不需要进行变量解析，用原文本进行代替，避免解析过程中出现提前解析
                     'filterParamAry': filterParamAry
                 });
 

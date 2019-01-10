@@ -6,24 +6,20 @@
 <body id="body_">
 	MVVM第一个实例：
 	<div id="NM_1">
-		<p nc-text="{{user.name}}{{user.age}}"></p>
-		<textarea onchange="$scope1.user.age=this.value;NM_1.$watch('user.age',function(age){this.value=age;});">{{user.age}}</textarea>
-		<button onclick="add()">click</button>
+		<p nc-for="row in list">
+			<a onclick="clickM({{row.$index}},{{l.$index}})" nc-for="l in row.list2">a</a>
+		</p>
 	</div>
+
 </body>
 <script type="text/javascript" src="nice-mvvm.js"></script>
 <script type="text/javascript">
 	//新建MVVM实例
 	var NM_1 = $NICE_MVVM('NM_1');
-	$scope1 = NM_1.$scope;//拿到数据绑定对象
-	$scope1.user = new Object();
-	$scope1.user.name = "zhangsan";
-	$scope1.user.age=10;
+	var $scope1 = NM_1.$scope;//拿到数据绑定对象
+	$scope1.list = [{list2:[{name:"xxx1	"},{name:"xxx2"}]},{list2:[{name:"xxx3	"},{name:"xxx4"}]}];
 	NM_1.$init();//初始化MVVM
 
-	function add(){
-		$scope1.user.age++;
-	}
 </script>
 
 
