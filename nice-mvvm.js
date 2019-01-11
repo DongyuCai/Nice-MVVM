@@ -122,28 +122,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             //把缓存放回去
             var newElement = document.getElementById(mvvmElementId);
             newElement.innerHTML = '';
-            var fcAry = [];
             while (mvvmElement.childNodes && mvvmElement.childNodes.length > 0) {
-                var fc = mvvmElement.firstChild;
-                newElement.appendChild(fc);
-                fcAry.push(fc);
-            }
-            for(var fcIndex=0;fcIndex<fcAry.length;fcIndex++){
-                //如果原先的child是托管的，那么要更新parentNode
-                var fc = fcAry[fcIndex];
-                if(fc['$NICE_MVVM.pro'] && fc['$NICE_MVVM.id']){
-                    var nodePackAry = $SCOPE.$V2M_NODE_MAP[fc['$NICE_MVVM.pro']];
-                    for(var npaIndex=0;nodePackAry && npaIndex<nodePackAry.length;npaIndex++){
-                        if(nodePackAry[npaIndex].id == fc['$NICE_MVVM.id']){
-                            if(nodePackAry[npaIndex]['parentNode']){
-                                nodePackAry[npaIndex]['parentNode'] = fc.parentNode;
-                            }
-                            if(nodePackAry[npaIndex]['nextSibling']){
-                                nodePackAry[npaIndex]['nextSibling'] = fc.nextSibling;
-                            }
-                        }
-                    }
-                }
+                newElement.appendChild(mvvmElement.firstChild);
             }
             for(var nodePackKey in $SCOPE.$V2M_NODE_MAP){
                 var nodePackAry = $SCOPE.$V2M_NODE_MAP[nodePackKey];
@@ -189,8 +169,6 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                         }
                     }
                     if (!dublicNode) {
-                        nodePack.node['$NICE_MVVM.pro']=pro;
-                        nodePack.node['$NICE_MVVM.id']=nodePack.id;
                         $SCOPE.$V2M_NODE_MAP[pro].push($SCOPE.$COPY_NODE_PACK(nodePack));
                     }
                 }
@@ -211,8 +189,6 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                             }
                         }
                         if (!dublicNode) {
-                            nodePack.node['$NICE_MVVM.pro']=expression;
-                            nodePack.node['$NICE_MVVM.id']=nodePack.id;
                             $SCOPE.$V2M_NODE_MAP[expression].push($SCOPE.$COPY_NODE_PACK(nodePack));
                         }
 
@@ -581,10 +557,6 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                                         'node': newNode,
                                         'nodePackIds': nodePackIds//留着用来删除用
                                     });
-
-                                    //更新pro和id
-                                    newNode['$NICE_MVVM.pro'] = this.node['$NICE_MVVM.pro'];
-                                    newNode['$NICE_MVVM.id'] = this.node['$NICE_MVVM.id'];
                                 }
                             } else if (val.length < this.newNodeAry.length) {
                                 var removeNum = this.newNodeAry.length - val.length;
