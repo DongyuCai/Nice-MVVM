@@ -126,7 +126,6 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             while (mvvmElement.childNodes && mvvmElement.childNodes.length > 0) {
                 var fc = mvvmElement.firstChild;
                 newElement.appendChild(fc);
-                console.log(fc['$NICE_MVVM.pro']);
                 fcAry.push(fc);
             }
             for(var fcIndex=0;fcIndex<fcAry.length;fcIndex++){
@@ -148,6 +147,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
             }
             mvvmElement = newElement;
             $STOP_FLAG = false;//继续开始刷新
+            $SCOPE.$NEED_AFTER_RENDER = true;
+            $SCOPE.timeOut = 1;//检测到需要渲染，那么刷新率改成1毫秒
             $SCOPE.$INTERVAL();//再次启动定时机
             return false;
         }
