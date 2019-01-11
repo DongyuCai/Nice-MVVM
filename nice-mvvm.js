@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:19.1.10');
+console.log('nice-mvvm version:19.1.11');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -126,7 +126,8 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 newElement.appendChild(mvvmElement.firstChild);
             }
             mvvmElement = newElement;
-
+            $STOP_FLAG = false;//继续开始刷新
+            $SCOPE.$INTERVAL();//再次启动定时机
             return false;
         }
 
