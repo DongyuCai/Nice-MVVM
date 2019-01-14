@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:19.1.11');
+console.log('nice-mvvm version:19.1.14');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -68,29 +68,32 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
         timeOut = timeOut?timeOut:0;
 
         var exists = false;
+        var flushObject = {};
         for(var i=0;i<$AFTER_FLUSH_CALLBACK_ARY.length;i++){
             if($AFTER_FLUSH_CALLBACK_ARY[i].id && $AFTER_FLUSH_CALLBACK_ARY[i].id==id){
-                $AFTER_FLUSH_CALLBACK_ARY[i] = {
+                flushObject = {
                     fun:fun,
                     timeOut:timeOut,
                     repeat:repeat,
                     id:id,
                     startTime:new Date().getTime()
                 };
+                $AFTER_FLUSH_CALLBACK_ARY[i] = flushObject;
                 break;
                 exists = true;
             }
         }
         if(!exists){
-            $AFTER_FLUSH_CALLBACK_ARY.push({
+            flushObject = {
                 fun:fun,
                 timeOut:timeOut,
                 repeat:repeat,
                 id:id,
                 startTime:new Date().getTime()
-            });
+            };
+            $AFTER_FLUSH_CALLBACK_ARY.push(flushObject);
         }
-
+        return flushObject;
     };
 
     //强制刷新参数关联的所有node节点，无论是否在获取焦点的状态下
