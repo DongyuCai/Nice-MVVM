@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:19.1.14');
+console.log('nice-mvvm version:19.1.15');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -1136,19 +1136,19 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 for (var afterFlushIndex=0;afterFlushIndex<$AFTER_FLUSH_CALLBACK_ARY.length;afterFlushIndex++) {
                     var afterFlushObj = $AFTER_FLUSH_CALLBACK_ARY[afterFlushIndex];
                     var afterFlushDurTime = new Date().getTime()-afterFlushObj.startTime;
-                    var afterFushExcuted = false;
+                    var afterFlushExcuted = false;
                     if(afterFlushDurTime>afterFlushObj.timeOut){
                         afterFlushObj.fun();
                         afterFlushObj.startTime = new Date().getTime();
-                        afterFushExcuted = true;
+                        afterFlushExcuted = true;
                     }
-                    if(!afterFushExcuted){
+                    if(!afterFlushExcuted){
                         NEXT_AFTER_FLUSH_CALLBACK_ARY.push(afterFlushObj);
                     }else if(afterFlushObj.repeat){
                         NEXT_AFTER_FLUSH_CALLBACK_ARY.push(afterFlushObj);
                     }
-                    $AFTER_FLUSH_CALLBACK_ARY = NEXT_AFTER_FLUSH_CALLBACK_ARY;
                 }
+                $AFTER_FLUSH_CALLBACK_ARY = NEXT_AFTER_FLUSH_CALLBACK_ARY;
 
             }
 
