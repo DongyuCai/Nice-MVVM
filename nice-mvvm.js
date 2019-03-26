@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:19.1.15');
+console.log('nice-mvvm version:19.1.16');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -1156,6 +1156,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
 
         //parentNodePackIds形如 ,1,2,
         $SCOPE.$INIT_MVVM = function (node, parentNodePackIds) {
+            if(!node) return '';
             ///Attribute  nodeType值为2，表示节点属性
             ///Comment    nodeType值为8，表示注释文本
             ///Document   nodeType值为9，表示Document
