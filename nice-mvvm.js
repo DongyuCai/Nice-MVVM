@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:19.1.16');
+console.log('nice-mvvm version:19.4.4');//修复GET_VAL bug  indexOf改用正则匹配
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -879,7 +879,10 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                     //有可能是 !name
                     //还有可能是 name.something 或者 age-1这样
                     for (var pro in $SCOPE.$DATA_SOLID_COPY) {
-                        if (proPath.indexOf(pro) >= 0) {
+                        //abc  a.abc  a.abc.a  a.abc[1]
+                        var proPathReg = new RegExp('^(.*\\\.)?'+pro+'([\\\.|\\\[].*)?$');
+                        if (proPathReg.test(proPath)) {
+                        // if (proPath.indexOf(pro) >= 0) {
                             var words = proPath.split(pro);
                             //比如 ' user.name' 按照'user.name'分解会有一个空格和一个'user.name'
                             if (words.length > 1) {
