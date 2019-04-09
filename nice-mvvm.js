@@ -881,7 +881,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                     //还有可能是 name.something 或者 age-1这样
                     for (var pro in $SCOPE.$DATA_SOLID_COPY) {
                         //abc  a.abc  a.abc.a  a.abc[1]
-                        var proPathReg = new RegExp('^(.*\\\.)?'+pro+'([\\\)|\\\.|\\\[|\\\+|\\\-|\\\*|\\\/|=|>|<|\\\!|\\\%| ].*)?$');
+                        var proPathReg = new RegExp('^(.*[^a-zA-Z0-9_])?'+pro+'([^a-zA-Z0-9_].*)?$');//new RegExp('^(.*\\\.)?'+pro+'([\\\)|\\\.|\\\[|\\\+|\\\-|\\\*|\\\/|=|>|<|\\\!|\\\%| ].*)?$');
                         if (proPathReg.test(proPath)) {
                         // if (proPath.indexOf(pro) >= 0) {
                             var words = proPath.split(pro);
