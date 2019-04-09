@@ -22,7 +22,8 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:19.4.4');//修复GET_VAL bug  indexOf改用正则匹配
+console.log('nice-mvvm version:19.4.9');//补充GET_VAL里的正则匹配项
+// console.log('nice-mvvm version:19.4.4');//修复GET_VAL bug  indexOf改用正则匹配
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -880,7 +881,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                     //还有可能是 name.something 或者 age-1这样
                     for (var pro in $SCOPE.$DATA_SOLID_COPY) {
                         //abc  a.abc  a.abc.a  a.abc[1]
-                        var proPathReg = new RegExp('^(.*\\\.)?'+pro+'([\\\.|\\\[].*)?$');
+                        var proPathReg = new RegExp('^(.*\\\.)?'+pro+'([\\\)|\\\.|\\\[|\\\+|\\\-|\\\*|\\\/|=|>|<|\\\!|\\\%| ].*)?$');
                         if (proPathReg.test(proPath)) {
                         // if (proPath.indexOf(pro) >= 0) {
                             var words = proPath.split(pro);
