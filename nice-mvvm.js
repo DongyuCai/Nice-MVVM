@@ -22,8 +22,12 @@
  * SOFTWARE.
  */
 'use strict';
-console.log('nice-mvvm version:19.4.9');//补充GET_VAL里的正则匹配项
-// console.log('nice-mvvm version:19.4.4');//修复GET_VAL bug  indexOf改用正则匹配
+//删除代码块 C001，纠正了表达式解析中，数组的取值处理问题：如果[]内不是数字，将无法取值
+console.log('nice-mvvm version:19.5.17');
+//补充GET_VAL里的正则匹配项
+// console.log('nice-mvvm version:19.4.9');
+//修复GET_VAL bug  indexOf改用正则匹配
+// console.log('nice-mvvm version:19.4.4');
 
 var $NICE_MVVM = function (mvvmElementId, excludeIds) {
     var mvvmElement = document.getElementById(mvvmElementId);
@@ -720,9 +724,10 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
 
                 //##########中间变量部分表达式的解析
                 var second = renderContent.substring(start + 2, end);//{{}}内的部分
-                //转换数组的表达形式
-                second = second.replace(/\[/g, '.');
-                second = second.replace(/\]/g, '');
+                //C001 转换数组的表达形式{
+                //second = second.replace(/\[/g, '.');
+                //second = second.replace(/\]/g, '');
+                //}
                 var filter = '';
                 if (second.indexOf('|') > 0) {
                     filter = second.substring(second.indexOf('|') + 1);
@@ -935,6 +940,7 @@ var $NICE_MVVM = function (mvvmElementId, excludeIds) {
                 var result = eval(proPath);
                 return result;
             } catch (err) {
+                // console.log(err);
                 return undefined;
             }
         };
