@@ -107,7 +107,7 @@ $.DELETE = function(url,data,successCallback,errorCallback){
     }else{
         var SUCCESS_CALL_BACK = $.GET_SUCCESS_CALL_BACK_FUN(successCallback);
         var ERROR_CALL_BACK = $.GET_ERROR_CALL_BACK_FUN(errorCallback);
-        $.delete(API_URL+url,data,{"XJP_ADMIN_TOKEN": XJP_ADMIN_TOKEN},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
+        $.del(API_URL+url,data,{"XJP_ADMIN_TOKEN": XJP_ADMIN_TOKEN},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
             $(".btn[data-loading-text]").button('reset');
         });
     }

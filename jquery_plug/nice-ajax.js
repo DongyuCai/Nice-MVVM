@@ -65,7 +65,9 @@ $.get = function (url,data,headers,successCallback,errorCallback,completeCallbac
         success:function(data){
             if(successCallback){
                 try{
-                    data = JSON.parse(data);
+                    if(isNaN(data)){
+                        data = JSON.parse(data);
+                    }
                 }catch(e){};
                 successCallback(data);
             }
@@ -101,7 +103,9 @@ $.post = function(url,data,headers,successCallback,errorCallback,completeCallbac
         success:function(data){
             if(successCallback){
                 try{
-                    data = JSON.parse(data);
+                    if(isNaN(data)){
+                        data = JSON.parse(data);
+                    }
                 }catch(e){};
                 successCallback(data);
             }
@@ -135,7 +139,9 @@ $.put = function(url,data,headers,successCallback,errorCallback,completeCallback
         success:function(data){
             if(successCallback){
                 try{
-                    data = JSON.parse(data);
+                    if(isNaN(data)){
+                        data = JSON.parse(data);
+                    }
                 }catch(e){};
                 successCallback(data);
             }
@@ -153,7 +159,7 @@ $.put = function(url,data,headers,successCallback,errorCallback,completeCallback
     });
 };
 
-$.delete = function(url,data,headers,successCallback,errorCallback,completeCallback){
+$.del = function(url,data,headers,successCallback,errorCallback,completeCallback){
     $.ajax({
         url:url,
         type:"DELETE",
@@ -168,7 +174,9 @@ $.delete = function(url,data,headers,successCallback,errorCallback,completeCallb
         success:function(data){
             if(successCallback){
                 try{
-                    data = JSON.parse(data);
+                    if(isNaN(data)){
+                        data = JSON.parse(data);
+                    }
                 }catch(e){};
                 successCallback(data);
             }
