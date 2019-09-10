@@ -36,14 +36,14 @@ $.GET_ERROR_CALL_BACK_FUN = function(errorCallback){
 $.SUBMIT_FORM = function(formId,url,successCallback,errorCallback){
     $(".btn[data-loading-text]").button('loading');
 
-    var XJP_ADMIN_TOKEN = $.cookie('XJP_ADMIN_TOKEN');
-    if(!XJP_ADMIN_TOKEN){
+    var token = $.cookie('XJP-ADMIN-TOKEN');
+    if(!token){
         //跳转登录页
         location.href="/login.html";
     }else{
         var SUCCESS_CALL_BACK = $.GET_SUCCESS_CALL_BACK_FUN(successCallback);
         var ERROR_CALL_BACK = $.GET_ERROR_CALL_BACK_FUN(errorCallback);
-        $.submitForm(formId,API_URL+url,{"XJP_ADMIN_TOKEN": XJP_ADMIN_TOKEN},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
+        $.submitForm(formId,API_URL+url,{'XJP-ADMIN-TOKEN': token},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
             $(".btn[data-loading-text]").button('reset');
         });
     }
@@ -52,13 +52,13 @@ $.SUBMIT_FORM = function(formId,url,successCallback,errorCallback){
 $.GET = function (url,data,successCallback,errorCallback){
     $(".btn[data-loading-text]").button('loading');
 
-    var XJP_ADMIN_TOKEN = $.cookie('XJP_ADMIN_TOKEN');
-    if(!XJP_ADMIN_TOKEN){
+    var token = $.cookie('XJP-ADMIN-TOKEN');
+    if(!token){
         //跳转登录页
         location.href="/login.html";
     }else{
         var ERROR_CALL_BACK = $.GET_ERROR_CALL_BACK_FUN(errorCallback);
-        $.get(API_URL+url,data,{"XJP_ADMIN_TOKEN": XJP_ADMIN_TOKEN},successCallback,ERROR_CALL_BACK,function(){
+        $.get(API_URL+url,data,{'XJP-ADMIN-TOKEN': token},successCallback,ERROR_CALL_BACK,function(){
             $(".btn[data-loading-text]").button('reset');
         });
     }
@@ -68,14 +68,14 @@ $.GET = function (url,data,successCallback,errorCallback){
 $.POST = function(url,data,successCallback,errorCallback){
     $(".btn[data-loading-text]").button('loading');
 
-    var XJP_ADMIN_TOKEN = $.cookie('XJP_ADMIN_TOKEN');
-    if(!XJP_ADMIN_TOKEN){
+    var token = $.cookie('XJP-ADMIN-TOKEN');
+    if(!token){
         //跳转登录页
         location.href="/login.html";
     }else{
         var SUCCESS_CALL_BACK = $.GET_SUCCESS_CALL_BACK_FUN(successCallback);
         var ERROR_CALL_BACK = $.GET_ERROR_CALL_BACK_FUN(errorCallback);
-        $.post(API_URL+url,data,{"XJP_ADMIN_TOKEN": XJP_ADMIN_TOKEN},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
+        $.post(API_URL+url,data,{'XJP-ADMIN-TOKEN': token},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
             $(".btn[data-loading-text]").button('reset');
         });
     }
@@ -84,14 +84,14 @@ $.POST = function(url,data,successCallback,errorCallback){
 $.PUT = function(url,data,successCallback,errorCallback){
     $(".btn[data-loading-text]").button('loading');
 
-    var XJP_ADMIN_TOKEN = $.cookie('XJP_ADMIN_TOKEN');
-    if(!XJP_ADMIN_TOKEN){
+    var token = $.cookie('XJP-ADMIN-TOKEN');
+    if(!token){
         //跳转登录页
         location.href="/login.html";
     }else{
         var SUCCESS_CALL_BACK = $.GET_SUCCESS_CALL_BACK_FUN(successCallback);
         var ERROR_CALL_BACK = $.GET_ERROR_CALL_BACK_FUN(errorCallback);
-        $.put(API_URL+url,data,{"XJP_ADMIN_TOKEN": XJP_ADMIN_TOKEN},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
+        $.put(API_URL+url,data,{'XJP-ADMIN-TOKEN': token},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
             $(".btn[data-loading-text]").button('reset');
         });
     }
@@ -100,14 +100,14 @@ $.PUT = function(url,data,successCallback,errorCallback){
 $.DELETE = function(url,data,successCallback,errorCallback){
     $(".btn[data-loading-text]").button('loading');
 
-    var XJP_ADMIN_TOKEN = $.cookie('XJP_ADMIN_TOKEN');
-    if(!XJP_ADMIN_TOKEN){
+    var token = $.cookie('XJP-ADMIN-TOKEN');
+    if(!token){
         //跳转登录页
         location.href="/login.html";
     }else{
         var SUCCESS_CALL_BACK = $.GET_SUCCESS_CALL_BACK_FUN(successCallback);
         var ERROR_CALL_BACK = $.GET_ERROR_CALL_BACK_FUN(errorCallback);
-        $.del(API_URL+url,data,{"XJP_ADMIN_TOKEN": XJP_ADMIN_TOKEN},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
+        $.del(API_URL+url,data,{'XJP-ADMIN-TOKEN': token},SUCCESS_CALL_BACK,ERROR_CALL_BACK,function(){
             $(".btn[data-loading-text]").button('reset');
         });
     }
