@@ -49,6 +49,20 @@ $.submitForm = function(formId,url,headers,successCallback,errorCallback,complet
     });
 };
 
+var NICE_AJAX_ANTI_REPEAT_REQUEST_MAP = {};
+function checkRequestIfRepeat(method,url){
+	var flag = method+" "+url;
+	if(NICE_AJAX_ANTI_REPEAT_REQUEST_MAP[flag]){
+		return true;
+	}else{
+		NICE_AJAX_ANTI_REPEAT_REQUEST_MAP[flag] = function(){
+			setTimeout(function(){
+				delete NICE_AJAX_ANTI_REPEAT_REQUEST_MAP[flag];
+			},2000);
+		};
+		return false;
+	}
+}
 $.get = function (url,data,headers,successCallback,errorCallback,completeCallback){
     $.ajax({
         url:url,
@@ -87,6 +101,9 @@ $.get = function (url,data,headers,successCallback,errorCallback,completeCallbac
 
 
 $.post = function(url,data,headers,successCallback,errorCallback,completeCallback){
+	if(!checkRequestIfRepeat("POST",url)){
+		return false;
+	}
     $.ajax({
         url:url,
         type:"POST",
@@ -124,6 +141,9 @@ $.post = function(url,data,headers,successCallback,errorCallback,completeCallbac
 };
 
 $.put = function(url,data,headers,successCallback,errorCallback,completeCallback){
+	if(!checkRequestIfRepeat("PUT",url)){
+		return false;
+	}
     $.ajax({
         url:url,
         type:"PUT",
@@ -160,6 +180,9 @@ $.put = function(url,data,headers,successCallback,errorCallback,completeCallback
 };
 
 $.del = function(url,data,headers,successCallback,errorCallback,completeCallback){
+	if(!checkRequestIfRepeat("DELETE",url)){
+		return false;
+	}
     $.ajax({
         url:url,
         type:"DELETE",
