@@ -53,16 +53,22 @@ var NICE_AJAX_ANTI_REPEAT_REQUEST_MAP = {};
 function checkRequestIfRepeat(method,url){
 	var flag = method+" "+url;
 	if(NICE_AJAX_ANTI_REPEAT_REQUEST_MAP[flag]){
+		//console.log("repeat "+flag);
 		return true;
 	}else{
-		NICE_AJAX_ANTI_REPEAT_REQUEST_MAP[flag] = function(){
-			setTimeout(function(){
-				delete NICE_AJAX_ANTI_REPEAT_REQUEST_MAP[flag];
-			},2000);
-		};
+		//console.log("first "+flag);
+		NICE_AJAX_ANTI_REPEAT_REQUEST_MAP[flag] = true;
+		cleanRequestFlagIfTimeout(flag);
 		return false;
 	}
 }
+function cleanRequestFlagIfTimeout(flag){
+	setTimeout(function(){
+		//console.log("clean "+flag);
+		delete NICE_AJAX_ANTI_REPEAT_REQUEST_MAP[flag];
+	},2000);
+};
+
 $.get = function (url,data,headers,successCallback,errorCallback,completeCallback){
     $.ajax({
         url:url,
@@ -101,7 +107,7 @@ $.get = function (url,data,headers,successCallback,errorCallback,completeCallbac
 
 
 $.post = function(url,data,headers,successCallback,errorCallback,completeCallback){
-	if(!checkRequestIfRepeat("POST",url)){
+	if(checkRequestIfRepeat("POST",url)){
 		return false;
 	}
     $.ajax({
@@ -141,7 +147,7 @@ $.post = function(url,data,headers,successCallback,errorCallback,completeCallbac
 };
 
 $.put = function(url,data,headers,successCallback,errorCallback,completeCallback){
-	if(!checkRequestIfRepeat("PUT",url)){
+	if(checkRequestIfRepeat("PUT",url)){
 		return false;
 	}
     $.ajax({
@@ -180,7 +186,7 @@ $.put = function(url,data,headers,successCallback,errorCallback,completeCallback
 };
 
 $.del = function(url,data,headers,successCallback,errorCallback,completeCallback){
-	if(!checkRequestIfRepeat("DELETE",url)){
+	if(checkRequestIfRepeat("DELETE",url)){
 		return false;
 	}
     $.ajax({
